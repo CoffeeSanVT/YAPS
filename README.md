@@ -6,6 +6,8 @@
 
 I made YAPS mostly for my personal use so wont will be consistent updates, but if someone find a bug, something could be batter or new features you can make a issue requesting and i`ll take a look at it​
 
+## [Docs](https://github.com/CoffeeSanVT/YAPS/wiki)
+
 ## Credits
 
 Logo and icon made by  [@Luccuavt  ](https://x.com/Luccuavt)
