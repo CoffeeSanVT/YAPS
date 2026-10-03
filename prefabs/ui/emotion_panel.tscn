@@ -1,0 +1,165 @@
+[gd_scene format=3 uid="uid://br7lir8qldm5a"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_mar2q"]
+[ext_resource type="Script" uid="uid://nsoivr2c8jhl" path="res://script/ui/panels/emotion_panel.gd" id="1_x483a"]
+[ext_resource type="StyleBox" uid="uid://cjct721y6ocun" path="res://themes/card-secondary-style.tres" id="2_nbf34"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="3_mar2q"]
+[ext_resource type="Texture2D" uid="uid://qyabvnn6x3rd" path="res://assets/icons/runtime/pencil/pencil_normal.svg" id="4_pencil_n"]
+[ext_resource type="Texture2D" uid="uid://br45bxytsbnxx" path="res://assets/icons/runtime/pencil/pencil_hover.svg" id="5_pencil_h"]
+[ext_resource type="Texture2D" uid="uid://bksbqck24mwac" path="res://assets/icons/runtime/pencil/pencil_pressed.svg" id="6_pencil_p"]
+[ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/runtime/pencil/pencil_disabled.svg" id="7_pencil_d"]
+[ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/runtime/pencil/pencil_focused.svg" id="8_pencil_f"]
+[ext_resource type="PackedScene" uid="uid://d1q6ma2vw4h7n" path="res://prefabs/ui/triggers/twitch_event_foldable.tscn" id="9_twitch_foldable"]
+
+[node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("trigger_foldable", "options_button", "trigger_options", "twitch_foldable", "effects_hint", "movement_option", "movement_options", "filter_option", "filter_options", "tile_text", "rename_button", "default_button")]
+custom_minimum_size = Vector2(270, 0)
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme = ExtResource("1_mar2q")
+theme_override_styles/panel = ExtResource("2_nbf34")
+script = ExtResource("1_x483a")
+trigger_foldable = NodePath("VBoxContainer/TriggerContainer")
+options_button = NodePath("VBoxContainer/TriggerContainer/VBoxContainer/OptionButton")
+trigger_options = NodePath("VBoxContainer/TriggerContainer/VBoxContainer/TriggerOptions")
+twitch_foldable = NodePath("VBoxContainer/TwitchEventFoldable")
+effects_hint = NodePath("VBoxContainer/EffectContainer/VBoxContainer/EffectsHint")
+movement_option = NodePath("VBoxContainer/EffectContainer/VBoxContainer/MovementOption")
+movement_options = NodePath("VBoxContainer/EffectContainer/VBoxContainer/MovementOptions")
+filter_option = NodePath("VBoxContainer/EffectContainer/VBoxContainer/FilterOption")
+filter_options = NodePath("VBoxContainer/EffectContainer/VBoxContainer/FilterOptions")
+tile_text = NodePath("VBoxContainer/Title/Tile")
+rename_button = NodePath("VBoxContainer/Title/RenameButton")
+default_button = NodePath("VBoxContainer/HBoxContainer/DefaultButton")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=179743058]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="Title" type="HBoxContainer" parent="VBoxContainer" unique_id=179743059]
+layout_mode = 2
+
+[node name="RenameButton" type="TextureButton" parent="VBoxContainer/Title" unique_id=1316879090]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+tooltip_text = "RENAME"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("4_pencil_n")
+texture_pressed = ExtResource("6_pencil_p")
+texture_hover = ExtResource("5_pencil_h")
+texture_disabled = ExtResource("7_pencil_d")
+texture_focused = ExtResource("8_pencil_f")
+stretch_mode = 5
+
+[node name="Tile" type="Label" parent="VBoxContainer/Title" unique_id=1316879085]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Emotion Name"
+
+[node name="TriggerContainer" type="FoldableContainer" parent="VBoxContainer" unique_id=373899460]
+layout_mode = 2
+folded = true
+title = "Trigger"
+metadata/localization_key = &"TRIGGER"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/TriggerContainer" unique_id=1297411099]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TriggerContainer" unique_id=1384033351]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="OptionButton" type="OptionButton" parent="VBoxContainer/TriggerContainer/VBoxContainer" unique_id=1170241654]
+layout_mode = 2
+fit_to_longest_item = false
+
+[node name="TriggerOptions" type="VBoxContainer" parent="VBoxContainer/TriggerContainer/VBoxContainer" unique_id=1484281251]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="EffectContainer" type="FoldableContainer" parent="VBoxContainer" unique_id=716436688]
+layout_mode = 2
+folded = true
+title = "Effects"
+metadata/localization_key = &"EFFECT"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/EffectContainer" unique_id=177003874]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/EffectContainer" unique_id=1800674050]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="EffectsHint" type="Label" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=1507607481]
+layout_mode = 2
+text = "Global: None"
+
+[node name="MovementLabel" type="Label" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=804677039]
+layout_mode = 2
+text = "Movement"
+metadata/localization_key = &"EFFECT_CATEGORY_MOVEMENT"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/EffectContainer/VBoxContainer/MovementLabel" unique_id=1682189627]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="MovementOption" type="OptionButton" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=1318017167]
+layout_mode = 2
+fit_to_longest_item = false
+
+[node name="MovementOptions" type="VBoxContainer" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=398235908]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FilterLabel" type="Label" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=241208242]
+layout_mode = 2
+text = "Filter"
+metadata/localization_key = &"EFFECT_CATEGORY_FILTER"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/EffectContainer/VBoxContainer/FilterLabel" unique_id=912432772]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="FilterOption" type="OptionButton" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=381100414]
+layout_mode = 2
+fit_to_longest_item = false
+
+[node name="FilterOptions" type="VBoxContainer" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=286691991]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=1571479097]
+layout_mode = 2
+
+[node name="DefaultLabel" type="Label" parent="VBoxContainer/HBoxContainer" unique_id=348281448]
+layout_mode = 2
+text = "Mark as default"
+metadata/localization_key = &"MARK_AS_DEFAULT"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/HBoxContainer/DefaultLabel" unique_id=264332440]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/HBoxContainer" unique_id=2054615848]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DefaultButton" type="CheckButton" parent="VBoxContainer/HBoxContainer" unique_id=264332439]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="TwitchEventFoldable" parent="VBoxContainer" unique_id=256149270 instance=ExtResource("9_twitch_foldable")]
+layout_mode = 2
+
+[connection signal="pressed" from="VBoxContainer/Title/RenameButton" to="." method="_on_rename_pressed"]
+[connection signal="item_selected" from="VBoxContainer/TriggerContainer/VBoxContainer/OptionButton" to="." method="_on_option_button_item_selected"]
+[connection signal="item_selected" from="VBoxContainer/EffectContainer/VBoxContainer/MovementOption" to="." method="_on_movement_option_item_selected"]
+[connection signal="item_selected" from="VBoxContainer/EffectContainer/VBoxContainer/FilterOption" to="." method="_on_filter_option_item_selected"]
+[connection signal="toggled" from="VBoxContainer/HBoxContainer/DefaultButton" to="." method="_on_default_toggled"]

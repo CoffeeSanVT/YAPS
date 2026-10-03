@@ -1,0 +1,196 @@
+[gd_scene format=3 uid="uid://bx063encrhgg0"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_ro3t7"]
+[ext_resource type="Texture2D" uid="uid://u15fl7gkwy2l" path="res://assets/icons/runtime/user/user_normal.svg" id="2_k36ej"]
+[ext_resource type="Texture2D" uid="uid://drjq5stnsbyk6" path="res://assets/icons/runtime/user/user_pressed.svg" id="3_f5uxb"]
+[ext_resource type="Texture2D" uid="uid://k08cupvn7766" path="res://assets/icons/runtime/user/user_hover.svg" id="4_1xvxm"]
+[ext_resource type="Texture2D" uid="uid://bh144b7qytf1y" path="res://assets/icons/runtime/user/user_disabled.svg" id="5_4y6c7"]
+[ext_resource type="Texture2D" uid="uid://dwe1yiwiixccg" path="res://assets/icons/runtime/user/user_focused.svg" id="6_2xwy7"]
+[ext_resource type="Texture2D" uid="uid://bs7pnn51bu6m0" path="res://assets/icons/runtime/face/face_normal.svg" id="7_s257n"]
+[ext_resource type="Texture2D" uid="uid://geoqyv1crooq" path="res://assets/icons/runtime/face/face_pressed.svg" id="8_jymg3"]
+[ext_resource type="Texture2D" uid="uid://cnavfaqh4137w" path="res://assets/icons/runtime/face/face_hover.svg" id="9_w82uk"]
+[ext_resource type="Texture2D" uid="uid://74ena7lk1got" path="res://assets/icons/runtime/face/face_disabled.svg" id="10_7j22p"]
+[ext_resource type="Texture2D" uid="uid://3127xsjpaxrx" path="res://assets/icons/runtime/face/face_focused.svg" id="11_ded4u"]
+[ext_resource type="Texture2D" uid="uid://bvwyws66tqlur" path="res://assets/icons/runtime/media/media_normal.svg" id="12_tb1vu"]
+[ext_resource type="Texture2D" uid="uid://n30sdg1vuaag" path="res://assets/icons/runtime/media/media_pressed.svg" id="13_houof"]
+[ext_resource type="Texture2D" uid="uid://dv3lc1i4nk6o7" path="res://assets/icons/runtime/media/media_hover.svg" id="14_ecvn2"]
+[ext_resource type="Texture2D" uid="uid://qwot14y6ucxi" path="res://assets/icons/runtime/media/media_disabled.svg" id="15_qspfu"]
+[ext_resource type="Texture2D" uid="uid://cy1f1fkr3ll0v" path="res://assets/icons/runtime/media/media_focused.svg" id="16_qog5p"]
+[ext_resource type="Texture2D" uid="uid://cl0aj1h3on42d" path="res://assets/icons/runtime/cog/cog_normal.svg" id="17_f70oh"]
+[ext_resource type="Texture2D" uid="uid://cga1arcgwvkno" path="res://assets/icons/runtime/cog/cog_pressed.svg" id="18_cc70q"]
+[ext_resource type="Texture2D" uid="uid://c0opmjcdn13vt" path="res://assets/icons/runtime/cog/cog_hover.svg" id="19_jw3jg"]
+[ext_resource type="Texture2D" uid="uid://dj8725qkcv8r3" path="res://assets/icons/runtime/cog/cog_disabled.svg" id="20_j7qfw"]
+[ext_resource type="Texture2D" uid="uid://cwaefupol4pps" path="res://assets/icons/runtime/cog/cog_focused.svg" id="21_n71uf"]
+[ext_resource type="Script" uid="uid://cd3oo2nwhiff8" path="res://script/ui/tab_switcher.gd" id="22_tabsw"]
+[ext_resource type="PackedScene" uid="uid://3vw0qnsmd224" path="res://prefabs/ui/tabs/assets_tab.tscn" id="TAB_ASSETS"]
+[ext_resource type="PackedScene" uid="uid://bopm7senhpsaj" path="res://prefabs/ui/tabs/settings_tab.tscn" id="TAB_CFG"]
+[ext_resource type="PackedScene" uid="uid://clvm68t5kh57j" path="res://prefabs/ui/tabs/expressions_tab.tscn" id="TAB_EXPR"]
+[ext_resource type="PackedScene" uid="uid://1bybgvhide5i" path="res://prefabs/ui/tabs/model_tab.tscn" id="TAB_MODEL"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nt86m"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.286275, 0.270588, 0.294118, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+shadow_color = Color(0, 0, 0, 0.1254902)
+shadow_size = 8
+shadow_offset = Vector2(0, -2)
+
+[node name="UI" type="Control" unique_id=545861564]
+texture_filter = 4
+custom_minimum_size = Vector2(0.355, 0)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1102165587]
+follow_viewport_enabled = true
+
+[node name="Panels" type="Control" parent="CanvasLayer" unique_id=178264783]
+y_sort_enabled = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("1_ro3t7")
+
+[node name="Model" parent="CanvasLayer/Panels" unique_id=875641184 instance=ExtResource("TAB_MODEL")]
+visible = false
+layout_mode = 1
+
+[node name="Expressions" parent="CanvasLayer/Panels" unique_id=151535089 instance=ExtResource("TAB_EXPR")]
+visible = false
+layout_mode = 1
+
+[node name="Assets" parent="CanvasLayer/Panels" unique_id=1362174498 instance=ExtResource("TAB_ASSETS")]
+visible = false
+layout_mode = 1
+
+[node name="Settings" parent="CanvasLayer/Panels" unique_id=1182424716 instance=ExtResource("TAB_CFG")]
+visible = false
+layout_mode = 1
+anchors_preset = 11
+anchor_left = 1.0
+offset_left = 0.0
+
+[node name="HTabContainer" type="Panel" parent="CanvasLayer" unique_id=1942881397 node_paths=PackedStringArray("model_panel", "expression_panel", "assets_panel", "config_panel")]
+z_index = 1
+custom_minimum_size = Vector2(0, 50)
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+size_flags_horizontal = 6
+size_flags_vertical = 8
+offset_transform_enabled = true
+theme = ExtResource("1_ro3t7")
+theme_override_styles/panel = SubResource("StyleBoxFlat_nt86m")
+script = ExtResource("22_tabsw")
+model_panel = NodePath("../Panels/Model")
+expression_panel = NodePath("../Panels/Expressions")
+assets_panel = NodePath("../Panels/Assets")
+config_panel = NodePath("../Panels/Settings")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HTabContainer" unique_id=1418791301]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -24.5
+offset_bottom = 24.5
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_position = Vector2(0, 3)
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/HTabContainer/MarginContainer" unique_id=1262583928]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer" unique_id=663333530]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Model" type="TextureButton" parent="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer" unique_id=1590657083]
+custom_minimum_size = Vector2(40, 0)
+custom_maximum_size = Vector2(45, 45)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "MODEL"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("2_k36ej")
+texture_pressed = ExtResource("3_f5uxb")
+texture_hover = ExtResource("4_1xvxm")
+texture_disabled = ExtResource("5_4y6c7")
+texture_focused = ExtResource("6_2xwy7")
+stretch_mode = 5
+
+[node name="Expressions" type="TextureButton" parent="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer" unique_id=1750313753]
+custom_minimum_size = Vector2(40, 0)
+custom_maximum_size = Vector2(45, 45)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "EXPRESSIONS"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("7_s257n")
+texture_pressed = ExtResource("8_jymg3")
+texture_hover = ExtResource("9_w82uk")
+texture_disabled = ExtResource("10_7j22p")
+texture_focused = ExtResource("11_ded4u")
+stretch_mode = 5
+
+[node name="Assets" type="TextureButton" parent="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer" unique_id=1938748419]
+custom_minimum_size = Vector2(40, 0)
+custom_maximum_size = Vector2(45, 45)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "ASSETS"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("12_tb1vu")
+texture_pressed = ExtResource("13_houof")
+texture_hover = ExtResource("14_ecvn2")
+texture_disabled = ExtResource("15_qspfu")
+texture_focused = ExtResource("16_qog5p")
+stretch_mode = 5
+
+[node name="Spacer" type="Control" parent="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer" unique_id=1601503010]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Config" type="TextureButton" parent="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer" unique_id=1520255148]
+custom_minimum_size = Vector2(40, 0)
+custom_maximum_size = Vector2(45, 45)
+layout_mode = 2
+size_flags_horizontal = 10
+size_flags_vertical = 4
+tooltip_text = "SETTINGS"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("17_f70oh")
+texture_pressed = ExtResource("18_cc70q")
+texture_hover = ExtResource("19_jw3jg")
+texture_disabled = ExtResource("20_j7qfw")
+texture_focused = ExtResource("21_n71uf")
+stretch_mode = 5
+
+[connection signal="button_up" from="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer/Model" to="CanvasLayer/HTabContainer" method="_on_model_button_up"]
+[connection signal="button_up" from="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer/Expressions" to="CanvasLayer/HTabContainer" method="_on_expressions_button_up"]
+[connection signal="button_up" from="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer/Assets" to="CanvasLayer/HTabContainer" method="_on_assets_button_up"]
+[connection signal="button_up" from="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/Config" to="CanvasLayer/HTabContainer" method="_on_config_button_up"]

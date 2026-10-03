@@ -1,0 +1,172 @@
+[gd_scene format=3 uid="uid://dhrlaiy813ypa"]
+
+[ext_resource type="Script" uid="uid://c1he0sl1b8htj" path="res://addons/localization_apply/keys_panel.gd" id="1_mwyut"]
+
+[node name="LocalizationPanel" type="Control" unique_id=887508496]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=755673298]
+layout_mode = 1
+offset_right = 288.0
+offset_bottom = 101.0
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=617806593]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Refresh" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=1954406511]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Refresh"
+
+[node name="Apply" type="Button" parent="VBoxContainer/HBoxContainer" unique_id=931843004]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Apply"
+
+[node name="OptionButton" type="OptionButton" parent="VBoxContainer" unique_id=343295494]
+layout_mode = 2
+size_flags_horizontal = 4
+selected = 0
+item_count = 65
+popup/item_0/text = "PNGTUBER_DESCRIPTION"
+popup/item_0/id = 0
+popup/item_1/text = "GIFTUBER_DESCRIPTION"
+popup/item_1/id = 1
+popup/item_2/text = "CHARACTERS"
+popup/item_2/id = 2
+popup/item_3/text = "CREATE"
+popup/item_3/id = 3
+popup/item_4/text = "SOON"
+popup/item_4/id = 4
+popup/item_5/text = "TRANSITION_DURATION"
+popup/item_5/id = 5
+popup/item_6/text = "EFFECT"
+popup/item_6/id = 6
+popup/item_7/text = "GLOBAL_EFFECT"
+popup/item_7/id = 7
+popup/item_8/text = "EFFECT_USE_GLOBAL"
+popup/item_8/id = 8
+popup/item_9/text = "EFFECT_DISABLE"
+popup/item_9/id = 9
+popup/item_10/text = "GLOBAL_EFFECT_HINT"
+popup/item_10/id = 10
+popup/item_11/text = "NONE"
+popup/item_11/id = 11
+popup/item_12/text = "EFFECT_BOUNCE"
+popup/item_12/id = 12
+popup/item_13/text = "EFFECT_SHAKE"
+popup/item_13/id = 13
+popup/item_14/text = "EFFECT_WARP"
+popup/item_14/id = 14
+popup/item_15/text = "TRIGGER"
+popup/item_15/id = 15
+popup/item_16/text = "TRIGGER_KEY_PRESSED"
+popup/item_16/id = 16
+popup/item_17/text = "TRIGGER_KEY_HOLD"
+popup/item_17/id = 17
+popup/item_18/text = "TRIGGER_START_TALKING"
+popup/item_18/id = 18
+popup/item_19/text = "TRIGGER_STOP_TALKING"
+popup/item_19/id = 19
+popup/item_20/text = "TRIGGER_VOLUME_RANGE"
+popup/item_20/id = 20
+popup/item_21/text = "POSITION"
+popup/item_21/id = 21
+popup/item_22/text = "SCALE"
+popup/item_22/id = 22
+popup/item_23/text = "ROTATION"
+popup/item_23/id = 23
+popup/item_24/text = "DURATION"
+popup/item_24/id = 24
+popup/item_25/text = "INTESITY"
+popup/item_25/id = 25
+popup/item_26/text = "AMPLITUDE"
+popup/item_26/id = 26
+popup/item_27/text = "FPS_LMIT"
+popup/item_27/id = 27
+popup/item_28/text = "TEXTURE_FILTER"
+popup/item_28/id = 28
+popup/item_29/text = "ANTI_ALIASING"
+popup/item_29/id = 29
+popup/item_30/text = "SPOUNT_OUTPUT"
+popup/item_30/id = 30
+popup/item_31/text = "BACKGROUND"
+popup/item_31/id = 31
+popup/item_32/text = "BACKGROUND_GREEN"
+popup/item_32/id = 32
+popup/item_33/text = "BACKGROUND_BLUE"
+popup/item_33/id = 33
+popup/item_34/text = "BACKGROUND_MAGENTA"
+popup/item_34/id = 34
+popup/item_35/text = "BACKGROUND_TRANSPARENT"
+popup/item_35/id = 35
+popup/item_36/text = "BACKGROUND_IMAGE"
+popup/item_36/id = 36
+popup/item_37/text = "BACKGROUND_CUSTOM_COLOR"
+popup/item_37/id = 37
+popup/item_38/text = "MICROPHONE"
+popup/item_38/id = 38
+popup/item_39/text = "DEFAULT"
+popup/item_39/id = 39
+popup/item_40/text = "MIC_ACTIVATION_THRESHOLD"
+popup/item_40/id = 40
+popup/item_41/text = "SHOW_VOLUME_VISUALIZATION"
+popup/item_41/id = 41
+popup/item_42/text = "AVERAGE_DB"
+popup/item_42/id = 42
+popup/item_43/text = "START_CALC_AVERAGE_DB"
+popup/item_43/id = 43
+popup/item_44/text = "CALC_AVERAGE_DB"
+popup/item_44/id = 44
+popup/item_45/text = "MODEL"
+popup/item_45/id = 45
+popup/item_46/text = "EXPRESSIONS"
+popup/item_46/id = 46
+popup/item_47/text = "SETTINGS"
+popup/item_47/id = 47
+popup/item_48/text = "LANGUAGE"
+popup/item_48/id = 48
+popup/item_49/text = "LANG_ENGLISH"
+popup/item_49/id = 49
+popup/item_50/text = "LANG_PORTUGUESE"
+popup/item_50/id = 50
+popup/item_51/text = "MODEL_NAME"
+popup/item_51/id = 51
+popup/item_52/text = "SET_ KEY"
+popup/item_52/id = 52
+popup/item_53/text = "TIME_TO_REVERT"
+popup/item_53/id = 53
+popup/item_54/text = "MIN_DB"
+popup/item_54/id = 54
+popup/item_55/text = "MAX_DB"
+popup/item_55/id = 55
+popup/item_56/text = "SELECT_IMAGE"
+popup/item_56/id = 56
+popup/item_57/text = "PICK_COLOR"
+popup/item_57/id = 57
+popup/item_58/text = "OPEN_FILE"
+popup/item_58/id = 58
+popup/item_59/text = "TEXTURE_FILTER_NEAREST"
+popup/item_59/id = 59
+popup/item_60/text = "TEXTURE_FILTER_LINEAR"
+popup/item_60/id = 60
+popup/item_61/text = "ANTIALIAS_NONE"
+popup/item_61/id = 61
+popup/item_62/text = "ANTIALIAS_FEATHER"
+popup/item_62/id = 62
+popup/item_63/text = "ANTIALIAS_SUPERSAMPLE"
+popup/item_63/id = 63
+popup/item_64/text = "ANTIALIAS_FXAA"
+popup/item_64/id = 64
+script = ExtResource("1_mwyut")
+
+[connection signal="button_up" from="VBoxContainer/HBoxContainer/Refresh" to="VBoxContainer/OptionButton" method="_on_refresh_button_up"]
+[connection signal="button_up" from="VBoxContainer/HBoxContainer/Apply" to="VBoxContainer/OptionButton" method="_on_apply_button_up"]

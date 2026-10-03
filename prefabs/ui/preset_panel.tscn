@@ -1,0 +1,261 @@
+[gd_scene format=3 uid="uid://bp701ct6cxkc0"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://d1d2kuic5vxpa" path="res://script/ui/model/preset_panel.gd" id="2_script"]
+[ext_resource type="StyleBox" uid="uid://cjct721y6ocun" path="res://themes/card-secondary-style.tres" id="2_y3uqw"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="3_loc"]
+[ext_resource type="Texture2D" uid="uid://denddromdqjsk" path="res://assets/icons/runtime/update/update_normal.svg" id="4_up_n"]
+[ext_resource type="Texture2D" uid="uid://dhesbom6xcmel" path="res://assets/icons/runtime/update/update_hover.svg" id="5_up_h"]
+[ext_resource type="Texture2D" uid="uid://fcoyu4y6trkj" path="res://assets/icons/runtime/update/update_pressed.svg" id="6_up_p"]
+[ext_resource type="Texture2D" uid="uid://d7gwos41gq4e" path="res://assets/icons/runtime/update/update_disabled.svg" id="7_up_d"]
+[ext_resource type="Texture2D" uid="uid://c1rqprg8m4dv0" path="res://assets/icons/runtime/update/update_focused.svg" id="8_up_f"]
+[ext_resource type="Texture2D" uid="uid://dymf1iy5je0bl" path="res://assets/icons/runtime/close/close_normal.svg" id="9_cl_n"]
+[ext_resource type="Texture2D" uid="uid://cvx6y01ingkfl" path="res://assets/icons/runtime/close/close_hover.svg" id="10_cl_h"]
+[ext_resource type="Texture2D" uid="uid://bxpsbnyxkxg1e" path="res://assets/icons/runtime/close/close_pressed.svg" id="11_cl_p"]
+[ext_resource type="Texture2D" uid="uid://c0rhqttfful14" path="res://assets/icons/runtime/close/close_disabled.svg" id="12_cl_d"]
+[ext_resource type="Texture2D" uid="uid://b7beisj23blbs" path="res://assets/icons/runtime/close/close_focused.svg" id="13_cl_f"]
+[ext_resource type="Texture2D" uid="uid://bai6pi7p8n41n" path="res://assets/icons/runtime/move/move_normal.svg" id="14_mv_n"]
+[ext_resource type="Texture2D" uid="uid://bs2yoylbx20y4" path="res://assets/icons/runtime/move/move_hover.svg" id="15_mv_h"]
+[ext_resource type="Texture2D" uid="uid://dk7v5eu80sv1o" path="res://assets/icons/runtime/move/move_pressed.svg" id="16_mv_p"]
+[ext_resource type="Texture2D" uid="uid://cejkw0qmnthxg" path="res://assets/icons/runtime/move/move_disabled.svg" id="17_mv_d"]
+[ext_resource type="Texture2D" uid="uid://8khh3v3j4e5l" path="res://assets/icons/runtime/move/move_focused.svg" id="18_mv_f"]
+[ext_resource type="Texture2D" uid="uid://qyabvnn6x3rd" path="res://assets/icons/runtime/pencil/pencil_normal.svg" id="19_pe_n"]
+[ext_resource type="Texture2D" uid="uid://br45bxytsbnxx" path="res://assets/icons/runtime/pencil/pencil_hover.svg" id="20_pe_h"]
+[ext_resource type="Texture2D" uid="uid://bksbqck24mwac" path="res://assets/icons/runtime/pencil/pencil_pressed.svg" id="21_pe_p"]
+[ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/runtime/pencil/pencil_disabled.svg" id="22_pe_d"]
+[ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/runtime/pencil/pencil_focused.svg" id="23_pe_f"]
+
+[node name="PanelContainer" type="PanelContainer" unique_id=894179920 node_paths=PackedStringArray("name_label", "default_toggle", "trigger_option", "trigger_ui", "interpolate_toggle", "duration_spin", "transition_option", "ease_option")]
+custom_minimum_size = Vector2(270, 0)
+custom_maximum_size = Vector2(-1, 400)
+size_flags_horizontal = 3
+theme = ExtResource("1_theme")
+theme_override_styles/panel = ExtResource("2_y3uqw")
+script = ExtResource("2_script")
+name_label = NodePath("VBoxContainer/Title/NameLabel")
+default_toggle = NodePath("VBoxContainer/DefaultRow/DefaultToggle")
+trigger_option = NodePath("VBoxContainer/VBoxContainer/TriggerFoldable/VBoxContainer/Trigger")
+trigger_ui = NodePath("VBoxContainer/VBoxContainer/TriggerFoldable/VBoxContainer/TriggerUI")
+interpolate_toggle = NodePath("VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow/InterpolateToggle")
+duration_spin = NodePath("VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/DurationRow/DurationSpin")
+transition_option = NodePath("VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/TransitionRow/TransitionOption")
+ease_option = NodePath("VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/EaseRow/EaseOption")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=262853672]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="HBoxContainer" parent="VBoxContainer" unique_id=96636661]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="VBoxContainer/Title" unique_id=906630187]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Preset Name"
+
+[node name="RenameButton" type="TextureButton" parent="VBoxContainer/Title" unique_id=1644640558]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "RENAME"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("19_pe_n")
+texture_pressed = ExtResource("21_pe_p")
+texture_hover = ExtResource("20_pe_h")
+texture_disabled = ExtResource("22_pe_d")
+texture_focused = ExtResource("23_pe_f")
+stretch_mode = 5
+
+[node name="ApplyButton" type="TextureButton" parent="VBoxContainer/Title" unique_id=644588960]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "APPLY"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("14_mv_n")
+texture_pressed = ExtResource("16_mv_p")
+texture_hover = ExtResource("15_mv_h")
+texture_disabled = ExtResource("17_mv_d")
+texture_focused = ExtResource("18_mv_f")
+stretch_mode = 5
+
+[node name="UpdateButton" type="TextureButton" parent="VBoxContainer/Title" unique_id=968217131]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "UPDATE"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("4_up_n")
+texture_pressed = ExtResource("6_up_p")
+texture_hover = ExtResource("5_up_h")
+texture_disabled = ExtResource("7_up_d")
+texture_focused = ExtResource("8_up_f")
+stretch_mode = 5
+
+[node name="DeleteButton" type="TextureButton" parent="VBoxContainer/Title" unique_id=28424109]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "DELETE"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("9_cl_n")
+texture_pressed = ExtResource("11_cl_p")
+texture_hover = ExtResource("10_cl_h")
+texture_disabled = ExtResource("12_cl_d")
+texture_focused = ExtResource("13_cl_f")
+stretch_mode = 5
+
+[node name="DefaultRow" type="HBoxContainer" parent="VBoxContainer" unique_id=3612947105]
+layout_mode = 2
+
+[node name="DefaultLabel" type="Label" parent="VBoxContainer/DefaultRow" unique_id=3612947106]
+layout_mode = 2
+text = "Mark as default"
+metadata/localization_key = &"MARK_AS_DEFAULT"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/DefaultRow/DefaultLabel" unique_id=3612947107]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/DefaultRow" unique_id=3612947108]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="DefaultToggle" type="CheckButton" parent="VBoxContainer/DefaultRow" unique_id=3612947109]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=1266014258]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TriggerFoldable" type="FoldableContainer" parent="VBoxContainer/VBoxContainer" unique_id=1795778754]
+layout_mode = 2
+folded = true
+title = "Trigger"
+metadata/localization_key = &"TRIGGER"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/VBoxContainer/TriggerFoldable" unique_id=1017715255]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/VBoxContainer/TriggerFoldable" unique_id=1387113688]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Trigger" type="OptionButton" parent="VBoxContainer/VBoxContainer/TriggerFoldable/VBoxContainer" unique_id=1744101467]
+layout_mode = 2
+size_flags_vertical = 4
+fit_to_longest_item = false
+
+[node name="TriggerUI" type="VBoxContainer" parent="VBoxContainer/VBoxContainer/TriggerFoldable/VBoxContainer" unique_id=668275682]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="InterpolationFoldable" type="FoldableContainer" parent="VBoxContainer/VBoxContainer" unique_id=973533052]
+layout_mode = 2
+folded = true
+title = "Interpolation"
+metadata/localization_key = &"INTERPOLATION"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/VBoxContainer/InterpolationFoldable" unique_id=589971647]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/VBoxContainer/InterpolationFoldable" unique_id=186600958]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="InterpolateRow" type="HBoxContainer" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer" unique_id=922758971]
+layout_mode = 2
+
+[node name="InterpolateLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow"]
+layout_mode = 2
+text = "Interpolate"
+metadata/localization_key = &"INTERPOLATE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow/InterpolateLabel" unique_id=1058495947]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="InterpolateToggle" type="CheckButton" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow" unique_id=1030662355]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="DurationRow" type="HBoxContainer" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer" unique_id=1167528890]
+layout_mode = 2
+
+[node name="DurationLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/DurationRow" unique_id=2003881879]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Duration"
+metadata/localization_key = &"DURATION"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/DurationRow/DurationLabel" unique_id=673721032]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="DurationSpin" type="SpinBox" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/DurationRow" unique_id=665964427]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+min_value = 0.05
+max_value = 5.0
+step = 0.05
+value = 0.3
+alignment = 1
+suffix = "s"
+
+[node name="TransitionRow" type="HBoxContainer" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer" unique_id=1233615758]
+layout_mode = 2
+
+[node name="TransitionLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/TransitionRow" unique_id=1004012442]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Transition"
+metadata/localization_key = &"TRANSITION"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/TransitionRow/TransitionLabel" unique_id=2310205]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="TransitionOption" type="OptionButton" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/TransitionRow" unique_id=1743157573]
+layout_mode = 2
+fit_to_longest_item = false
+
+[node name="EaseRow" type="HBoxContainer" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer" unique_id=898445790]
+layout_mode = 2
+
+[node name="EaseLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/EaseRow" unique_id=2143426738]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Ease"
+metadata/localization_key = &"EASE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/EaseRow/EaseLabel" unique_id=66867841]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="EaseOption" type="OptionButton" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/EaseRow" unique_id=1916989916]
+layout_mode = 2
+fit_to_longest_item = false
+
+[connection signal="pressed" from="VBoxContainer/Title/RenameButton" to="." method="_on_rename_pressed"]
+[connection signal="pressed" from="VBoxContainer/Title/ApplyButton" to="." method="_on_apply_pressed"]
+[connection signal="pressed" from="VBoxContainer/Title/UpdateButton" to="." method="_on_update_pressed"]
+[connection signal="pressed" from="VBoxContainer/Title/DeleteButton" to="." method="_on_delete_pressed"]
+[connection signal="item_selected" from="VBoxContainer/VBoxContainer/TriggerFoldable/VBoxContainer/Trigger" to="." method="_on_trigger_selected"]
+[connection signal="toggled" from="VBoxContainer/DefaultRow/DefaultToggle" to="." method="_on_default_toggled"]
+[connection signal="toggled" from="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow/InterpolateToggle" to="." method="_on_interpolate_toggled"]
+[connection signal="value_changed" from="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/DurationRow/DurationSpin" to="." method="_on_duration_changed"]
+[connection signal="item_selected" from="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/TransitionRow/TransitionOption" to="." method="_on_transition_selected"]
+[connection signal="item_selected" from="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/EaseRow/EaseOption" to="." method="_on_ease_selected"]

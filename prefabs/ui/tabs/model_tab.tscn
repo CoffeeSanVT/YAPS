@@ -1,0 +1,636 @@
+[gd_scene format=3 uid="uid://1bybgvhide5i"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_kmpii"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="2_hu0pd"]
+[ext_resource type="Script" uid="uid://cg55oait77i4v" path="res://script/ui/model/position_panel.gd" id="2_ilk7v"]
+[ext_resource type="PackedScene" uid="uid://twgitjdha3g2" path="res://prefabs/ui/add_emotion_dialog.tscn" id="3_addemo"]
+[ext_resource type="PackedScene" uid="uid://br7lir8qldm5a" path="res://prefabs/ui/emotion_panel.tscn" id="3_emo"]
+[ext_resource type="Script" uid="uid://bmixt2wle4041" path="res://script/ui/model/scale_panel.gd" id="3_flkkw"]
+[ext_resource type="Script" uid="uid://0yxvn3sw765j" path="res://script/ui/model/rotation_panel.gd" id="4_mhjpf"]
+[ext_resource type="Script" uid="uid://dfall0gjj6r0n" path="res://script/ui/panels/effects_panel.gd" id="12_effpanel"]
+[ext_resource type="FontFile" uid="uid://dmld38g0i2q0a" path="res://assets/fonts/Bungee-Regular.ttf" id="23_2xwy7"]
+[ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="24_ecvn2"]
+[ext_resource type="Script" uid="uid://beb3n5mrbd7i1" path="res://script/ui/model/transform_preset_panel.gd" id="31_preset"]
+[ext_resource type="Script" uid="uid://v5uj2gtcx3id" path="res://script/ui/panels/emotions_list.gd" id="32_emo"]
+[ext_resource type="Script" uid="uid://x500mkq7lvrx" path="res://script/ui/model/outline_settings.gd" id="33_outset"]
+[ext_resource type="Script" uid="uid://bvt08gk33xjgw" path="res://script/ui/model/model_overlap_fade.gd" id="34_overlap"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ajps"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.286275, 0.270588, 0.294118, 1)
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_jymg3"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.28627452, 0.27058825, 0.29411766, 0)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w82uk"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.28627452, 0.27058825, 0.29411766, 0)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Model" type="Panel" unique_id=988982424]
+custom_minimum_size = Vector2(360, 0)
+clip_contents = true
+anchors_preset = 9
+anchor_bottom = 1.0
+grow_vertical = 2
+offset_transform_enabled = true
+theme = ExtResource("1_kmpii")
+theme_override_styles/panel = SubResource("StyleBoxFlat_2ajps")
+script = ExtResource("34_overlap")
+faded_alpha = 0.75
+fade_duration = 0.08
+metadata/out_screen_x_pos = -1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=72723132]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.919
+offset_bottom = 0.32000732
+grow_horizontal = 2
+size_flags_horizontal = 4
+horizontal_scroll_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=568313960]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer/MarginContainer" unique_id=1031686204]
+custom_minimum_size = Vector2(335, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/v_separation = 8
+alignment = 1
+
+[node name="Transform" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=502882053]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform" unique_id=1696054527]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer" unique_id=2038586225]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Title" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer" unique_id=2126627518]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "Offset Transform"
+metadata/localization_key = &"OFFSET_TRANSFORM"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/Title" unique_id=431156435]
+script = ExtResource("2_hu0pd")
+
+[node name="PositionContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer" unique_id=503431403 node_paths=PackedStringArray("x_spinbox", "y_spinbox")]
+layout_mode = 2
+script = ExtResource("2_ilk7v")
+x_spinbox = NodePath("HBoxContainer/XAxis/HBoxContainer/SpinBox")
+y_spinbox = NodePath("HBoxContainer/YAxis/HBoxContainer/SpinBox")
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer" unique_id=31399924]
+layout_mode = 2
+text = "Position"
+metadata/localization_key = &"POSITION"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/Label" unique_id=833269073]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer" unique_id=448860765]
+layout_mode = 2
+
+[node name="XAxis" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer" unique_id=1247380184]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_jymg3")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/XAxis" unique_id=334530006]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/XAxis/HBoxContainer" unique_id=45879401]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.35999998, 0.35999998, 1)
+text = "X"
+
+[node name="SpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/XAxis/HBoxContainer" unique_id=1742458863]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+alignment = 1
+
+[node name="YAxis" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer" unique_id=163287427]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_w82uk")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/YAxis" unique_id=1207906403]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/YAxis/HBoxContainer" unique_id=1229006118]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35686275, 0.8, 0.40392157, 1)
+text = "Y"
+
+[node name="SpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/YAxis/HBoxContainer" unique_id=1022778633]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -1.0
+max_value = 1.0
+step = 0.01
+alignment = 1
+
+[node name="ScaleContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer" unique_id=2023928861 node_paths=PackedStringArray("spinbox")]
+layout_mode = 2
+script = ExtResource("3_flkkw")
+spinbox = NodePath("SpinBox")
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/ScaleContainer" unique_id=1022931667]
+layout_mode = 2
+text = "Zoom"
+metadata/localization_key = &"ZOOM"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/ScaleContainer/Label" unique_id=604542475]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/ScaleContainer" unique_id=1080902870]
+layout_mode = 2
+min_value = 0.1
+max_value = 10.0
+step = 0.1
+value = 1.0
+alignment = 1
+suffix = "x"
+
+[node name="RotationContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer" unique_id=1039353201 node_paths=PackedStringArray("spinbox")]
+layout_mode = 2
+script = ExtResource("4_mhjpf")
+spinbox = NodePath("SpinBox")
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/RotationContainer" unique_id=1123254924]
+layout_mode = 2
+text = "Rotation"
+metadata/localization_key = &"ROTATION"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/RotationContainer/Label" unique_id=374702484]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/RotationContainer" unique_id=1236401193]
+layout_mode = 2
+min_value = -360.0
+max_value = 360.0
+step = 0.1
+alignment = 1
+suffix = "°"
+
+[node name="Effects" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=1952288163]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects" unique_id=1029695071]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="EffectsContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer" unique_id=-1294967295 node_paths=PackedStringArray("effects_toggle", "movement_option", "movement_options", "filter_option", "filter_options")]
+layout_mode = 2
+script = ExtResource("12_effpanel")
+effects_toggle = NodePath("EffectsToggleContainer/EffectsToggle")
+movement_option = NodePath("MovementType")
+movement_options = NodePath("MovementOptions")
+filter_option = NodePath("FilterType")
+filter_options = NodePath("FilterOptions")
+
+[node name="Title" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=-1294967294]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "Effects"
+metadata/localization_key = &"EFFECT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/Title" unique_id=12938539]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="EffectsToggleContainer" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=2078925917]
+layout_mode = 2
+
+[node name="EffectsToggleLabel" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/EffectsToggleContainer" unique_id=296829640]
+layout_mode = 2
+text = "Use for All Expressions"
+metadata/localization_key = &"EFFECT_USE_GLOBAL"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/EffectsToggleContainer/EffectsToggleLabel" unique_id=1124244357]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/EffectsToggleContainer" unique_id=717014174]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EffectsToggle" type="CheckButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/EffectsToggleContainer" unique_id=-1294967271]
+layout_mode = 2
+button_pressed = true
+
+[node name="MovementLabel" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=413856786]
+layout_mode = 2
+text = "Movement"
+metadata/localization_key = &"EFFECT_CATEGORY_MOVEMENT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/MovementLabel" unique_id=804691775]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="MovementType" type="OptionButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=-1294967293]
+layout_mode = 2
+
+[node name="MovementOptions" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=-1294967272]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FilterLabel" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=1003829112]
+layout_mode = 2
+text = "Filter"
+metadata/localization_key = &"EFFECT_CATEGORY_FILTER"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/FilterLabel" unique_id=1709966007]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="FilterType" type="OptionButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=1439918000]
+layout_mode = 2
+
+[node name="FilterOptions" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" unique_id=1531584713]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Outline" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=795615877]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline" unique_id=1368035535]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="OutlineContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer" unique_id=587765926 node_paths=PackedStringArray("enable_toggle", "color_picker", "width_spinbox", "softness_spinbox", "inside_toggle", "threshold_spinbox", "halftone_toggle", "dot_size_spinbox", "gradient_toggle", "gradient_color_picker")]
+layout_mode = 2
+theme_override_constants/separation = 6
+script = ExtResource("33_outset")
+enable_toggle = NodePath("EnableToggleContainer/EnableToggle")
+color_picker = NodePath("ColorRow/ColorPicker")
+width_spinbox = NodePath("WidthRow/WidthSpinBox")
+softness_spinbox = NodePath("SoftnessRow/SoftnessSpinBox")
+inside_toggle = NodePath("InsideToggle")
+threshold_spinbox = NodePath("ThresholdRow/ThresholdSpinBox")
+halftone_toggle = NodePath("HalftoneRow/HalftoneToggle")
+dot_size_spinbox = NodePath("DotSizeRow/DotSizeSpinBox")
+gradient_toggle = NodePath("GradientRow/GradientToggle")
+gradient_color_picker = NodePath("GradientColorRow/GradientColorPicker")
+
+[node name="Title" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=218665846]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "Outline"
+metadata/localization_key = &"OUTLINE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/Title" unique_id=446053735]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="EnableToggleContainer" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=1011298994]
+layout_mode = 2
+
+[node name="EnableToggleLabel" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/EnableToggleContainer" unique_id=1410429834]
+layout_mode = 2
+text = "Enable Outline"
+metadata/localization_key = &"OUTLINE_ENABLE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/EnableToggleContainer/EnableToggleLabel" unique_id=248372292]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/EnableToggleContainer" unique_id=1497963667]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnableToggle" type="CheckButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/EnableToggleContainer" unique_id=885581499]
+layout_mode = 2
+
+[node name="ColorRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=1130264132]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/ColorRow" unique_id=1660981643]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Color"
+metadata/localization_key = &"OUTLINE_COLOR"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/ColorRow/Label" unique_id=1145991229]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ColorPicker" type="ColorPickerButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/ColorRow" unique_id=649152562]
+custom_minimum_size = Vector2(64, 28)
+layout_mode = 2
+
+[node name="WidthRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=1132400935]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/WidthRow" unique_id=423656797]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Width"
+metadata/localization_key = &"OUTLINE_WIDTH"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/WidthRow/Label" unique_id=1939145629]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="WidthSpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/WidthRow" unique_id=108059175]
+layout_mode = 2
+min_value = 0.5
+max_value = 16.0
+step = 0.5
+value = 5.0
+alignment = 1
+suffix = "px"
+
+[node name="SoftnessRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=1021023032]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/SoftnessRow" unique_id=689758249]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Softness"
+metadata/localization_key = &"OUTLINE_SOFTNESS"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/SoftnessRow/Label" unique_id=1072290197]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SoftnessSpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/SoftnessRow" unique_id=512625171]
+layout_mode = 2
+min_value = 0.25
+max_value = 16.0
+step = 0.25
+value = 2.0
+alignment = 1
+suffix = "px"
+
+[node name="InsideToggle" type="CheckButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=1674229323]
+layout_mode = 2
+text = "Inside Edge"
+metadata/localization_key = &"OUTLINE_INSIDE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/InsideToggle" unique_id=1688487329]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ThresholdRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=2145733174]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/ThresholdRow" unique_id=1067634850]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Alpha Threshold"
+metadata/localization_key = &"OUTLINE_THRESHOLD"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/ThresholdRow/Label" unique_id=1360877475]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ThresholdSpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/ThresholdRow" unique_id=674971097]
+layout_mode = 2
+min_value = 0.01
+max_value = 1.0
+step = 0.01
+value = 0.7
+alignment = 1
+
+[node name="HalftoneRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=814578156]
+layout_mode = 2
+
+[node name="HalftoneLabel" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/HalftoneRow" unique_id=1442329309]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Dot Halftone"
+metadata/localization_key = &"OUTLINE_HALFTONE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/HalftoneRow/HalftoneLabel" unique_id=1957094109]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="HalftoneToggle" type="CheckButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/HalftoneRow" unique_id=575653992]
+layout_mode = 2
+
+[node name="DotSizeRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=545137975]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/DotSizeRow" unique_id=1129360838]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Dot Size"
+metadata/localization_key = &"OUTLINE_DOT_SIZE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/DotSizeRow/Label" unique_id=883036924]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="DotSizeSpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/DotSizeRow" unique_id=481942008]
+layout_mode = 2
+min_value = 2.0
+max_value = 32.0
+value = 6.0
+alignment = 1
+suffix = "px"
+
+[node name="GradientRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=1039855302]
+layout_mode = 2
+
+[node name="GradientLabel" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/GradientRow" unique_id=593284375]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Gradient"
+metadata/localization_key = &"OUTLINE_GRADIENT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/GradientRow/GradientLabel" unique_id=1358928199]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="GradientToggle" type="CheckButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/GradientRow" unique_id=1043698350]
+layout_mode = 2
+
+[node name="GradientColorRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer" unique_id=1428397408]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/GradientColorRow" unique_id=483520028]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Outer Color"
+metadata/localization_key = &"OUTLINE_GRADIENT_COLOR"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/GradientColorRow/Label" unique_id=1101396838]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="GradientColorPicker" type="ColorPickerButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Outline/MarginContainer/OutlineContainer/GradientColorRow" unique_id=1766052728]
+custom_minimum_size = Vector2(64, 28)
+layout_mode = 2
+
+[node name="PositionPresets" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=169628348]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets" unique_id=416704115]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="PresetsContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer" unique_id=1161085244 node_paths=PackedStringArray("preset_list")]
+layout_mode = 2
+script = ExtResource("31_preset")
+preset_list = NodePath("PresetList")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer" unique_id=1783529715]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer/VBoxContainer" unique_id=278952524]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "Position Presets"
+metadata/localization_key = &"PRESETS"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer/VBoxContainer/Title" unique_id=1571219944]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SaveButton" type="Button" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer/VBoxContainer" unique_id=223699083]
+layout_mode = 2
+text = "Save Preset"
+metadata/localization_key = &"SAVE_PRESET"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer/VBoxContainer/SaveButton" unique_id=1242447541]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="PresetList" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer" unique_id=1833185552]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Emotions" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=1620913977]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions" unique_id=827371150]
+layout_mode = 2
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="EmotionsContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer" unique_id=54076618 node_paths=PackedStringArray("emotion_list", "add_button")]
+layout_mode = 2
+script = ExtResource("32_emo")
+emotion_list = NodePath("VBoxContainer/EmotionList")
+add_button = NodePath("VBoxContainer/TitleRow/AddButton")
+emotion_panel_prefab = ExtResource("3_emo")
+add_emotion_dialog_prefab = ExtResource("3_addemo")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer" unique_id=349233629]
+layout_mode = 2
+
+[node name="TitleRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer/VBoxContainer" unique_id=1327988711]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer/VBoxContainer/TitleRow" unique_id=1197335503]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "Emotions"
+metadata/localization_key = &"EMOTIONS"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer/VBoxContainer/TitleRow/Title" unique_id=1676676022]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="AddButton" type="Button" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer/VBoxContainer/TitleRow" unique_id=1390600613]
+layout_mode = 2
+text = "Add Emotion"
+metadata/localization_key = &"ADD_EMOTION"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer/VBoxContainer/TitleRow/AddButton" unique_id=1063746197]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="EmotionList" type="VBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer/VBoxContainer" unique_id=264332438]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Emotions/MarginContainer/EmotionsContainer/VBoxContainer/EmotionList" unique_id=555983010 instance=ExtResource("3_emo")]
+layout_mode = 2
+size_flags_horizontal = 6
+
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/XAxis/HBoxContainer/SpinBox" to="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer" method="_on_x_axis_value_changed"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer/HBoxContainer/YAxis/HBoxContainer/SpinBox" to="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/PositionContainer" method="_on_y_axis_value_changed"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/ScaleContainer/SpinBox" to="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/ScaleContainer" method="_on_scale_value_changed"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/RotationContainer/SpinBox" to="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/RotationContainer" method="_on_angle_value_changed"]
+[connection signal="toggled" from="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/EffectsToggleContainer/EffectsToggle" to="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" method="_on_effects_toggle_toggled"]
+[connection signal="item_selected" from="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/MovementType" to="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" method="_on_movement_type_item_selected"]
+[connection signal="item_selected" from="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer/FilterType" to="ScrollContainer/MarginContainer/HFlowContainer/Effects/MarginContainer/EffectsContainer" method="_on_filter_type_item_selected"]
+[connection signal="pressed" from="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer/VBoxContainer/SaveButton" to="ScrollContainer/MarginContainer/HFlowContainer/PositionPresets/MarginContainer/PresetsContainer" method="_on_save_pressed"]

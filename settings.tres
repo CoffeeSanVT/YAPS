@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SettingsData" format=3]
+
+[ext_resource type="Script" path="res://script/resources/settings_data.gd" id="1_2q401"]
+
+[resource]
+script = ExtResource("1_2q401")
+show_performance_overlay = true
+mic_threshold = -50.0
+mic_device = "Microfone (HyperX DuoCast)"
+show_mic_visualizer = true
+antialias = 2
+window_resolution = Vector2i(1280, 720)
+websocket_enabled = true
+twitch_username = "coffeesanvt"
+twitch_user_id = "1140852345"

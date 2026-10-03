@@ -1,0 +1,130 @@
+[gd_scene format=3 uid="uid://d1q6ma2vw4h6n"]
+
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="1_trans"]
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://lfksbkd4gq63" path="res://script/ui/triggers/twitch_event_ui.gd" id="3_script"]
+[ext_resource type="Texture2D" uid="uid://ccnhbb2lpkb1d" path="res://assets/icons/runtime/error/error.svg" id="4_err"]
+
+[node name="TwitchEventUI" type="VBoxContainer" node_paths=PackedStringArray("event_option", "login_warning_icon", "reward_row", "reward_option", "bits_row", "bits_spinbox", "pulse_check", "pulse_duration_row", "pulse_duration_spinbox")]
+theme = ExtResource("2_theme")
+theme_override_constants/separation = 6
+script = ExtResource("3_script")
+event_option = NodePath("EventRow/EventOption")
+login_warning_icon = NodePath("EventRow/LoginWarningIcon")
+reward_row = NodePath("RewardRow")
+reward_option = NodePath("RewardRow/RewardOption")
+bits_row = NodePath("BitsRow")
+bits_spinbox = NodePath("BitsRow/BitsSpinBox")
+pulse_check = NodePath("PulseRow/PulseCheck")
+pulse_duration_row = NodePath("PulseDurationRow")
+pulse_duration_spinbox = NodePath("PulseDurationRow/PulseDurationSpin")
+
+[node name="EventRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EventLabel" type="Label" parent="EventRow"]
+layout_mode = 2
+text = "Event"
+metadata/localization_key = &"TWITCH_EVENT"
+
+[node name="TranslationNode" type="Node" parent="EventRow/EventLabel"]
+script = ExtResource("1_trans")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="EventOption" type="OptionButton" parent="EventRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+fit_to_longest_item = false
+
+[node name="LoginWarningIcon" type="TextureRect" parent="EventRow"]
+visible = false
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 0
+texture = ExtResource("4_err")
+stretch_mode = 5
+
+[node name="RewardRow" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RewardLabel" type="Label" parent="RewardRow"]
+layout_mode = 2
+text = "Reward"
+metadata/localization_key = &"TWITCH_REWARD"
+
+[node name="TranslationNode" type="Node" parent="RewardRow/RewardLabel"]
+script = ExtResource("1_trans")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="RewardOption" type="OptionButton" parent="RewardRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+fit_to_longest_item = false
+
+[node name="BitsRow" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BitsLabel" type="Label" parent="BitsRow"]
+layout_mode = 2
+text = "Minimum bits"
+metadata/localization_key = &"TWITCH_MIN_BITS"
+
+[node name="TranslationNode" type="Node" parent="BitsRow/BitsLabel"]
+script = ExtResource("1_trans")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="BitsSpinBox" type="SpinBox" parent="BitsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0
+max_value = 1000000
+step = 1
+value = 0
+alignment = 1
+
+[node name="PulseRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PulseCheck" type="CheckButton" parent="PulseRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pulse (auto revert)"
+metadata/localization_key = &"TWITCH_PULSE"
+
+[node name="TranslationNode" type="Node" parent="PulseRow/PulseCheck"]
+script = ExtResource("1_trans")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="PulseDurationRow" type="HBoxContainer" parent="."]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PulseDurationLabel" type="Label" parent="PulseDurationRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Duration"
+metadata/localization_key = &"TWITCH_PULSE_DURATION"
+
+[node name="TranslationNode" type="Node" parent="PulseDurationRow/PulseDurationLabel"]
+script = ExtResource("1_trans")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="PulseDurationSpin" type="SpinBox" parent="PulseDurationRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 300.0
+step = 0.5
+value = 3.0
+alignment = 1
+suffix = "s"
+

@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://dwky1prn6cbhx"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_g483s"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="1_mc6ia"]
+
+
+[node name="BobEffectUI" type="VBoxContainer" unique_id=1184931051]
+theme = ExtResource("1_g483s")
+theme_override_constants/separation = 6
+
+[node name="DurationRow" type="HBoxContainer" parent="." unique_id=12499586]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DurationLabel" type="Label" parent="DurationRow" unique_id=1772728940]
+layout_mode = 2
+text = "Duration"
+metadata/localization_key = &"DURATION"
+
+[node name="TranslationNode" type="Node" parent="DurationRow/DurationLabel" unique_id=609689644]
+script = ExtResource("1_mc6ia")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="BobDuration" type="SpinBox" parent="DurationRow" unique_id=304175699]
+layout_mode = 2
+min_value = 0.1
+max_value = 5.0
+step = 0.05
+value = 1.2
+alignment = 1
+suffix = "s"
+
+[node name="AmplitudeRow" type="HBoxContainer" parent="." unique_id=384678643]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AmplitudeLabel" type="Label" parent="AmplitudeRow" unique_id=932411756]
+layout_mode = 2
+text = "Amplitude"
+metadata/localization_key = &"AMPLITUDE"
+
+[node name="TranslationNode" type="Node" parent="AmplitudeRow/AmplitudeLabel" unique_id=1128467203]
+script = ExtResource("1_mc6ia")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="BobAmplitude" type="SpinBox" parent="AmplitudeRow" unique_id=1541185025]
+layout_mode = 2
+min_value = 1.0
+max_value = 50.0
+step = 0.5
+value = 6.0
+alignment = 1

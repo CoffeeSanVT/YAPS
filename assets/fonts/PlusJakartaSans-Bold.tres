@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" format=3 uid="uid://cbkv4nehqbjx3"]
+
+[ext_resource type="FontFile" uid="uid://dpq874jiyjsm3" path="res://assets/fonts/PlusJakartaSans-VariableFont_wght.ttf" id="1_f8nca"]
+
+[resource]
+base_font = ExtResource("1_f8nca")
+variation_opentype = {
+2003265652: 800
+}

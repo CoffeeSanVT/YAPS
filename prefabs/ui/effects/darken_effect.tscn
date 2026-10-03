@@ -1,0 +1,51 @@
+[gd_scene format=3 uid="uid://b8jn0h5wlt3wd"]
+
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="1_4ks64"]
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_7s4vc"]
+
+
+[node name="DarkenEffectUI" type="VBoxContainer"]
+theme = ExtResource("1_7s4vc")
+theme_override_constants/separation = 6
+
+[node name="DurationRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DurationLabel" type="Label" parent="DurationRow"]
+layout_mode = 2
+text = "Duration"
+metadata/localization_key = &"DURATION"
+
+[node name="TranslationNode" type="Node" parent="DurationRow/DurationLabel"]
+script = ExtResource("1_4ks64")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="DarkenDuration" type="SpinBox" parent="DurationRow"]
+layout_mode = 2
+min_value = 0.1
+max_value = 5.0
+step = 0.05
+value = 0.3
+alignment = 1
+suffix = "s"
+
+[node name="IntensityRow" type="HBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="IntensityLabel" type="Label" parent="IntensityRow"]
+layout_mode = 2
+text = "Intensity"
+metadata/localization_key = &"INTENSITY"
+
+[node name="TranslationNode" type="Node" parent="IntensityRow/IntensityLabel"]
+script = ExtResource("1_4ks64")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="DarkenIntensity" type="SpinBox" parent="IntensityRow"]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 0.5
+alignment = 1

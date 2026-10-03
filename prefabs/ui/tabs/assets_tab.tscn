@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://3vw0qnsmd224"]
+
+[ext_resource type="Script" uid="uid://bh3faxjiydwp2" path="res://script/ui/panels/assets_panel.gd" id="29_mm3ey"]
+[ext_resource type="PackedScene" uid="uid://bdiqeabc2dbms" path="res://prefabs/ui/item_panel.tscn" id="30_k36ej"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ajps"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.286275, 0.270588, 0.294118, 1)
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+
+[node name="Assets" type="Panel" unique_id=1830843601 node_paths=PackedStringArray("items_container", "scroll_container")]
+custom_minimum_size = Vector2(360, 0)
+anchors_preset = 9
+anchor_bottom = 1.0
+grow_vertical = 2
+offset_transform_enabled = true
+theme_override_styles/panel = SubResource("StyleBoxFlat_2ajps")
+script = ExtResource("29_mm3ey")
+items_container = NodePath("ScrollContainer/MarginContainer/HFlowContainer")
+scroll_container = NodePath("ScrollContainer")
+panel_prefab = ExtResource("30_k36ej")
+metadata/out_screen_x_pos = -1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=900000202]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.919
+offset_bottom = 0.32000732
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=5452044]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer/MarginContainer" unique_id=1478464460]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1

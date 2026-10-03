@@ -1,0 +1,2 @@
+class_name MovementEffect
+extends TweenEffect

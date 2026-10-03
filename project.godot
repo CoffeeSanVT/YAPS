@@ -1,0 +1,152 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[addons]
+
+translations_plugin/last_edited_file_path="res://localization/YAPS_Localization.csv"
+
+[application]
+
+config/name="YAPS"
+config/version="1.2.0.107"
+run/main_scene="res://scenes/menu.tscn"
+config/use_custom_user_dir=true
+config/custom_user_dir_name="yaps"
+config/features=PackedStringArray("4.7", "C#")
+run/low_processor_mode=true
+boot_splash/bg_color=Color(0.17254902, 0.16862746, 0.1764706, 1)
+boot_splash/stretch_mode=0
+boot_splash/image="uid://b4i12gm186tg0"
+config/icon="uid://dyco1qh4mc3g4"
+boot_splash/minimum_display_time=1
+config/build_number=107
+
+[audio]
+
+buses/default_bus_layout="uid://i2dwp18o17cb"
+driver/enable_input=true
+
+[autoload]
+
+ApplicationState="*res://script/global/application_state.gd"
+SignalBus="*res://script/global/signal_bus.gd"
+Settings="*res://script/global/settings.gd"
+AudioSystem="*res://script/global/audio_system.gd"
+InputMapper="*res://script/global/input_mapper.gd"
+ModelLoader="*res://script/global/model_loader.gd"
+WebSocketServer="*res://script/external_connections/websocket_server.gd"
+TwitchClient="*res://script/external_connections/twitch_client.gd"
+GlobalInput="*uid://dtqvsd027rpqs"
+FileLogger="*res://script/global/file_logger.gd"
+LoadingOverlay="*res://scenes/loading_overlay.tscn"
+ScreenshotCapture="*res://script/global/screenshot_capture.gd"
+
+[copy_files_on_export]
+
+files=Array[PackedStringArray]([PackedStringArray("model")])
+
+[debug]
+
+file_logging/enable_file_logging.pc=false
+gdscript/warnings/untyped_declaration=2
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/resizable=false
+window/size/transparent=true
+window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+window/per_pixel_transparency/allowed=true
+window/vsync/vsync_mode=0
+
+[dotnet]
+
+project/assembly_name="YAPS"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/csvedit/plugin.cfg", "res://addons/global_input/plugin.cfg", "res://addons/localization_apply/plugin.cfg")
+
+[input]
+
+ui_accept={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":16,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":4194309,"physical_keycode":0,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+ui_focus_next={
+"deadzone": 0.5,
+"events": []
+}
+ui_focus_prev={
+"deadzone": 0.5,
+"events": []
+}
+ui_left={
+"deadzone": 0.5,
+"events": []
+}
+ui_right={
+"deadzone": 0.5,
+"events": []
+}
+ui_up={
+"deadzone": 0.5,
+"events": []
+}
+ui_down={
+"deadzone": 0.5,
+"events": []
+}
+ui_page_up={
+"deadzone": 0.5,
+"events": []
+}
+ui_page_down={
+"deadzone": 0.5,
+"events": []
+}
+ui_focus_mode={
+"deadzone": 0.5,
+"events": []
+}
+scale_item={
+"deadzone": 0.2,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":4,"canceled":false,"pressed":false,"double_click":false,"script":null)
+, Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":0,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":5,"canceled":false,"pressed":false,"double_click":false,"script":null)
+]
+}
+take_screenshot={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":32,"physical_keycode":0,"key_label":0,"unicode":32,"location":0,"echo":false,"script":null)
+]
+}
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://localization/YAPS_Localization.en.translation", "res://localization/YAPS_Localization.pt.translation")
+
+[physics]
+
+3d/physics_engine="Dummy"
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=2
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="mobile"
+textures/default_filters/anisotropic_filtering_level=1
+environment/subsurface_scattering/subsurface_scattering_quality=0
+lights_and_shadows/positional_shadow/atlas_quadrant_0_subdiv=0
+lights_and_shadows/positional_shadow/atlas_quadrant_1_subdiv=0
+lights_and_shadows/positional_shadow/atlas_quadrant_2_subdiv=0
+lights_and_shadows/positional_shadow/atlas_quadrant_3_subdiv=0

@@ -1,0 +1,441 @@
+[gd_scene format=3 uid="uid://bdiqeabc2dbms"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_fb12t"]
+[ext_resource type="Script" uid="uid://n7yjcgb05abg" path="res://script/ui/panels/item_panel.gd" id="1_script"]
+[ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="2_y05yw"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="3_loc"]
+[ext_resource type="Texture2D" uid="uid://qyabvnn6x3rd" path="res://assets/icons/runtime/pencil/pencil_normal.svg" id="4_pencil_n"]
+[ext_resource type="Texture2D" uid="uid://br45bxytsbnxx" path="res://assets/icons/runtime/pencil/pencil_hover.svg" id="5_pencil_h"]
+[ext_resource type="Texture2D" uid="uid://bksbqck24mwac" path="res://assets/icons/runtime/pencil/pencil_pressed.svg" id="6_pencil_p"]
+[ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/runtime/pencil/pencil_disabled.svg" id="7_pencil_d"]
+[ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/runtime/pencil/pencil_focused.svg" id="8_pencil_f"]
+[ext_resource type="Texture2D" uid="uid://g8ajdb2xdmqu" path="res://assets/icons/runtime/trash/trash_normal.svg" id="9_trash_n"]
+[ext_resource type="Texture2D" uid="uid://c7jgar1rs0shf" path="res://assets/icons/runtime/trash/trash_hover.svg" id="10_trash_h"]
+[ext_resource type="Texture2D" uid="uid://66ckvqaenf7y" path="res://assets/icons/runtime/trash/trash_pressed.svg" id="11_trash_p"]
+[ext_resource type="Texture2D" uid="uid://dm5jhnakge0ff" path="res://assets/icons/runtime/trash/trash_disabled.svg" id="12_trash_d"]
+[ext_resource type="Texture2D" uid="uid://menup57lhvdt" path="res://assets/icons/runtime/trash/trash_focused.svg" id="13_trash_f"]
+[ext_resource type="Texture2D" uid="uid://bp3k2he5x8uwo" path="res://assets/icons/runtime/play/play_normal.svg" id="14_play"]
+[ext_resource type="Texture2D" uid="uid://b80ell6fepcav" path="res://assets/icons/runtime/play/play_disabled.svg" id="14_play_d"]
+[ext_resource type="Texture2D" uid="uid://r1i3rgwtv1do" path="res://assets/icons/runtime/play/play_focused.svg" id="14_play_f"]
+[ext_resource type="Texture2D" uid="uid://clg3f4t0b3aqk" path="res://assets/icons/runtime/play/play_hover.svg" id="14_play_h"]
+[ext_resource type="Texture2D" uid="uid://bw0lqk8pwm7cx" path="res://assets/icons/runtime/pause/pause_normal.svg" id="15_pause"]
+[ext_resource type="Texture2D" uid="uid://bgdjesshhcp1v" path="res://assets/icons/runtime/play/play_pressed.svg" id="16_play_p"]
+[ext_resource type="Texture2D" uid="uid://dh4i04pahpqrp" path="res://assets/icons/runtime/pause/pause_hover.svg" id="17_pause_h"]
+[ext_resource type="Texture2D" uid="uid://cjqhovjowu24q" path="res://assets/icons/runtime/pause/pause_pressed.svg" id="18_pause_p"]
+[ext_resource type="Texture2D" uid="uid://ctblrynfoj3ag" path="res://assets/icons/runtime/pause/pause_disabled.svg" id="19_pause_d"]
+[ext_resource type="Texture2D" uid="uid://bwsuh60uy3dot" path="res://assets/icons/runtime/pause/pause_focused.svg" id="20_pause_f"]
+[ext_resource type="PackedScene" uid="uid://d1q6ma2vw4h7n" path="res://prefabs/ui/triggers/twitch_event_foldable.tscn" id="21_twitch_foldable"]
+[ext_resource type="Script" uid="uid://b762yq6ybokpk" path="res://script/ui/panels/item_anim_controls.gd" id="22_anim"]
+
+[node name="PanelContainer" type="PanelContainer" unique_id=700000100 node_paths=PackedStringArray("thumbnail", "item_name_label", "enable_toggle", "fixed_toggle", "trigger_option", "trigger_ui", "rename_button", "position_x", "position_y", "scale_value", "rotation_value", "z_value", "anim_controls", "fade_spin", "hide_spin", "twitch_foldable")]
+custom_minimum_size = Vector2(270, 0)
+size_flags_horizontal = 3
+theme = ExtResource("1_fb12t")
+theme_override_styles/panel = ExtResource("2_y05yw")
+script = ExtResource("1_script")
+thumbnail = NodePath("VBoxContainer/Header/Thumbnail")
+item_name_label = NodePath("VBoxContainer/Header/ItemName")
+enable_toggle = NodePath("VBoxContainer/Toggles/EnableToggle")
+fixed_toggle = NodePath("VBoxContainer/Toggles/FixedToggle")
+trigger_option = NodePath("VBoxContainer/TriggerFoldable/VBoxContainer/Trigger")
+trigger_ui = NodePath("VBoxContainer/TriggerFoldable/VBoxContainer/TriggerUI")
+rename_button = NodePath("VBoxContainer/Toggles/Actions/RenameButton")
+position_x = NodePath("VBoxContainer/TransformFoldable/TransformContainer/PositionRow/XAxis/X")
+position_y = NodePath("VBoxContainer/TransformFoldable/TransformContainer/PositionRow/YAxis/Y")
+scale_value = NodePath("VBoxContainer/TransformFoldable/TransformContainer/ScaleRow/Value")
+rotation_value = NodePath("VBoxContainer/TransformFoldable/TransformContainer/RotationRow/Value")
+z_value = NodePath("VBoxContainer/TransformFoldable/TransformContainer/ZRow/Value")
+anim_controls = NodePath("VBoxContainer/AnimFoldable")
+fade_spin = NodePath("VBoxContainer/AdvancedFoldable/AdvancedContent/FadeRow/FadeSpin")
+hide_spin = NodePath("VBoxContainer/AdvancedFoldable/AdvancedContent/HideRow/HideSpin")
+twitch_foldable = NodePath("VBoxContainer/TwitchEventFoldable")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=700000101]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="VBoxContainer" unique_id=700000102]
+layout_mode = 2
+
+[node name="Thumbnail" type="TextureRect" parent="VBoxContainer/Header" unique_id=700000103]
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemName" type="Label" parent="VBoxContainer/Header" unique_id=700000105]
+custom_maximum_size = Vector2(200, -1)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Item Name"
+autowrap_mode = 2
+clip_text = true
+
+[node name="Toggles" type="HBoxContainer" parent="VBoxContainer" unique_id=700000108]
+layout_mode = 2
+
+[node name="EnableLabel" type="Label" parent="VBoxContainer/Toggles" unique_id=1090112508]
+layout_mode = 2
+text = "Enable"
+metadata/localization_key = &"ENABLE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/Toggles/EnableLabel" unique_id=176393441]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="EnableSpacer" type="Control" parent="VBoxContainer/Toggles" unique_id=124140478]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EnableToggle" type="CheckButton" parent="VBoxContainer/Toggles" unique_id=1730246280]
+layout_mode = 2
+
+[node name="FixedLabel" type="Label" parent="VBoxContainer/Toggles" unique_id=1906160573]
+layout_mode = 2
+text = "Fixed to Model"
+metadata/localization_key = &"ITEM_FIXED"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/Toggles/FixedLabel" unique_id=700000112]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="FixedSpacer" type="Control" parent="VBoxContainer/Toggles" unique_id=1850699695]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FixedToggle" type="CheckButton" parent="VBoxContainer/Toggles" unique_id=700000111]
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="VBoxContainer/Toggles" unique_id=700000113]
+layout_mode = 2
+
+[node name="RenameButton" type="TextureButton" parent="VBoxContainer/Toggles/Actions" unique_id=700000115]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "RENAME"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("4_pencil_n")
+texture_pressed = ExtResource("6_pencil_p")
+texture_hover = ExtResource("5_pencil_h")
+texture_disabled = ExtResource("7_pencil_d")
+texture_focused = ExtResource("8_pencil_f")
+stretch_mode = 5
+
+[node name="DeleteButton" type="TextureButton" parent="VBoxContainer/Toggles/Actions" unique_id=700000117]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "DELETE"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("9_trash_n")
+texture_pressed = ExtResource("11_trash_p")
+texture_hover = ExtResource("10_trash_h")
+texture_disabled = ExtResource("12_trash_d")
+texture_focused = ExtResource("13_trash_f")
+stretch_mode = 5
+
+[node name="TransformFoldable" type="FoldableContainer" parent="VBoxContainer" unique_id=1160123604]
+layout_mode = 2
+folded = true
+title = "Transform"
+metadata/localization_key = &"TRANSFORM"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/TransformFoldable" unique_id=849182436]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="TransformContainer" type="VBoxContainer" parent="VBoxContainer/TransformFoldable" unique_id=33199422]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PositionRow" type="HBoxContainer" parent="VBoxContainer/TransformFoldable/TransformContainer" unique_id=1500721836]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PositionLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow" unique_id=343309834]
+layout_mode = 2
+text = "Position"
+metadata/localization_key = &"POSITION"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow/PositionLabel" unique_id=259087517]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="XAxis" type="HBoxContainer" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow" unique_id=1137298294]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow/XAxis" unique_id=349700397]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8, 0.35999998, 0.35999998, 1)
+text = "X"
+
+[node name="X" type="SpinBox" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow/XAxis" unique_id=1450245254]
+layout_mode = 2
+min_value = -3.0
+max_value = 3.0
+step = 0.01
+alignment = 1
+
+[node name="YAxis" type="HBoxContainer" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow" unique_id=1447077212]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow/YAxis" unique_id=1600603735]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35686275, 0.8, 0.40392157, 1)
+text = "Y"
+
+[node name="Y" type="SpinBox" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow/YAxis" unique_id=143760433]
+layout_mode = 2
+min_value = -3.0
+max_value = 3.0
+step = 0.01
+alignment = 1
+
+[node name="ScaleRow" type="HBoxContainer" parent="VBoxContainer/TransformFoldable/TransformContainer" unique_id=963973005]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ScaleLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/ScaleRow" unique_id=165846372]
+layout_mode = 2
+text = "Scale"
+metadata/localization_key = &"SCALE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/TransformFoldable/TransformContainer/ScaleRow/ScaleLabel" unique_id=306383602]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Value" type="SpinBox" parent="VBoxContainer/TransformFoldable/TransformContainer/ScaleRow" unique_id=1669414821]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.01
+max_value = 10.0
+step = 0.01
+value = 1.0
+alignment = 1
+
+[node name="RotationRow" type="HBoxContainer" parent="VBoxContainer/TransformFoldable/TransformContainer" unique_id=1402059517]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="RotationLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/RotationRow" unique_id=1588286053]
+layout_mode = 2
+text = "Rotation"
+metadata/localization_key = &"ROTATION"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/TransformFoldable/TransformContainer/RotationRow/RotationLabel" unique_id=807798247]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Value" type="SpinBox" parent="VBoxContainer/TransformFoldable/TransformContainer/RotationRow" unique_id=326814914]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -360.0
+max_value = 360.0
+step = 0.1
+alignment = 1
+suffix = "°"
+
+[node name="ZRow" type="HBoxContainer" parent="VBoxContainer/TransformFoldable/TransformContainer" unique_id=981237402]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ZLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/ZRow" unique_id=1847560329]
+layout_mode = 2
+text = "Z Index"
+metadata/localization_key = &"Z_INDEX"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/TransformFoldable/TransformContainer/ZRow/ZLabel" unique_id=737522848]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Value" type="SpinBox" parent="VBoxContainer/TransformFoldable/TransformContainer/ZRow" unique_id=763120584]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -99.0
+max_value = 99.0
+value = 1.0
+alignment = 1
+
+[node name="TriggerFoldable" type="FoldableContainer" parent="VBoxContainer" unique_id=422396957]
+layout_mode = 2
+folded = true
+title = "Trigger"
+metadata/localization_key = &"TRIGGER"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/TriggerFoldable" unique_id=1106924289]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/TriggerFoldable" unique_id=1602534556]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Trigger" type="OptionButton" parent="VBoxContainer/TriggerFoldable/VBoxContainer" unique_id=700000114]
+layout_mode = 2
+size_flags_vertical = 4
+fit_to_longest_item = false
+
+[node name="TriggerUI" type="VBoxContainer" parent="VBoxContainer/TriggerFoldable/VBoxContainer" unique_id=700000119]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="AdvancedFoldable" type="FoldableContainer" parent="VBoxContainer" unique_id=1260901119]
+layout_mode = 2
+folded = true
+title = "Advanced"
+metadata/localization_key = &"ADVANCED"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/AdvancedFoldable" unique_id=1475739381]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="AdvancedContent" type="VBoxContainer" parent="VBoxContainer/AdvancedFoldable" unique_id=213215000]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="FadeRow" type="HBoxContainer" parent="VBoxContainer/AdvancedFoldable/AdvancedContent" unique_id=1135671634]
+layout_mode = 2
+
+[node name="FadeLabel" type="Label" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/FadeRow" unique_id=2064931616]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Fade for sec"
+metadata/localization_key = &"FADE_FOR_SEC"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/FadeRow/FadeLabel" unique_id=1137093907]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="FadeSpin" type="SpinBox" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/FadeRow" unique_id=271007553]
+layout_mode = 2
+min_value = 0.05
+max_value = 5.0
+step = 0.05
+value = 0.25
+alignment = 1
+suffix = "s"
+
+[node name="HideRow" type="HBoxContainer" parent="VBoxContainer/AdvancedFoldable/AdvancedContent" unique_id=1501488021]
+layout_mode = 2
+
+[node name="HideLabel" type="Label" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/HideRow" unique_id=649422711]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Stop after sec"
+metadata/localization_key = &"STOP_AFTER_SEC"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/HideRow/HideLabel" unique_id=73100679]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="HideSpin" type="SpinBox" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/HideRow" unique_id=842140510]
+layout_mode = 2
+max_value = 30.0
+step = 0.5
+alignment = 1
+suffix = "s"
+
+[node name="AnimFoldable" type="FoldableContainer" parent="VBoxContainer" unique_id=1209829083 node_paths=PackedStringArray("play_btn", "slider", "frame_label", "loop_check")]
+visible = false
+layout_mode = 2
+folded = true
+title = "Animation"
+script = ExtResource("22_anim")
+play_btn = NodePath("AnimContainer/AnimRow/PlayPauseButton")
+slider = NodePath("AnimContainer/AnimRow/FrameSlider")
+frame_label = NodePath("AnimContainer/AnimRow/FrameLabel")
+loop_check = NodePath("AnimContainer/AnimRow/LoopToggle")
+play_icon = ExtResource("14_play")
+play_icon_hover = ExtResource("14_play_h")
+play_icon_pressed = ExtResource("16_play_p")
+play_icon_disabled = ExtResource("14_play_d")
+play_icon_focused = ExtResource("14_play_f")
+pause_icon = ExtResource("15_pause")
+pause_icon_hover = ExtResource("17_pause_h")
+pause_icon_pressed = ExtResource("18_pause_p")
+pause_icon_disabled = ExtResource("19_pause_d")
+pause_icon_focused = ExtResource("20_pause_f")
+metadata/localization_key = &"ANIMATION"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/AnimFoldable" unique_id=804465345]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="AnimContainer" type="VBoxContainer" parent="VBoxContainer/AnimFoldable" unique_id=465167035]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="AnimRow" type="HBoxContainer" parent="VBoxContainer/AnimFoldable/AnimContainer" unique_id=1595297352]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PlayPauseButton" type="TextureButton" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow" unique_id=1043745792]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "PLAY"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("14_play")
+texture_pressed = ExtResource("15_pause")
+texture_hover = ExtResource("14_play_h")
+texture_disabled = ExtResource("14_play_d")
+texture_focused = ExtResource("14_play_f")
+stretch_mode = 5
+
+[node name="FrameSlider" type="HSlider" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow" unique_id=1073820726]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 1.0
+
+[node name="FrameLabel" type="Label" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow" unique_id=700528145]
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+text = "0 / 0"
+horizontal_alignment = 1
+
+[node name="LoopLabel" type="Label" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow" unique_id=807604702]
+layout_mode = 2
+text = "Loop"
+metadata/localization_key = &"LOOP"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow/LoopLabel" unique_id=1862314689]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="LoopSpacer" type="Control" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow" unique_id=1242695248]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LoopToggle" type="CheckButton" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow" unique_id=1282530220]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="TwitchEventFoldable" parent="VBoxContainer" unique_id=416063861 instance=ExtResource("21_twitch_foldable")]
+layout_mode = 2
+
+[connection signal="toggled" from="VBoxContainer/Toggles/EnableToggle" to="." method="_on_enable_toggled"]
+[connection signal="toggled" from="VBoxContainer/Toggles/FixedToggle" to="." method="_on_fixed_toggled"]
+[connection signal="pressed" from="VBoxContainer/Toggles/Actions/RenameButton" to="." method="_on_rename_pressed"]
+[connection signal="pressed" from="VBoxContainer/Toggles/Actions/DeleteButton" to="." method="_on_delete_pressed"]
+[connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/PositionRow/XAxis/X" to="." method="_on_position_x_changed"]
+[connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/PositionRow/YAxis/Y" to="." method="_on_position_y_changed"]
+[connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/ScaleRow/Value" to="." method="_on_scale_changed"]
+[connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/RotationRow/Value" to="." method="_on_rotation_changed"]
+[connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/ZRow/Value" to="." method="_on_z_changed"]
+[connection signal="item_selected" from="VBoxContainer/TriggerFoldable/VBoxContainer/Trigger" to="." method="_on_trigger_selected"]
+[connection signal="loop_toggled" from="VBoxContainer/AnimFoldable" to="." method="_on_anim_loop_toggled"]
+[connection signal="pressed" from="VBoxContainer/AnimFoldable/AnimContainer/AnimRow/PlayPauseButton" to="VBoxContainer/AnimFoldable" method="_on_play_pressed"]
+[connection signal="value_changed" from="VBoxContainer/AnimFoldable/AnimContainer/AnimRow/FrameSlider" to="VBoxContainer/AnimFoldable" method="_on_slider_changed"]
+[connection signal="toggled" from="VBoxContainer/AnimFoldable/AnimContainer/AnimRow/LoopToggle" to="VBoxContainer/AnimFoldable" method="_on_loop_toggled"]

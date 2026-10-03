@@ -1,0 +1,282 @@
+class_name TwitchEventSub
+extends Node
+
+const TAG := "[TwitchEventSub] "
+const EVENTSUB_WS_URL := "wss://eventsub.wss.twitch.tv/ws"
+const KEEPALIVE_GRACE_SECONDS := 10.0
+const RECONNECT_MIN_DELAY := 1.0
+const RECONNECT_MAX_DELAY := 60.0
+const CREATE_RETRY_DELAY_SEC := 5.0
+const CREATE_MAX_ATTEMPTS := 3
+
+enum ConnectionState { IDLE, CONNECTING, CONNECTED, RECONNECT_PENDING }
+
+var _api: TwitchApi
+var _auth_headers: Callable
+var _user_id: Callable
+var _is_connected: Callable
+var _event_keys: Dictionary = {}
+
+var _ws_peer: WebSocketPeer
+var state := ConnectionState.IDLE
+var _session_id: String = ""
+var _reconnect_url: String = ""
+var _keepalive_timeout: float = 0.0
+var _last_keepalive_time: float = 0.0
+var _reconnect_attempts: int = 0
+
+var _subs: Dictionary = {}
+var _create_retry_scheduled := false
+
+func _ready() -> void:
+	for key: StringName in TwitchEvent.EVENT_TYPES:
+		_event_keys[TwitchEvent.EVENT_TYPES[key]] = key
+
+func setup(api: TwitchApi, auth_headers: Callable, user_id: Callable, connection_check: Callable) -> void:
+	_api = api
+	_auth_headers = auth_headers
+	_user_id = user_id
+	_is_connected = connection_check
+
+func _process(_delta: float) -> void:
+	_process_eventsub_ws()
+
+func _exit_tree() -> void:
+	_shutdown_ws()
+
+func start_session() -> void:
+	_shutdown_ws()
+	_ws_peer = WebSocketPeer.new()
+	_last_keepalive_time = _now_sec()
+	var err := _ws_peer.connect_to_url(EVENTSUB_WS_URL)
+	if err != OK:
+		push_error(TAG + "failed to connect to EventSub WebSocket: %s" % error_string(err))
+		_reconnect()
+		return
+	state = ConnectionState.CONNECTING
+	print(TAG + "connecting to EventSub WebSocket...")
+
+func stop_session() -> void:
+	_shutdown_ws()
+	_subs.clear()
+	_reconnect_attempts = 0
+
+func subscribe_event(event_type: StringName, reward_id: String = "") -> void:
+	var key := _sub_key(event_type, reward_id)
+	var sub: Dictionary = _subs.get(key, {})
+	if sub.is_empty():
+		sub = {"event_type": event_type, "reward_id": reward_id, "id": "", "refs": 0, "attempts": 0}
+		_subs[key] = sub
+	sub["refs"] = int(sub.get("refs", 0)) + 1
+	_sync_subscriptions()
+
+func unsubscribe_event(event_type: StringName, reward_id: String = "") -> void:
+	var key := _sub_key(event_type, reward_id)
+	var sub: Dictionary = _subs.get(key, {})
+	if sub.is_empty():
+		return
+	var refs := int(sub.get("refs", 0)) - 1
+	if refs > 0:
+		sub["refs"] = refs
+		return
+	_subs.erase(key)
+	var sub_id := String(sub.get("id", ""))
+	if not sub_id.is_empty():
+		_api.delete_eventsub_subscription(sub_id)
+	print(TAG + "unsubscribed from %s" % TwitchEvent.EVENT_TYPES.get(event_type, event_type))
+
+func _now_sec() -> float:
+	return Time.get_ticks_msec() / 1000.0
+
+func _shutdown_ws() -> void:
+	if _ws_peer != null:
+		_ws_peer.close()
+		_ws_peer = null
+	state = ConnectionState.IDLE
+	_session_id = ""
+	_reconnect_url = ""
+	_keepalive_timeout = 0.0
+	_last_keepalive_time = 0.0
+
+func _process_eventsub_ws() -> void:
+	if _ws_peer == null:
+		return
+	_ws_peer.poll()
+	match _ws_peer.get_ready_state():
+		WebSocketPeer.STATE_OPEN:
+			_process_ws_open()
+		WebSocketPeer.STATE_CLOSING:
+			pass
+		WebSocketPeer.STATE_CLOSED:
+			_process_ws_closed()
+
+func _process_ws_open() -> void:
+	if _ws_peer.get_available_packet_count() > 0:
+		while _ws_peer.get_available_packet_count() > 0:
+			_handle_ws_message(_ws_peer.get_packet().get_string_from_utf8())
+		_last_keepalive_time = _now_sec()
+	if state != ConnectionState.CONNECTED:
+		state = ConnectionState.CONNECTED
+		_reconnect_attempts = 0
+		print(TAG + "EventSub WebSocket connected")
+	elif _keepalive_timeout > 0.0 and _now_sec() - _last_keepalive_time > _keepalive_timeout:
+		push_warning(TAG + "EventSub keepalive timeout (no message for %.1fs); reconnecting" % _keepalive_timeout)
+		_ws_peer.close()
+		_ws_peer = null
+		_reconnect()
+
+func _process_ws_closed() -> void:
+	var code := _ws_peer.get_close_code()
+	var reason := _ws_peer.get_close_reason()
+	print(TAG + "EventSub WebSocket closed: %d - %s" % [code, reason])
+	_ws_peer = null
+	_session_id = ""
+	if _is_connected.call() and (not _reconnect_url.is_empty() or not _subs.is_empty()):
+		_reconnect()
+	else:
+		state = ConnectionState.IDLE
+
+func _reconnect() -> void:
+	_keepalive_timeout = 0.0
+	_last_keepalive_time = _now_sec()
+	if state == ConnectionState.RECONNECT_PENDING:
+		return
+	var delay := minf(RECONNECT_MAX_DELAY, RECONNECT_MIN_DELAY * pow(2.0, _reconnect_attempts))
+	_reconnect_attempts += 1
+	state = ConnectionState.RECONNECT_PENDING
+	print(TAG + "scheduling EventSub reconnect in %.1fs (attempt %d)" % [delay, _reconnect_attempts])
+	get_tree().create_timer(delay).timeout.connect(_attempt_reconnect)
+
+func _attempt_reconnect() -> void:
+	if state != ConnectionState.RECONNECT_PENDING:
+		return
+	if not _is_connected.call():
+		state = ConnectionState.IDLE
+		return
+	if _reconnect_url.is_empty():
+		start_session()
+		return
+	var url := _reconnect_url
+	_reconnect_url = ""
+	_ws_peer = WebSocketPeer.new()
+	var err := _ws_peer.connect_to_url(url)
+	if err != OK:
+		push_error(TAG + "failed to reconnect to EventSub: %s" % error_string(err))
+		start_session()
+		return
+	state = ConnectionState.CONNECTING
+	print(TAG + "reconnecting to EventSub...")
+
+func _handle_ws_message(message: String) -> void:
+	var json: Variant = JSON.parse_string(message)
+	if json == null:
+		return
+	var metadata: Dictionary = json.get("metadata", {})
+	var payload: Dictionary = json.get("payload", {})
+	var message_type: String = metadata.get("message_type", "")
+	match message_type:
+		"session_welcome":
+			_handle_session_welcome(payload)
+		"notification":
+			_handle_notification(payload)
+		"session_reconnect":
+			_handle_session_reconnect(payload)
+		"revocation":
+			_handle_revocation(payload)
+		"session_keepalive":
+			pass
+
+func _handle_session_welcome(payload: Dictionary) -> void:
+	var session: Dictionary = payload.get("session", {})
+	_session_id = session.get("id", "")
+	_keepalive_timeout = float(session.get("keepalive_timeout_seconds", 30.0)) + KEEPALIVE_GRACE_SECONDS
+	_last_keepalive_time = _now_sec()
+	_reconnect_url = ""
+	print(TAG + "EventSub session established: %s" % _session_id)
+	for key: String in _subs:
+		_subs[key]["id"] = ""
+		_subs[key]["attempts"] = 0
+	_sync_subscriptions()
+
+func _handle_notification(payload: Dictionary) -> void:
+	var subscription: Dictionary = payload.get("subscription", {})
+	var event: Dictionary = payload.get("event", {})
+	var key: StringName = _event_keys.get(subscription.get("type", ""), &"")
+	if key != &"":
+		SignalBus.twitch_event_received.emit(key, event)
+
+func _handle_session_reconnect(payload: Dictionary) -> void:
+	var session: Dictionary = payload.get("session", {})
+	_reconnect_url = session.get("reconnect_url", "")
+	print(TAG + "received reconnect signal, URL: %s" % _reconnect_url)
+
+func _handle_revocation(payload: Dictionary) -> void:
+	var subscription: Dictionary = payload.get("subscription", {})
+	var sub_type: String = subscription.get("type", "")
+	var sub_id := String(subscription.get("id", ""))
+	var status: String = subscription.get("status", "")
+	push_warning(TAG + "subscription revoked: %s (status: %s)" % [sub_type, status])
+	for key: String in _subs.keys():
+		if String(_subs[key].get("id", "")) == sub_id:
+			_subs.erase(key)
+
+static func _sub_key(event_type: StringName, reward_id: String) -> String:
+	return String(event_type) if reward_id.is_empty() else "%s|%s" % [event_type, reward_id]
+
+func _sync_subscriptions() -> void:
+	_create_retry_scheduled = false
+	if not _is_connected.call() or _session_id.is_empty():
+		return
+	for key: String in _subs:
+		if String(_subs[key].get("id", "")).is_empty():
+			_create_eventsub_subscription(key)
+
+func _create_eventsub_subscription(key: String) -> void:
+	var sub: Dictionary = _subs.get(key, {})
+	if sub.is_empty():
+		return
+	sub["attempts"] = int(sub.get("attempts", 0)) + 1
+	var event_type: StringName = sub["event_type"]
+	if not TwitchEvent.EVENT_TYPES.has(event_type):
+		push_error(TAG + "unknown event type: %s" % event_type)
+		return
+	var sub_type := String(TwitchEvent.EVENT_TYPES[event_type])
+	var reward_id := String(sub.get("reward_id", ""))
+	_api.create_eventsub_subscription(_subscription_body(event_type, reward_id), sub_type, func(sub_id: String) -> void:
+		if not _subs.has(key):
+			return
+		if sub_id.is_empty():
+			_on_create_failed(key, sub_type)
+			return
+		_subs[key]["id"] = sub_id
+		print(TAG + "subscribed to %s (reward: %s)" % [sub_type, reward_id if not reward_id.is_empty() else "any"])
+	)
+
+func _on_create_failed(key: String, sub_type: String) -> void:
+	var sub: Dictionary = _subs.get(key, {})
+	if sub.is_empty():
+		return
+	var attempts := int(sub.get("attempts", 0))
+	if attempts >= CREATE_MAX_ATTEMPTS:
+		push_error(TAG + "gave up creating subscription for %s after %d attempts; re-enable the trigger to retry" % [sub_type, CREATE_MAX_ATTEMPTS])
+		return
+	if not _create_retry_scheduled:
+		_create_retry_scheduled = true
+		print(TAG + "retrying failed subscription in %.0fs (%d/%d)" % [CREATE_RETRY_DELAY_SEC, attempts, CREATE_MAX_ATTEMPTS])
+		get_tree().create_timer(CREATE_RETRY_DELAY_SEC).timeout.connect(_sync_subscriptions)
+
+func _subscription_body(event_type: StringName, reward_id: String) -> Dictionary:
+	var broadcaster_id: String = _user_id.call()
+	var version := "1"
+	var condition: Dictionary = {"broadcaster_user_id": broadcaster_id}
+	if event_type == &"follow":
+		version = "2"
+		condition["moderator_user_id"] = broadcaster_id
+	elif event_type == &"channel_points" and not reward_id.is_empty():
+		condition["reward_id"] = reward_id
+	return {
+		"type": TwitchEvent.EVENT_TYPES[event_type],
+		"version": version,
+		"condition": condition,
+		"transport": {"method": "websocket", "session_id": _session_id},
+	}

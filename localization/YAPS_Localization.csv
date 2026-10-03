@@ -1,0 +1,183 @@
+key,en,pt
+YAPS_DESCRIPTION,"Welcome to YAPS! To create your character, just click the Create button below. You need at minimum two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and[br] [b]<emotion name>_silence[/b] or just the emotion name.","Bem-vindo ao YAPS! Para criar seu personagem, clique no botão Criar abaixo. Você precisa de no mínimo duas imagens nomeadas talking e silence, e para cada emoção nomeie o arquivo como [b]<nome da emoção>_talking[/b] e [br] [b]<nome da emoção>_silence[/b] ou apenas o nome da emoção."
+CHARACTERS,Characters,Personagens
+CREATE,Create,Criar
+CONFIRM,Confirm,Confirmar
+TRANSITION_DURATION,Transition Duration,Duração da Transição
+EFFECT,Effects,Efeitos
+GLOBAL_EFFECT,Global Effect,Efeito Global
+EFFECT_USE_GLOBAL,Use for All Expressions,Usar em Todas as Expressões
+GLOBAL_EFFECT_HINT,Global: %s,Global: %s
+NONE,None,Nenhum
+EFFECT_BOUNCE,Bounce,Pulo
+EFFECT_SHAKE,Shake,Tremer
+EFFECT_BOB,Float,Flutuar
+EFFECT_WARP,Wave Warp,Distorção de onda
+EFFECT_DARKEN,Darken,Escurecer
+EFFECT_CATEGORY_MOVEMENT,Movement,Movimento
+EFFECT_CATEGORY_FILTER,Filter,Filtro
+TRIGGER,Trigger,Ativador
+USE_TWITCH_EVENTS,Use Twitch Events,Usar Eventos da Twitch
+TRIGGER_KEY_PRESSED,Key Pressed,Apertar Tecla
+TRIGGER_KEY_HOLD,Key Holding,Segurar Tecla
+TRIGGER_START_TALKING,Start Talking,Começando a falar
+TRIGGER_VOLUME_RANGE,Volume Range,Faixa de volume
+POSITION,Position,Posição
+SCALE,Scale,Escala
+ZOOM,Zoom,Zoom
+ROTATION,Rotation,Rotação
+Z_INDEX,Z Index,Índice Z
+DURATION,Duration,Duração
+INTENSITY,Intensity,Intensidade
+AMPLITUDE,Amplitude,Amplitude
+FPS_LIMIT,FPS Limit,Limite de FPS
+PERFORMANCE_OVERLAY,Performance Overlay,Overlay de desempenho
+COMPRESS_TEXTURES,Compress Textures,Comprimir Texturas
+TEXTURE_FILTER,Texture Filter,Filtro de textura
+WINDOW_RESOLUTION,Window Resolution,Resolução da Janela
+ANTI_ALIASING,Anti-Aliasing,Anti-serrilhado
+SPOUT_OUTPUT,Spout Output,Saída com Spout
+BACKGROUND,Background,Fundo
+BACKGROUND_GREEN,Green,Verde
+BACKGROUND_BLUE,Blue,Azul
+BACKGROUND_MAGENTA,Magenta,Magenta
+BACKGROUND_TRANSPARENT,Transparent,Transparente
+BACKGROUND_IMAGE,Image,Imagem
+BACKGROUND_CUSTOM_COLOR,Custom Color,Cor Personalizada
+MICROPHONE,Microphone,Microfone
+AUDIO,Audio,Áudio
+DEFAULT,Default,Padrão
+MARK_AS_DEFAULT,Mark as default,Marcar como padrão
+MIC_ACTIVATION_THRESHOLD,Activation Threshold,Volume de ativação
+SHOW_VOLUME_VISUALIZATION,Show Volume Visualizer,Mostrar visualização de volume
+AVERAGE_DB,Average volume: %.1f dB,Média de volume: %.1f dB
+START_CALC_AVERAGE_DB,Calculate average volume,Calcular média de volume
+CALC_AVERAGE_DB,Average: %.1f dB,Média: %.1f dB
+MODEL,Model,Modelo
+EXPRESSIONS,Expressions,Expressões
+SETTINGS,Settings,Configurações
+GENERAL,General,Geral
+LANGUAGE,Language,Idioma
+LANG_ENGLISH,English,Inglês
+LANG_PORTUGUESE,Portuguese,Português
+MODEL_NAME,Model name,Nome do modelo
+TIME_TO_REVERT,Time to revert,Tempo para voltar
+TIME_TO_ACTIVATE,Time to activate,Tempo para ativar
+BACK_TO_MENU,Back to Menu,Voltar ao Menu
+RELOAD_IMAGES,Reload Images,Recarregar Imagens
+MIN_DB,Min dB,Mín. dB
+MAX_DB,Max dB,Máx. dB
+SELECT_IMAGE,Select Image,Selecionar Imagem
+PICK_COLOR,Pick Color,Selecionar Cor
+OPEN_FILE,Open a File,Abrir um Arquivo
+TEXTURE_FILTER_NEAREST,Nearest,Mais próximo
+TEXTURE_FILTER_LINEAR,Linear,Linear
+ANTIALIAS_NONE,None,Nenhum
+ANTIALIAS_FEATHER,Feather,Feather
+ANTIALIAS_SUPERSAMPLE,Supersample,Supersample
+ANTIALIAS_FXAA,FXAA,FXAA
+ANTIALIAS_MSAA_2X,MSAA 2x,MSAA 2x
+ANTIALIAS_MSAA_4X,MSAA 4x,MSAA 4x
+ASSETS,Assets,Itens
+RENAME,Rename,Renomear
+DELETE,Delete,Excluir
+DELETE_MODEL_TITLE,Delete Model,Excluir Modelo
+DELETE_MODEL_MESSAGE,Delete model '%s'? All of its files will be permanently removed.,Excluir o modelo '%s'? Todos os seus arquivos serão removidos permanentemente.
+ITEM_FIXED,Fixed to Model,Preso ao modelo
+ADD_STATE,Add State,Adicionar Estado
+FRAMES,Frames,Quadros
+FRAME_RATE,Animation FPS,FPS da animação
+OVERRIDE_FRAME_RATE,Override FPS,Sobrescrever FPS
+OVERRIDE_EVERY,Override interval,Sobrescrever intervalo
+ANIMATION_INTERVAL,Animation interval,Intervalo da animação
+LOOP,Loop,Loop
+OVERRIDE_SILENCE,Override silence,Sobrescrever silêncio
+OVERRIDE_TALKING,Override talking,Sobrescrever falando
+ADD_FRAME,Add Frame,Adicionar Quadro
+EMPTY_ASSETS_LIST,No items in scene,Sem itens na cena
+WEBSOCKET_SERVER,Enable server,Ativar servidor
+WEBSOCKET_SERVER_TITLE,WebSocket Server,Servidor WebSocket
+SERVER_PORT,Port,Porta
+CALLABLE_ACTIONS,Callable Actions,Ações disponíveis
+FADE_FOR_SEC,Fade for sec,Fade em seg
+STOP_AFTER_SEC,Stop after sec,Parar após seg
+ADVANCED,Advanced,Avançado
+TRANSFORM,Transform,Transformação
+OFFSET_TRANSFORM,Offset Transform,Transformação Offset
+ANIMATION,Animation,Animação
+CLEAR,Clear,Limpar
+CLICK_TO_SET_KEY,Click to set key,Clique para definir a tecla
+PRESETS,Position Presets,Posições Prontas
+SAVE_PRESET,Save position,Salvar Posição
+TALKING,Talking,Falando
+SILENCE,Silence,Silêncio
+EMOTIONS,Emotions,Emoções
+ADD_EMOTION,Add Emotion,Adicionar Emoção
+NEUTRAL,Neutral,Neutro
+CANCEL,Cancel,Cancelar
+ENABLE,Enable,Ativar
+OUTLINE,Outline,Contorno
+OUTLINE_ENABLE,Enable Outline,Ativar Contorno
+OUTLINE_COLOR,Color,Cor
+OUTLINE_WIDTH,Width,Largura
+OUTLINE_SOFTNESS,Softness,Suavidade
+OUTLINE_INSIDE,Inside Edge,Borda Interna
+OUTLINE_THRESHOLD,Alpha Threshold,Limite de Alfa
+OUTLINE_HALFTONE,Dot Halftone,Halftone de Pontos
+OUTLINE_DOT_SIZE,Dot Size,Tamanho do Ponto
+OUTLINE_GRADIENT,Gradient,Degradê
+OUTLINE_GRADIENT_COLOR,Outer Color,Cor Externa
+APPLY,Apply,Aplicar
+UPDATE,Update,Atualizar
+CLOSE,Close,Fechar
+COPY,Copy,Copiar
+PLAY,Play,Reproduzir
+PAUSE,Pause,Pausar
+INTERPOLATION,Interpolation,Interpolação
+INTERPOLATE,Interpolate,Interpolar
+TRANSITION,Transition,Transição
+EASE,Ease,Suavização
+TRANS_LINEAR,Linear,Linear
+TRANS_SINE,Sine,Senoide
+TRANS_QUINT,Quint,Quint
+TRANS_QUART,Quart,Quart
+TRANS_QUAD,Quad,Quad
+TRANS_EXPO,Exponential,Exponencial
+TRANS_ELASTIC,Elastic,Elástico
+TRANS_CUBIC,Cubic,Cúbico
+TRANS_CIRC,Circular,Circular
+TRANS_BACK,Back,Retrocesso
+TRANS_BOUNCE,Bounce,Saltitante
+EASE_IN,In,Entrada
+EASE_OUT,Out,Saída
+EASE_IN_OUT,In Out,Entrada e Saída
+EASE_OUT_IN,Out In,Saída e Entrada
+SHORTCUT_CONFLICT,Shortcut conflict: this shortcut is already assigned to: %s,Conflito de atalho: este atalho já está atribuído a: %s
+TWITCH,Twitch,Twitch
+TWITCH_CONNECT,Connect with Twitch,Conectar com Twitch
+TWITCH_DISCONNECT,Disconnect,Desconectar
+TWITCH_EVENT,Event,Evento
+TWITCH_EVENT_FOLLOW,Follow,Follow
+TWITCH_EVENT_SUBSCRIBE,Subscribe,Inscrição
+TWITCH_EVENT_GIFT_SUB,Gift Sub,Sub Presente
+TWITCH_EVENT_RAID,Raid,Raid
+TWITCH_EVENT_BITS,Bits / Cheer,Bits / Cheer
+TWITCH_EVENT_CHANNEL_POINTS,Channel Points,Pontos do Canal
+TRIGGER_TWITCH_EVENT,Twitch Event,Evento da Twitch
+TWITCH_LOGIN_REQUIRED,You are not connected to Twitch. Connect in the Twitch settings to use this trigger.,Você não está conectado à Twitch. Conecte-se nas configurações da Twitch para usar este ativador.
+TWITCH_REWARD,Reward,Recompensa
+TWITCH_REWARD_NONE,None (any reward),Nenhum (qualquer recompensa)
+TWITCH_REFRESH_REWARDS,Refresh Rewards,Atualizar Recompensas
+TWITCH_REWARDS_COUNT,Channel points rewards: %d,Recompensas de pontos do canal: %d
+TWITCH_MIN_BITS,Minimum bits,Bits mínimos
+TWITCH_PULSE,Pulse (auto revert),Pulso (voltar sozinho)
+TWITCH_PULSE_DURATION,Duration,Duração
+TWITCH_AUTH_ERROR,Twitch connection failed: %s,Falha na conexão com a Twitch: %s
+LOADING_CREATING,Creating model,Criando modelo
+LOADING_COPYING_FILES,Copying files,Copiando arquivos
+LOADING_EXTRACTING_FRAMES,Extracting frames,Extraindo quadros
+LOADING_SAVING,Saving model,Salvando modelo
+LOADING_LOADING,Loading model,Carregando modelo
+LOADING_COMPRESSING,Compressing textures,Comprimindo texturas
+LOADING_MENU,Returning to menu,Voltando ao menu
+RENAME_TEXT,Type the new name,Digite o novo nome

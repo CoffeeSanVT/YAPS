@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://bpfovscn7m5t"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://cperf0vl40aq2" path="res://script/ui/performance_overlay.gd" id="2_overlay"]
+[ext_resource type="Script" uid="uid://bperfstattax2" path="res://script/performance_overlay/SystemStats.cs" id="3_stats"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_perf"]
+content_margin_left = 10.0
+content_margin_top = 8.0
+content_margin_right = 10.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="PerformanceOverlay" type="PanelContainer" unique_id=1751415044 node_paths=PackedStringArray("fps_label", "frame_time_label", "cpu_label", "gpu_label", "ram_label", "vram_label", "system_stats")]
+offset_left = 12.0
+offset_top = 12.0
+offset_right = 160.0
+offset_bottom = 132.0
+mouse_filter = 2
+theme = ExtResource("1_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_perf")
+script = ExtResource("2_overlay")
+fps_label = NodePath("Stats/FpsLabel")
+frame_time_label = NodePath("Stats/FrameTimeLabel")
+cpu_label = NodePath("Stats/CpuLabel")
+gpu_label = NodePath("Stats/GpuLabel")
+ram_label = NodePath("Stats/RamLabel")
+vram_label = NodePath("Stats/VramLabel")
+system_stats = NodePath("SystemStats")
+
+[node name="Stats" type="VBoxContainer" parent="." unique_id=2136674883]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 2
+
+[node name="FpsLabel" type="Label" parent="Stats" unique_id=298685835]
+layout_mode = 2
+text = "FPS: 0"
+
+[node name="FrameTimeLabel" type="Label" parent="Stats" unique_id=961020488]
+layout_mode = 2
+text = "Frame Time: 0.0 ms"
+
+[node name="CpuLabel" type="Label" parent="Stats" unique_id=1475197942]
+layout_mode = 2
+text = "CPU: N/A"
+
+[node name="GpuLabel" type="Label" parent="Stats" unique_id=1697583408]
+layout_mode = 2
+text = "GPU: N/A"
+
+[node name="RamLabel" type="Label" parent="Stats" unique_id=1640190806]
+layout_mode = 2
+text = "RAM: N/A"
+
+[node name="VramLabel" type="Label" parent="Stats" unique_id=474958256]
+layout_mode = 2
+text = "VRAM: N/A"
+
+[node name="SystemStats" type="Node" parent="." unique_id=616774457]
+script = ExtResource("3_stats")

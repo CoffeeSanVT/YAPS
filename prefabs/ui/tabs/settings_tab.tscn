@@ -1,0 +1,683 @@
+[gd_scene format=3 uid="uid://bopm7senhpsaj"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_rnrbe"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="2_hu0pd"]
+[ext_resource type="Script" uid="uid://dvaqrv6yjmptp" path="res://script/ui/fps_limit.gd" id="3_5en4g"]
+[ext_resource type="Script" uid="uid://cp0554q1tgckh" path="res://script/ui/audio/mic_activation_threshold.gd" id="5_75u2n"]
+[ext_resource type="Script" uid="uid://bl17ac6s7ny0x" path="res://script/ui/background/background_type.gd" id="7_bgtyp"]
+[ext_resource type="Script" uid="uid://bw3hfqjiy155p" path="res://script/ui/background/background_image.gd" id="8_bgimg"]
+[ext_resource type="Script" uid="uid://ck7vo8t3tjfbd" path="res://script/ui/background/background_color.gd" id="9_bgcol"]
+[ext_resource type="Script" uid="uid://bvuxju16yneol" path="res://script/ui/audio/mic_device.gd" id="10_micdev"]
+[ext_resource type="Script" uid="uid://cv2micvi2toga" path="res://script/ui/audio/mic_visualizer_toggle.gd" id="11_micviz"]
+[ext_resource type="Script" uid="uid://cedbg5aq1ya2e" path="res://script/ui/texture_filter.gd" id="13_texflt"]
+[ext_resource type="Script" uid="uid://dal0bfpsqq8ha" path="res://script/ui/antialias.gd" id="14_antialias"]
+[ext_resource type="Script" uid="uid://bwyd88py1dhfc" path="res://script/ui/spout_toggle.gd" id="15_spout"]
+[ext_resource type="Script" uid="uid://c1loc4l3g0f0k" path="res://script/ui/locale.gd" id="16_locale"]
+[ext_resource type="Script" uid="uid://cu3i7uqg1s6ga" path="res://script/ui/back_to_menu.gd" id="17_bkwiz"]
+[ext_resource type="FontFile" uid="uid://dmld38g0i2q0a" path="res://assets/fonts/Bungee-Regular.ttf" id="23_2xwy7"]
+[ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="24_ecvn2"]
+[ext_resource type="Script" uid="uid://ccjgm8yu6l7cp" path="res://script/ui/websocket_settings.gd" id="30_wsset"]
+[ext_resource type="Script" uid="uid://ba035t1ingtfx" path="res://script/ui/window_resolution.gd" id="35_winres"]
+[ext_resource type="Script" uid="uid://btsksonjp3jls" path="res://script/ui/twitch_settings.gd" id="36_twset"]
+[ext_resource type="Script" uid="uid://b356va3moy2dl" path="res://script/ui/reload_images.gd" id="38_reload"]
+[ext_resource type="Script" uid="uid://dperftgl8w3k" path="res://script/ui/performance_overlay_toggle.gd" id="39_perfov"]
+[ext_resource type="Script" path="res://script/ui/vram_compression_toggle.gd" id="40_vram"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lqayg"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.286275, 0.270588, 0.294118, 1)
+corner_radius_top_left = 8
+corner_radius_bottom_left = 8
+
+[node name="Settings" type="Panel" unique_id=978647401]
+custom_minimum_size = Vector2(360, 0)
+clip_contents = true
+anchors_preset = -1
+anchor_left = 0.71900004
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 359.67993
+grow_horizontal = 0
+grow_vertical = 2
+offset_transform_enabled = true
+theme = ExtResource("1_rnrbe")
+theme_override_styles/panel = SubResource("StyleBoxFlat_lqayg")
+metadata/out_screen_x_pos = 1.0
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1603580352]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.919
+offset_bottom = 0.32000732
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+offset_transform_enabled = true
+horizontal_scroll_mode = 0
+
+[node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer" unique_id=804526642]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer/HFlowContainer" unique_id=290171523]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer" unique_id=1045987476]
+layout_mode = 2
+
+[node name="BackToMenu" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=900000120]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Back to Menu"
+script = ExtResource("17_bkwiz")
+metadata/localization_key = &"BACK_TO_MENU"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/BackToMenu" unique_id=900000121]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="General" type="PanelContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=566559152]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General" unique_id=461967988]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=969654052]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "General"
+metadata/localization_key = &"GENERAL"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Title" unique_id=969654053]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SpoutContainer" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=826274770]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/SpoutContainer" unique_id=1837314385]
+layout_mode = 2
+text = "Spout Output"
+metadata/localization_key = &"SPOUT_OUTPUT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/SpoutContainer/Label" unique_id=7264882]
+script = ExtResource("2_hu0pd")
+
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/SpoutContainer" unique_id=91304148]
+layout_mode = 2
+
+[node name="SpoutToggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/SpoutContainer" unique_id=900000112]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("15_spout")
+
+[node name="Group 1" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=1447641185]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="FPSLimitContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1" unique_id=1892771451]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/FPSLimitContainer" unique_id=1380287705]
+layout_mode = 2
+text = "FPS Limit"
+metadata/localization_key = &"FPS_LIMIT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/FPSLimitContainer/Label" unique_id=27149426]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="FPSLimit" type="SpinBox" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/FPSLimitContainer" unique_id=36381405]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 24.0
+max_value = 120.0
+value = 60.0
+alignment = 1
+script = ExtResource("3_5en4g")
+
+[node name="LanguageContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1" unique_id=2091216429]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/LanguageContainer" unique_id=900000115]
+layout_mode = 2
+text = "Language"
+metadata/localization_key = &"LANGUAGE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/LanguageContainer/Label" unique_id=900000116]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Language" type="OptionButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/LanguageContainer" unique_id=900000117]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("16_locale")
+
+[node name="Group 2" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=732663394]
+layout_mode = 2
+
+[node name="BackgroundContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2" unique_id=2054832453]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer" unique_id=1965241721]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Background"
+metadata/localization_key = &"BACKGROUND"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/Label" unique_id=1106088594]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="BackgroundType" type="OptionButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer" unique_id=1855730286 node_paths=PackedStringArray("image_button", "color_button")]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("7_bgtyp")
+image_button = NodePath("../BackgroundImage")
+color_button = NodePath("../BackgroundColor")
+
+[node name="BackgroundImage" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer" unique_id=2007866145 node_paths=PackedStringArray("file_dialog")]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Select Image"
+script = ExtResource("8_bgimg")
+file_dialog = NodePath("../FileDialog")
+metadata/localization_key = &"SELECT_IMAGE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundImage" unique_id=2007866146]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="BackgroundColor" type="ColorPickerButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer" unique_id=-2060900109]
+visible = false
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Pick Color"
+color = Color(0.15686275, 0.15294118, 0.15686275, 1)
+script = ExtResource("9_bgcol")
+metadata/localization_key = &"PICK_COLOR"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundColor" unique_id=-2060900110]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="FileDialog" type="FileDialog" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer" unique_id=2128964357]
+title = "Open a File"
+file_mode = 0
+access = 2
+filters = PackedStringArray("*.png, *.jpg, *.jpeg, *.webp ; Image")
+use_native_dialog = true
+
+[node name="WindowResolutionContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2" unique_id=900000200]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/WindowResolutionContainer" unique_id=900000201]
+layout_mode = 2
+text = "Window Resolution"
+metadata/localization_key = &"WINDOW_RESOLUTION"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/WindowResolutionContainer/Label" unique_id=402305690]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="WindowResolution" type="OptionButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/WindowResolutionContainer" unique_id=900000203]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("35_winres")
+
+[node name="Group 3" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=809097427]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TextureFilterContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3" unique_id=318965298]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/TextureFilterContainer" unique_id=900000103]
+layout_mode = 2
+text = "Texture Filter"
+metadata/localization_key = &"TEXTURE_FILTER"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/TextureFilterContainer/Label" unique_id=1727657893]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="TextureFilter" type="OptionButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/TextureFilterContainer" unique_id=900000104]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("13_texflt")
+
+[node name="AntiAliasContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3" unique_id=1212841591]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/AntiAliasContainer" unique_id=900000107]
+layout_mode = 2
+text = "Anti-Alias"
+metadata/localization_key = &"ANTI_ALIASING"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/AntiAliasContainer/Label" unique_id=1770440698]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="AntiAlias" type="OptionButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/AntiAliasContainer" unique_id=900000108]
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("14_antialias")
+
+[node name="Group 4" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PerformanceOverlayLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Performance Overlay"
+metadata/localization_key = &"PERFORMANCE_OVERLAY"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayLabel"]
+script = ExtResource("2_hu0pd")
+
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PerformanceOverlayToggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4"]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("39_perfov")
+
+[node name="Group 5" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=2139961045]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VRAMCompressionLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5" unique_id=402310667]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Compress Textures"
+metadata/localization_key = &"COMPRESS_TEXTURES"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionLabel" unique_id=1892773412]
+script = ExtResource("2_hu0pd")
+
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5" unique_id=664901399]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="VRAMCompressionToggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5" unique_id=949236521]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("40_vram")
+
+[node name="Websocket" type="PanelContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=1221402293]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 6
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="WebSocketContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket" unique_id=944107447 node_paths=PackedStringArray("toggle", "port_container", "port_spinbox", "url_container", "url_label", "copy_button", "actions_foldable")]
+layout_mode = 2
+script = ExtResource("30_wsset")
+toggle = NodePath("ToggleServerContainer/Toggle")
+port_container = NodePath("PortContainer")
+port_spinbox = NodePath("PortContainer/PortSpinBox")
+url_container = NodePath("UrlContainer")
+url_label = NodePath("UrlContainer/UrlLabel")
+copy_button = NodePath("UrlContainer/CopyButton")
+actions_foldable = NodePath("CallableActions/VBoxContainer")
+
+[node name="Title" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" unique_id=497500031]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "WebSocket Server"
+metadata/localization_key = &"WEBSOCKET_SERVER_TITLE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/Title" unique_id=497500032]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ToggleServerContainer" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" unique_id=1827302693]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/ToggleServerContainer" unique_id=606837938]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Enable Server"
+metadata/localization_key = &"WEBSOCKET_SERVER"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/ToggleServerContainer/Label" unique_id=1738744307]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/ToggleServerContainer" unique_id=1167332142]
+layout_mode = 2
+
+[node name="Toggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/ToggleServerContainer" unique_id=1730696816]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="UrlContainer" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" unique_id=1176995351]
+layout_mode = 2
+
+[node name="UrlLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/UrlContainer" unique_id=1176995352]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "ws://127.0.0.1:19190"
+
+[node name="CopyButton" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/UrlContainer" unique_id=1176995353]
+layout_mode = 2
+text = "Copy"
+metadata/localization_key = &"COPY"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/UrlContainer/CopyButton" unique_id=1176995354]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="PortContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" unique_id=2139868665]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/PortContainer" unique_id=1497777078]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Port"
+metadata/localization_key = &"SERVER_PORT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/PortContainer/Label" unique_id=733611045]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="PortSpinBox" type="SpinBox" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/PortContainer" unique_id=1788387593]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 1.0
+max_value = 65535.0
+value = 19190.0
+alignment = 1
+
+[node name="CallableActions" type="FoldableContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" unique_id=1070747991]
+layout_mode = 2
+folded = true
+title = "Callable Actions"
+metadata/localization_key = &"CALLABLE_ACTIONS"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/CallableActions" unique_id=2101605337]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/CallableActions" unique_id=1248425738]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Audio" type="PanelContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=128880840]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio" unique_id=1186454057]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer" unique_id=1812365058]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "Audio"
+metadata/localization_key = &"AUDIO"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Title" unique_id=1812365059]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Group 1" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer" unique_id=1123581321]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="InputDevice" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1" unique_id=190080049]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/InputDevice" unique_id=1320889517]
+layout_mode = 2
+text = "Microphone"
+metadata/localization_key = &"MICROPHONE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/InputDevice/Label" unique_id=1837253681]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="MicDevice" type="OptionButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/InputDevice" unique_id=840131059]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("10_micdev")
+
+[node name="ActiveThresholdContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1" unique_id=719276202]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer" unique_id=1901213052]
+layout_mode = 2
+text = "Activation Threshold"
+metadata/localization_key = &"MIC_ACTIVATION_THRESHOLD"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/Label" unique_id=301648786]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ThresholdValue" type="SpinBox" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer" unique_id=694672042 node_paths=PackedStringArray("button", "volume_bar", "db_label", "average_db_label", "calc_timer")]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -60.0
+max_value = 0.0
+value = -48.0
+alignment = 1
+suffix = "dB"
+script = ExtResource("5_75u2n")
+button = NodePath("../../../ActivationThreshold/Button")
+volume_bar = NodePath("../../../ActivationThreshold/ProgressBar")
+db_label = NodePath("../../../ActivationThreshold/ProgressBar/DbValue")
+average_db_label = NodePath("../../../ActivationThreshold/AverageDb")
+calc_timer = NodePath("Timer")
+
+[node name="Timer" type="Timer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" unique_id=2086929417]
+wait_time = 4.0
+one_shot = true
+
+[node name="ActivationThreshold" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer" unique_id=436400380]
+layout_mode = 2
+
+[node name="MicVisualizerToggleContainer" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold" unique_id=1456303087]
+layout_mode = 2
+
+[node name="MicVisualizerToggleLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer" unique_id=710473471]
+layout_mode = 2
+text = "Show Volume Visualizer"
+metadata/localization_key = &"SHOW_VOLUME_VISUALIZATION"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggleLabel" unique_id=2087249123]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer" unique_id=1190009173]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MicVisualizerToggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer" unique_id=1589063115]
+layout_mode = 2
+script = ExtResource("11_micviz")
+
+[node name="ProgressBar" type="ProgressBar" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold" unique_id=1087046862]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_vertical = 1
+min_value = -60.0
+max_value = 0.0
+show_percentage = false
+
+[node name="DbValue" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/ProgressBar" unique_id=57921341]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "0 dB"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AverageDb" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold" unique_id=949236037]
+layout_mode = 2
+text = "Average volume: 00.0 dB"
+
+[node name="Button" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold" unique_id=1187739937]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+toggle_mode = true
+text = "Start"
+
+[node name="TwitchPanel" type="PanelContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=576646283]
+clip_contents = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+theme_override_styles/panel = ExtResource("24_ecvn2")
+
+[node name="TwitchContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel" unique_id=63792095 node_paths=PackedStringArray("connect_button", "connected_container", "username_label", "disconnect_button", "refresh_rewards_button", "rewards_count_label", "auth_status_label")]
+layout_mode = 2
+size_flags_horizontal = 0
+script = ExtResource("36_twset")
+connect_button = NodePath("ClientIdContainer/ConnectButton")
+connected_container = NodePath("ConnectedContainer")
+username_label = NodePath("ConnectedContainer/UsernameLabel")
+disconnect_button = NodePath("ConnectedContainer/DisconnectButton")
+refresh_rewards_button = NodePath("ConnectedContainer/RefreshRewardsButton")
+rewards_count_label = NodePath("ConnectedContainer/RewardsCountLabel")
+auth_status_label = NodePath("AuthStatusLabel")
+
+[node name="Title" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer" unique_id=664901177]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("23_2xwy7")
+theme_override_font_sizes/font_size = 24
+text = "Twitch"
+metadata/localization_key = &"TWITCH"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/Title" unique_id=664901178]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="AuthStatusLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer" unique_id=2117985201]
+visible = false
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Twitch connection failed: The user denied you access"
+autowrap_mode = 3
+
+[node name="ClientIdContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer" unique_id=544192179]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="ConnectButton" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ClientIdContainer" unique_id=1422806869]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Connect with Twitch"
+metadata/localization_key = &"TWITCH_CONNECT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ClientIdContainer/ConnectButton" unique_id=1720512264]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ConnectedContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer" unique_id=200215660]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="UsernameLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ConnectedContainer" unique_id=744064005]
+layout_mode = 2
+
+[node name="DisconnectButton" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ConnectedContainer" unique_id=1581798015]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Disconnect"
+metadata/localization_key = &"TWITCH_DISCONNECT"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ConnectedContainer/DisconnectButton" unique_id=1805342651]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="RewardsCountLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ConnectedContainer" unique_id=1805342652]
+layout_mode = 2
+text = "Channel points rewards: 0"
+
+[node name="RefreshRewardsButton" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ConnectedContainer" unique_id=1805342653]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Refresh Rewards"
+metadata/localization_key = &"TWITCH_REFRESH_REWARDS"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/ConnectedContainer/RefreshRewardsButton" unique_id=1805342654]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ReloadImages" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=900000130]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+text = "Reload Images"
+script = ExtResource("38_reload")
+metadata/localization_key = &"RELOAD_IMAGES"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/ReloadImages" unique_id=900000131]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[connection signal="pressed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/BackToMenu" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/BackToMenu" method="_on_pressed"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/SpoutContainer/SpoutToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/SpoutContainer/SpoutToggle" method="_on_toggled"]
+[connection signal="value_changed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/FPSLimitContainer/FPSLimit" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/FPSLimitContainer/FPSLimit" method="_on_value_changed"]
+[connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/LanguageContainer/Language" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 1/LanguageContainer/Language" method="_on_item_selected"]
+[connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundType" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundType" method="_on_item_selected"]
+[connection signal="pressed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundImage" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundImage" method="_on_pressed"]
+[connection signal="color_changed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundColor" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/BackgroundContainer/BackgroundColor" method="_on_color_changed"]
+[connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/WindowResolutionContainer/WindowResolution" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/WindowResolutionContainer/WindowResolution" method="_on_item_selected"]
+[connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/TextureFilterContainer/TextureFilter" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/TextureFilterContainer/TextureFilter" method="_on_item_selected"]
+[connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/AntiAliasContainer/AntiAlias" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/AntiAliasContainer/AntiAlias" method="_on_item_selected"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/ToggleServerContainer/Toggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" method="_on_toggled"]
+[connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/InputDevice/MicDevice" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/InputDevice/MicDevice" method="_on_item_selected"]
+[connection signal="value_changed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_value_changed"]
+[connection signal="timeout" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue/Timer" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_timer_timeout"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_global_mic_visualizer_toggled"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" method="_on_toggled"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/Button" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_button_toggled"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" method="_on_toggled"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" method="_on_toggled"]
+[connection signal="pressed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/ReloadImages" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/ReloadImages" method="_on_pressed"]

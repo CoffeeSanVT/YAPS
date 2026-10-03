@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://twgitjdha3g2"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_theme"]
+[ext_resource type="Script" uid="uid://cgdi2i7ytfyt1" path="res://script/ui/panels/add_emotion_dialog.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://b7beisj23blbs" path="res://assets/icons/runtime/close/close_focused.svg" id="3_cl_f"]
+[ext_resource type="Texture2D" uid="uid://c0rhqttfful14" path="res://assets/icons/runtime/close/close_disabled.svg" id="3_cl_d"]
+[ext_resource type="Texture2D" uid="uid://cvx6y01ingkfl" path="res://assets/icons/runtime/close/close_hover.svg" id="3_cl_h"]
+[ext_resource type="Texture2D" uid="uid://dymf1iy5je0bl" path="res://assets/icons/runtime/close/close_normal.svg" id="3_cl_n"]
+[ext_resource type="Texture2D" uid="uid://bxpsbnyxkxg1e" path="res://assets/icons/runtime/close/close_pressed.svg" id="3_cl_p"]
+[ext_resource type="StyleBox" uid="uid://b6v1h62iemncy" path="res://themes/panel-dialog-style.tres" id="3_dlg"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="4_nthy6"]
+
+[node name="AddEmotionDialog" type="PanelContainer" unique_id=1363638362 node_paths=PackedStringArray("name_input", "confirm_button", "close_button")]
+theme = ExtResource("1_theme")
+theme_override_styles/panel = ExtResource("3_dlg")
+script = ExtResource("2_script")
+name_input = NodePath("MarginContainer/VBoxContainer/NameInput")
+confirm_button = NodePath("MarginContainer/VBoxContainer/ConfirmButton")
+close_button = NodePath("MarginContainer/VBoxContainer/Header/CloseButton")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=566235218]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer" unique_id=362862934]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Header" type="HBoxContainer" parent="MarginContainer/VBoxContainer" unique_id=1610562173]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/VBoxContainer/Header" unique_id=616634217]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Add Emotion"
+metadata/localization_key = &"ADD_EMOTION"
+
+[node name="TranslationNode" type="Node" parent="MarginContainer/VBoxContainer/Header/TitleLabel" unique_id=236232043]
+script = ExtResource("4_nthy6")
+
+[node name="CloseButton" type="TextureButton" parent="MarginContainer/VBoxContainer/Header" unique_id=1253651962]
+texture_filter = 1
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "CLOSE"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("3_cl_n")
+texture_pressed = ExtResource("3_cl_p")
+texture_hover = ExtResource("3_cl_h")
+texture_disabled = ExtResource("3_cl_d")
+texture_focused = ExtResource("3_cl_f")
+stretch_mode = 5
+
+[node name="NameInput" type="LineEdit" parent="MarginContainer/VBoxContainer" unique_id=1889050055]
+layout_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="MarginContainer/VBoxContainer" unique_id=255716142]
+layout_mode = 2
+text = "Create"
+metadata/localization_key = &"CREATE"
+
+[node name="TranslationNode" type="Node" parent="MarginContainer/VBoxContainer/ConfirmButton" unique_id=1942124930]
+script = ExtResource("4_nthy6")

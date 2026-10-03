@@ -1,0 +1,153 @@
+[gd_scene format=3 uid="uid://diojcxynpg5x1"]
+
+[ext_resource type="PackedScene" uid="uid://bx063encrhgg0" path="res://scenes/ui.tscn" id="1_0wfyh"]
+[ext_resource type="Script" uid="uid://boeeujlrwhht4" path="res://script/items/drag_and_drop_manager.gd" id="1_tefeu"]
+[ext_resource type="Script" uid="uid://bybx7ejmu15ba" path="res://script/model/model_render_controller.gd" id="2_sugp2"]
+[ext_resource type="Script" uid="uid://jko7ye48h6s7" path="res://script/model/update_model_transform.gd" id="3_o6xl0"]
+[ext_resource type="Script" uid="uid://dyo7hlmrm1bl6" path="res://script/ui/background/background_changer.gd" id="3_tefeu"]
+[ext_resource type="Script" uid="uid://cv2micvi2togb" path="res://script/ui/audio/mic_visualizer.gd" id="5_micviz"]
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="5_tefeu"]
+[ext_resource type="Texture2D" uid="uid://3wo4ud0lgnsh" path="res://assets/icons/runtime/mic/mic_disabled.svg" id="8_tipki"]
+[ext_resource type="PackedScene" uid="uid://bpfovscn7m5t" path="res://prefabs/ui/performance_overlay.tscn" id="9_perfov"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+bg_color = Color(0.1, 0.1, 0.1, 0)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_micviz"]
+content_margin_left = 8.0
+content_margin_top = 6.0
+content_margin_right = 8.0
+content_margin_bottom = 6.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="Main" type="Node" unique_id=1430815680 node_paths=PackedStringArray("sub_viewport_container", "spout_viewport", "model_container")]
+script = ExtResource("1_tefeu")
+sub_viewport_container = NodePath("Render/SubViewportContainer")
+spout_viewport = NodePath("Render/SubViewportContainer/SpoutViewport")
+model_container = NodePath("Render/SubViewportContainer/SpoutViewport/ModelContainer")
+
+[node name="Render" type="Control" parent="." unique_id=1834623431 node_paths=PackedStringArray("model_container")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("2_sugp2")
+model_container = NodePath("SubViewportContainer/SpoutViewport/ModelContainer")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="Render" unique_id=833716045]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+accessibility_region = true
+stretch = true
+
+[node name="SpoutViewport" type="SubViewport" parent="Render/SubViewportContainer" unique_id=720656958]
+unique_name_in_owner = true
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+oversampling = false
+size = Vector2i(1280, 720)
+render_target_update_mode = 4
+
+[node name="ModelContainer" type="Control" parent="Render/SubViewportContainer/SpoutViewport" unique_id=531494874]
+z_index = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+offset_transform_enabled = true
+script = ExtResource("3_o6xl0")
+
+[node name="BackgroundContainer" type="PanelContainer" parent="Render/SubViewportContainer/SpoutViewport" unique_id=1471751483 node_paths=PackedStringArray("texture_rect", "color_rect")]
+z_index = -99
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_tipki")
+script = ExtResource("3_tefeu")
+texture_rect = NodePath("Image")
+color_rect = NodePath("Color")
+
+[node name="Image" type="TextureRect" parent="Render/SubViewportContainer/SpoutViewport/BackgroundContainer" unique_id=537652960]
+visible = false
+z_index = -99
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Color" type="ColorRect" parent="Render/SubViewportContainer/SpoutViewport/BackgroundContainer" unique_id=1746496195]
+layout_mode = 2
+color = Color(0.1455, 0.1365, 0.15, 0)
+
+[node name="UI" parent="." unique_id=545861564 instance=ExtResource("1_0wfyh")]
+
+[node name="MicVisualizer" type="PanelContainer" parent="." unique_id=726350184 node_paths=PackedStringArray("volume_bar", "db_label")]
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -90.0
+offset_top = -145.0
+offset_right = 90.0
+offset_bottom = -94.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("5_tefeu")
+theme_override_styles/panel = SubResource("StyleBoxFlat_micviz")
+script = ExtResource("5_micviz")
+volume_bar = NodePath("VBoxContainer/HBoxContainer/VolumeBar")
+db_label = NodePath("VBoxContainer/DbValue")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MicVisualizer" unique_id=726350185]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="DbValue" type="Label" parent="MicVisualizer/VBoxContainer" unique_id=726350186]
+layout_mode = 2
+text = "0.0 dB"
+horizontal_alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MicVisualizer/VBoxContainer" unique_id=815670809]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="MicVisualizer/VBoxContainer/HBoxContainer" unique_id=1350502848]
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+texture = ExtResource("8_tipki")
+
+[node name="VolumeBar" type="ProgressBar" parent="MicVisualizer/VBoxContainer/HBoxContainer" unique_id=726350187]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -60.0
+max_value = 0.0
+show_percentage = false
+
+[node name="PerformanceOverlay" parent="." instance=ExtResource("9_perfov")]

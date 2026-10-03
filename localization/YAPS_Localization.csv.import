@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://si465usss0j1"
+
+[deps]
+
+files=["res://localization/YAPS_Localization.en.translation", "res://localization/YAPS_Localization.pt.translation"]
+
+source_file="res://localization/YAPS_Localization.csv"
+dest_files=["res://localization/YAPS_Localization.en.translation", "res://localization/YAPS_Localization.pt.translation"]
+
+[params]
+
+compress=0
+delimiter=0
+unescape_keys=false
+unescape_translations=true

@@ -1,0 +1,153 @@
+[gd_scene format=3 uid="uid://clvm68t5kh57j"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_pncft"]
+[ext_resource type="Script" uid="uid://cd5iw0vt46vdj" path="res://script/ui/panels/expressions_list.gd" id="2_5en4g"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="2_hu0pd"]
+[ext_resource type="PackedScene" uid="uid://vl8c40gjmn12" path="res://prefabs/ui/expression_panel.tscn" id="3_exp"]
+[ext_resource type="Script" uid="uid://q8kwnib4wr1w" path="res://script/ui/panels/state_transition.gd" id="6_sttrn"]
+[ext_resource type="Script" uid="uid://v6ly6ggmv4yd" path="res://script/ui/panels/global_frame_rate.gd" id="8_gfr"]
+[ext_resource type="Script" uid="uid://cp3kvjyxewva3" path="res://script/ui/panels/global_animation_chance.gd" id="9_gac"]
+[ext_resource type="PackedScene" uid="uid://cc7xjj8k2abdq" path="res://prefabs/ui/expressions/branch_container.tscn" id="37_brch"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ajps"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.286275, 0.270588, 0.294118, 1)
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+
+[node name="Expressions" type="Panel" unique_id=1333407965 node_paths=PackedStringArray("hflow_container")]
+custom_minimum_size = Vector2(360, 0)
+anchors_preset = 9
+anchor_bottom = 1.0
+grow_vertical = 2
+offset_transform_enabled = true
+theme = ExtResource("1_pncft")
+theme_override_styles/panel = SubResource("StyleBoxFlat_2ajps")
+script = ExtResource("2_5en4g")
+hflow_container = NodePath("ScrollContainer/MarginContainer/HFlowContainer")
+panel_prefab = ExtResource("3_exp")
+metadata/out_screen_x_pos = -1.0
+
+[node name="PanelContainer" type="PanelContainer" parent="." unique_id=456570274]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 131.0
+grow_horizontal = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1498969794]
+layout_mode = 2
+alignment = 1
+
+[node name="TransitionDuratration" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1388654301]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/TransitionDuratration" unique_id=966280709]
+layout_mode = 2
+text = "Transition Duration"
+metadata/localization_key = &"TRANSITION_DURATION"
+
+[node name="TranslationNode" type="Node" parent="PanelContainer/VBoxContainer/TransitionDuratration/Label" unique_id=1282893929]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="StateTransitionValue" type="SpinBox" parent="PanelContainer/VBoxContainer/TransitionDuratration" unique_id=1531910874]
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+value = 0.3
+alignment = 1
+suffix = "s"
+script = ExtResource("6_sttrn")
+
+[node name="Frame Rate" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=2059244433]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/Frame Rate" unique_id=1064148943]
+layout_mode = 2
+text = "Animation FPS"
+metadata/localization_key = &"FRAME_RATE"
+
+[node name="TranslationNode" type="Node" parent="PanelContainer/VBoxContainer/Frame Rate/Label" unique_id=144285378]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="GlobalFrameRateValue" type="SpinBox" parent="PanelContainer/VBoxContainer/Frame Rate" unique_id=846244006]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 12.0
+max_value = 480.0
+step = 0.1
+value = 12.0
+alignment = 1
+script = ExtResource("8_gfr")
+
+[node name="PlayAnimationDelay" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=2059244434]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/PlayAnimationDelay" unique_id=1064148944]
+layout_mode = 2
+text = "Animation interval"
+metadata/localization_key = &"ANIMATION_INTERVAL"
+
+[node name="TranslationNode" type="Node" parent="PanelContainer/VBoxContainer/PlayAnimationDelay/Label" unique_id=144285379]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="GlobalEveryValue" type="SpinBox" parent="PanelContainer/VBoxContainer/PlayAnimationDelay" unique_id=846244007]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 60.0
+step = 0.5
+value = 5.0
+alignment = 1
+suffix = "s"
+script = ExtResource("9_gac")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1508000122]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.069000006
+anchor_right = 1.0
+anchor_bottom = 0.919
+offset_top = 75.31999
+offset_bottom = 0.32000732
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_vertical = 3
+theme_override_constants/scrollbar_h_separation = 8
+
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=832071672]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer/MarginContainer" unique_id=568996965]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+alignment = 1
+
+[node name="Talking" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=2066911311 instance=ExtResource("37_brch")]
+layout_mode = 2
+
+[node name="Silence" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=253419879 instance=ExtResource("37_brch")]
+layout_mode = 2
+
+[connection signal="value_changed" from="PanelContainer/VBoxContainer/TransitionDuratration/StateTransitionValue" to="PanelContainer/VBoxContainer/TransitionDuratration/StateTransitionValue" method="_on_value_changed"]
+[connection signal="value_changed" from="PanelContainer/VBoxContainer/Frame Rate/GlobalFrameRateValue" to="PanelContainer/VBoxContainer/Frame Rate/GlobalFrameRateValue" method="_on_value_changed"]
+[connection signal="value_changed" from="PanelContainer/VBoxContainer/PlayAnimationDelay/GlobalEveryValue" to="PanelContainer/VBoxContainer/PlayAnimationDelay/GlobalEveryValue" method="_on_value_changed"]

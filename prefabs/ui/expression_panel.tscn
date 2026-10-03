@@ -1,0 +1,237 @@
+[gd_scene format=3 uid="uid://vl8c40gjmn12"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_mar2q"]
+[ext_resource type="Script" uid="uid://cbg0n2bqu2ojr" path="res://script/ui/panels/expression_panel.gd" id="1_x483a"]
+[ext_resource type="StyleBox" uid="uid://cjct721y6ocun" path="res://themes/card-secondary-style.tres" id="2_a0oin"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="3_mar2q"]
+[ext_resource type="Texture2D" uid="uid://qyabvnn6x3rd" path="res://assets/icons/runtime/pencil/pencil_normal.svg" id="4_pencil_n"]
+[ext_resource type="Texture2D" uid="uid://br45bxytsbnxx" path="res://assets/icons/runtime/pencil/pencil_hover.svg" id="5_pencil_h"]
+[ext_resource type="Texture2D" uid="uid://bksbqck24mwac" path="res://assets/icons/runtime/pencil/pencil_pressed.svg" id="6_pencil_p"]
+[ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/runtime/pencil/pencil_disabled.svg" id="7_pencil_d"]
+[ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/runtime/pencil/pencil_focused.svg" id="8_pencil_f"]
+[ext_resource type="Script" uid="uid://dqurko1j84bpl" path="res://script/ui/utils/content_fit_scroll.gd" id="9_fit_scroll"]
+
+[node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("frames_list", "frame_rate_spin", "animation_chance_spin", "loop_toggle", "override_toggle", "override_chance_toggle", "override_silence_toggle", "override_silence_label", "tile_text", "rename_button")]
+custom_minimum_size = Vector2(270, 0)
+size_flags_horizontal = 3
+theme = ExtResource("1_mar2q")
+theme_override_styles/panel = ExtResource("2_a0oin")
+script = ExtResource("1_x483a")
+frames_list = NodePath("VBoxContainer/FramesContainer/VBoxContainer/FramesScroll/FramesList")
+frame_rate_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/FrameRateContainer/FrameRate")
+animation_chance_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/ChanceContainer/AnimationChance")
+loop_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopToggle")
+override_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideToggle/OverrideToggle")
+override_chance_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle")
+override_silence_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle")
+override_silence_label = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel")
+tile_text = NodePath("VBoxContainer/Title/Tile")
+rename_button = NodePath("VBoxContainer/Title/RenameButton")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=179743058]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="HBoxContainer" parent="VBoxContainer" unique_id=179743059]
+layout_mode = 2
+
+[node name="RenameButton" type="TextureButton" parent="VBoxContainer/Title" unique_id=1316879090]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+tooltip_text = "RENAME"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("4_pencil_n")
+texture_pressed = ExtResource("6_pencil_p")
+texture_hover = ExtResource("5_pencil_h")
+texture_disabled = ExtResource("7_pencil_d")
+texture_focused = ExtResource("8_pencil_f")
+stretch_mode = 5
+
+[node name="Tile" type="Label" parent="VBoxContainer/Title" unique_id=1316879085]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Expression Name"
+
+[node name="RateRow" type="HBoxContainer" parent="VBoxContainer" unique_id=1316879095]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/RateRow" unique_id=1934170951]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FrameRateContainer" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=538784608]
+layout_mode = 2
+
+[node name="FrameRateLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer" unique_id=1316879096]
+layout_mode = 2
+text = "Animation FPS"
+metadata/localization_key = &"FRAME_RATE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer/FrameRateLabel" unique_id=1316879097]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer" unique_id=1067284490]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FrameRate" type="SpinBox" parent="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer" unique_id=1316879098]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.1
+max_value = 60.0
+step = 0.1
+value = 12.0
+alignment = 1
+
+[node name="ChanceContainer" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=2054235956]
+layout_mode = 2
+
+[node name="ChanceLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/ChanceContainer" unique_id=1316879102]
+layout_mode = 2
+text = "Animation interval"
+metadata/localization_key = &"ANIMATION_INTERVAL"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/ChanceContainer/ChanceLabel" unique_id=1316879103]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/ChanceContainer" unique_id=1740479631]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AnimationChance" type="SpinBox" parent="VBoxContainer/RateRow/VBoxContainer/ChanceContainer" unique_id=1316879104]
+layout_mode = 2
+min_value = 0.5
+max_value = 60.0
+step = 0.5
+value = 5.0
+alignment = 1
+suffix = "s"
+
+[node name="OverrideToggle" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=1547375153]
+layout_mode = 2
+
+[node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle" unique_id=620417385]
+layout_mode = 2
+text = "Override Frame Rate"
+metadata/localization_key = &"OVERRIDE_FRAME_RATE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle/OverrideLabel" unique_id=620417386]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle" unique_id=1211772574]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OverrideToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle" unique_id=620417387]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="OverrideEveryToggle" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=1547375154]
+layout_mode = 2
+
+[node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle" unique_id=620417388]
+layout_mode = 2
+text = "Override interval"
+metadata/localization_key = &"OVERRIDE_EVERY"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle/OverrideLabel" unique_id=620417389]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle" unique_id=1211772575]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OverrideEveryToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle" unique_id=620417390]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="LoopContainer" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=609186743]
+layout_mode = 2
+
+[node name="LoopLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/LoopContainer" unique_id=1886019174]
+layout_mode = 2
+text = "Loop"
+metadata/localization_key = &"LOOP"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopLabel" unique_id=1364232813]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/LoopContainer" unique_id=1062670991]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LoopToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/LoopContainer" unique_id=1859738953]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="OverrideSilenceRow" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=1904237601]
+layout_mode = 2
+
+[node name="OverrideSilenceLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow" unique_id=1904237602]
+layout_mode = 2
+text = "Override silence"
+metadata/localization_key = &"OVERRIDE_SILENCE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel" unique_id=1904237603]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow" unique_id=1904237604]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OverrideSilenceToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow" unique_id=1904237605]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="FramesContainer" type="FoldableContainer" parent="VBoxContainer" unique_id=1316879092]
+layout_mode = 2
+title = "Frames"
+metadata/localization_key = &"FRAMES"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/FramesContainer" unique_id=1316879093]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/FramesContainer" unique_id=1316879094]
+layout_mode = 2
+
+[node name="AddFrameButton" type="Button" parent="VBoxContainer/FramesContainer/VBoxContainer" unique_id=1316879099]
+layout_mode = 2
+text = "Add Frame"
+metadata/localization_key = &"ADD_FRAME"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/FramesContainer/VBoxContainer/AddFrameButton" unique_id=1316879100]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="FramesScroll" type="ScrollContainer" parent="VBoxContainer/FramesContainer/VBoxContainer" unique_id=871666393]
+custom_maximum_size = Vector2(-1, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+script = ExtResource("9_fit_scroll")
+
+[node name="FramesList" type="VBoxContainer" parent="VBoxContainer/FramesContainer/VBoxContainer/FramesScroll" unique_id=1839082890]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[connection signal="pressed" from="VBoxContainer/Title/RenameButton" to="." method="_on_rename_pressed"]
+[connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer/FrameRate" to="." method="_on_frame_rate_changed"]
+[connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/ChanceContainer/AnimationChance" to="." method="_on_animation_chance_changed"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideToggle/OverrideToggle" to="." method="_on_override_toggled"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle" to="." method="_on_override_chance_toggled"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopToggle" to="." method="_on_loop_toggled"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle" to="." method="_on_silence_override_toggled"]
+[connection signal="pressed" from="VBoxContainer/FramesContainer/VBoxContainer/AddFrameButton" to="." method="_on_add_frame_pressed"]

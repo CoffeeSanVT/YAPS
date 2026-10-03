@@ -1,0 +1,83 @@
+[gd_scene format=3 uid="uid://u003cqgfqn24"]
+
+[ext_resource type="Script" uid="uid://cqfxnvi1cne7q" path="res://script/ui/panels/key_binding_panel.gd" id="1_kyvfp"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="2_8u8w1"]
+[ext_resource type="Texture2D" uid="uid://ccnhbb2lpkb1d" path="res://assets/icons/runtime/error/error.svg" id="3_err"]
+[ext_resource type="Texture2D" uid="uid://dy6l5u6n06haw" path="res://assets/icons/runtime/clear_entry/entry-clear_normal.svg" id="4_ce_n"]
+[ext_resource type="Texture2D" uid="uid://boytxnjxhbbpj" path="res://assets/icons/runtime/clear_entry/entry-clear_pressed.svg" id="5_ce_p"]
+[ext_resource type="Texture2D" uid="uid://d1atkl7wskhb6" path="res://assets/icons/runtime/clear_entry/entry-clear_hover.svg" id="6_ce_h"]
+[ext_resource type="Texture2D" uid="uid://bxi73pg23jkkp" path="res://assets/icons/runtime/clear_entry/entry-clear_disabled.svg" id="7_ce_d"]
+[ext_resource type="Texture2D" uid="uid://cn0tuvd7lgy8" path="res://assets/icons/runtime/clear_entry/entry-clear_focused.svg" id="8_ce_f"]
+[ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="9_card"]
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="10_theme"]
+
+[node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("tile_label", "shortcut_text", "conflict_icon")]
+theme = ExtResource("10_theme")
+theme_override_styles/panel = ExtResource("9_card")
+script = ExtResource("1_kyvfp")
+tile_label = NodePath("VBoxContainer/Tile")
+shortcut_text = NodePath("VBoxContainer/HBoxContainer/LineEdit")
+conflict_icon = NodePath("VBoxContainer/HBoxContainer/ConflictIcon")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=179743058]
+layout_mode = 2
+
+[node name="Tile" type="Label" parent="VBoxContainer" unique_id=1316879085]
+layout_mode = 2
+text = "Expression Name"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer" unique_id=1484281250]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LineEdit" type="LineEdit" parent="VBoxContainer/HBoxContainer" unique_id=620434769]
+layout_mode = 2
+theme_override_constants/minimum_character_width = 10
+placeholder_text = "Click to set key"
+editable = false
+context_menu_enabled = false
+emoji_menu_enabled = false
+shortcut_keys_enabled = false
+middle_mouse_paste_enabled = false
+selecting_enabled = false
+deselect_on_focus_loss_enabled = false
+drag_and_drop_selection_enabled = false
+virtual_keyboard_enabled = false
+metadata/localization_key = &"CLICK_TO_SET_KEY"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/HBoxContainer/LineEdit" unique_id=1214356799]
+script = ExtResource("2_8u8w1")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ConflictIcon" type="TextureRect" parent="VBoxContainer/HBoxContainer" unique_id=-973786309]
+visible = false
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 0
+texture = ExtResource("3_err")
+stretch_mode = 5
+
+[node name="ClearButton" type="TextureButton" parent="VBoxContainer/HBoxContainer" unique_id=383936371]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+tooltip_text = "CLEAR"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("4_ce_n")
+texture_pressed = ExtResource("5_ce_p")
+texture_hover = ExtResource("6_ce_h")
+texture_disabled = ExtResource("7_ce_d")
+texture_focused = ExtResource("8_ce_f")
+stretch_mode = 5
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/HBoxContainer/ClearButton" unique_id=220790037]
+script = ExtResource("2_8u8w1")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[connection signal="focus_entered" from="VBoxContainer/HBoxContainer/LineEdit" to="." method="_on_line_edit_focus_entered"]
+[connection signal="pressed" from="VBoxContainer/HBoxContainer/ClearButton" to="." method="_on_button_pressed"]

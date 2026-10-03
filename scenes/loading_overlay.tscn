@@ -1,0 +1,66 @@
+[gd_scene format=3 uid="uid://cgqclnwo8yaa8"]
+
+[ext_resource type="Shader" uid="uid://28bajgergdgt" path="res://shaders/halftone.gdshader" id="1_shader"]
+[ext_resource type="FontFile" uid="uid://dmld38g0i2q0a" path="res://assets/fonts/Bungee-Regular.ttf" id="2_font"]
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="2_u1ke6"]
+[ext_resource type="Script" uid="uid://dwrbarjdhuf66" path="res://script/global/loading_overlay.gd" id="3_script"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bg"]
+shader = ExtResource("1_shader")
+shader_parameter/color_a = Color(0.11, 0.100099996, 0.11, 0)
+shader_parameter/color_b = Color(1, 0.258824, 0.352941, 1)
+shader_parameter/progress = 0.2950000140125
+shader_parameter/frequency = 100.0
+shader_parameter/edge_softness = 0.3
+shader_parameter/invert_direction = false
+
+[node name="LoadingOverlay" type="CanvasLayer" unique_id=-1194967293]
+layer = 100
+script = ExtResource("3_script")
+
+[node name="Screen" type="Control" parent="." unique_id=-1194967292]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_u1ke6")
+
+[node name="AnimatedBG" type="ColorRect" parent="Screen" unique_id=-1194967291]
+material = SubResource("ShaderMaterial_bg")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="BGDark" type="ColorRect" parent="Screen" unique_id=179107575]
+self_modulate = Color(1, 1, 1, 0)
+z_index = -1
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="Screen" unique_id=-1194967289]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StatusLabel" type="Label" parent="Screen/CenterContainer" unique_id=-1194967288]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+vertical_alignment = 1

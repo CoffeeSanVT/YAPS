@@ -1,0 +1,400 @@
+[gd_scene format=3 uid="uid://dugepc7rcnkkn"]
+
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_j1451"]
+[ext_resource type="Script" uid="uid://wij2px63sdjt" path="res://script/ui/menu.gd" id="2_3wthm"]
+[ext_resource type="FontFile" uid="uid://dmld38g0i2q0a" path="res://assets/fonts/Bungee-Regular.ttf" id="3_0qewb"]
+[ext_resource type="Texture2D" uid="uid://b4i12gm186tg0" path="res://assets/logos/Yaps_512.png" id="3_ufwb2"]
+[ext_resource type="Script" uid="uid://bxpckuv0f0nm5" path="res://script/ui/model/model_list.gd" id="4_3wthm"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="4_5ewt4"]
+[ext_resource type="FontVariation" uid="uid://cbkv4nehqbjx3" path="res://assets/fonts/PlusJakartaSans-Bold.tres" id="4_6cdou"]
+[ext_resource type="FontFile" uid="uid://dpq874jiyjsm3" path="res://assets/fonts/PlusJakartaSans-VariableFont_wght.ttf" id="14_7jp70"]
+[ext_resource type="Script" uid="uid://dk2hodk1uwo6i" path="res://script/ui/version_label.gd" id="15_mxgkd"]
+[ext_resource type="Texture2D" uid="uid://dymf1iy5je0bl" path="res://assets/icons/runtime/close/close_normal.svg" id="35_jlmas"]
+[ext_resource type="Texture2D" uid="uid://bxpsbnyxkxg1e" path="res://assets/icons/runtime/close/close_pressed.svg" id="36_qfcyc"]
+[ext_resource type="Texture2D" uid="uid://cvx6y01ingkfl" path="res://assets/icons/runtime/close/close_hover.svg" id="37_spe5f"]
+[ext_resource type="Texture2D" uid="uid://c0rhqttfful14" path="res://assets/icons/runtime/close/close_disabled.svg" id="38_jcbs5"]
+[ext_resource type="Texture2D" uid="uid://b7beisj23blbs" path="res://assets/icons/runtime/close/close_focused.svg" id="39_jamij"]
+[ext_resource type="StyleBox" uid="uid://b6v1h62iemncy" path="res://themes/panel-dialog-style.tres" id="40_dlg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ijjik"]
+content_margin_left = 12.0
+content_margin_top = 12.0
+content_margin_right = 12.0
+content_margin_bottom = 12.0
+bg_color = Color(0.286275, 0.270588, 0.294118, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0.0294, 0.0288, 0.03, 0.22352941)
+shadow_size = 8
+shadow_offset = Vector2(0, 8)
+
+[node name="Menu" type="Control" unique_id=1744651745 node_paths=PackedStringArray("input_container")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_j1451")
+script = ExtResource("2_3wthm")
+input_container = NodePath("CanvasLayer/Control/CenterContainer/ModelNameContainer")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=518565335]
+
+[node name="Control" type="Control" parent="CanvasLayer" unique_id=796043467]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("1_j1451")
+
+[node name="ColorRect" type="ColorRect" parent="CanvasLayer/Control" unique_id=495981025]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.17254902, 0.16862746, 0.1764706, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/Control" unique_id=132366946]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer/Control/CenterContainer" unique_id=2082741388]
+custom_minimum_size = Vector2(900, 600)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ijjik")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/CenterContainer/Panel" unique_id=918127802]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 892.0
+offset_bottom = 592.0
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer" unique_id=1370431442]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_vertical = 0
+texture = ExtResource("3_ufwb2")
+expand_mode = 3
+stretch_mode = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer" unique_id=655172373]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer" unique_id=1531456334]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer" unique_id=1286496650]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=486990538]
+layout_mode = 2
+theme_override_fonts/bold_font = ExtResource("4_6cdou")
+bbcode_enabled = true
+text = "Welcome to YAPS! To create your character, just click the Create button below. You need at minimum two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and[br] [b]<emotion name>_silence[/b] or just the emotion name."
+fit_content = true
+metadata/localization_key = &"YAPS_DESCRIPTION"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2/RichTextLabel" unique_id=687757098]
+script = ExtResource("4_5ewt4")
+
+[node name="Button" type="Button" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1927068564]
+layout_mode = 2
+text = "Create"
+metadata/localization_key = &"CREATE"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2/Button" unique_id=1159915804]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer" unique_id=37176442 node_paths=PackedStringArray("list_ui", "delete_panel", "delete_message_label", "rename_panel", "rename_line")]
+custom_maximum_size = Vector2(250, -1)
+layout_mode = 2
+size_flags_horizontal = 3
+script = ExtResource("4_3wthm")
+list_ui = NodePath("ItemList")
+delete_panel = NodePath("../../../../../../DeleteModelPanel")
+delete_message_label = NodePath("../../../../../../DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/MessageLabel")
+rename_panel = NodePath("../../../../../../RenameModelPanel")
+rename_line = NodePath("../../../../../../RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/RenameInput")
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=1952189313]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_0qewb")
+theme_override_font_sizes/font_size = 24
+text = "Characters"
+metadata/localization_key = &"CHARACTERS"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/Label" unique_id=1184790100]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ItemList" type="ItemList" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" unique_id=575871066]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ModelNameContainer" type="Panel" parent="CanvasLayer/Control/CenterContainer" unique_id=283906976]
+visible = false
+custom_minimum_size = Vector2(300, 200)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("40_dlg")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer" unique_id=283717547]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer" unique_id=85722104]
+layout_mode = 2
+
+[node name="TextureButton" type="TextureButton" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer" unique_id=757005791]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(30, 30)
+layout_mode = 2
+size_flags_horizontal = 8
+tooltip_text = "CLOSE"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("35_jlmas")
+texture_pressed = ExtResource("36_qfcyc")
+texture_hover = ExtResource("37_spe5f")
+texture_disabled = ExtResource("38_jcbs5")
+texture_focused = ExtResource("39_jamij")
+stretch_mode = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer" unique_id=1133233327]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1729922898]
+layout_mode = 2
+text = "Model name"
+metadata/localization_key = &"MODEL_NAME"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer/Label" unique_id=1086269252]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="ModelNameInput" type="LineEdit" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1774431619]
+layout_mode = 2
+
+[node name="CreateModel" type="Button" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer" unique_id=1752966292]
+layout_mode = 2
+text = "Create"
+metadata/localization_key = &"CREATE"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer/CreateModel" unique_id=313669065]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="DeleteModelPanel" type="Control" parent="CanvasLayer/Control" unique_id=-1980092275]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="CanvasLayer/Control/DeleteModelPanel" unique_id=914205833]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.21176471)
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/Control/DeleteModelPanel" unique_id=1876394205]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer" unique_id=2049817264]
+custom_minimum_size = Vector2(420, 160)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("40_dlg")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel" unique_id=1502364871]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer" unique_id=664120938]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=1234587692]
+layout_mode = 2
+text = "Delete Model"
+metadata/localization_key = &"DELETE_MODEL_TITLE"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/TitleLabel" unique_id=890123457]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="MessageLabel" type="Label" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=456781239]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "Delete model '%s'? All of its files will be permanently removed."
+autowrap_mode = 3
+metadata/localization_key = &"DELETE_MODEL_MESSAGE"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/MessageLabel" unique_id=456781240]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=1987654321]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="CancelButton" type="Button" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons" unique_id=741852963]
+layout_mode = 2
+text = "Cancel"
+metadata/localization_key = &"CANCEL"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/CancelButton" unique_id=258456123]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="DeleteButton" type="Button" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons" unique_id=369852147]
+layout_mode = 2
+text = "Delete"
+metadata/localization_key = &"DELETE"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/DeleteButton" unique_id=159753486]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="RenameModelPanel" type="Control" parent="CanvasLayer/Control" unique_id=2143658709]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="CanvasLayer/Control/RenameModelPanel" unique_id=987120456]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.21176471)
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/Control/RenameModelPanel" unique_id=1592604837]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="Panel" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer" unique_id=-1190399404]
+custom_minimum_size = Vector2(350, 160)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("40_dlg")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel" unique_id=567812340]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer" unique_id=765432108]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=-2061521730]
+layout_mode = 2
+text = "Type the new name"
+metadata/localization_key = &"RENAME_TEXT"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/TitleLabel" unique_id=-950410619]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="RenameInput" type="LineEdit" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=160700492]
+layout_mode = 2
+
+[node name="ConfirmButton" type="Button" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=1271811603]
+layout_mode = 2
+text = "Confirm"
+metadata/localization_key = &"CONFIRM"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/ConfirmButton" unique_id=-1912044681]
+script = ExtResource("4_5ewt4")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="VersionLabel" type="Label" parent="CanvasLayer" unique_id=57957477]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -123.0
+offset_top = -23.0
+grow_horizontal = 0
+grow_vertical = 0
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_fonts/font = ExtResource("14_7jp70")
+text = "1.0.0.0"
+horizontal_alignment = 2
+script = ExtResource("15_mxgkd")
+
+[connection signal="pressed" from="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2/Button" to="." method="_on_create_static_png"]
+[connection signal="item_clicked" from="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer/ItemList" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_on_item_clicked"]
+[connection signal="pressed" from="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/TextureButton" to="." method="_on_close_button_pressed"]
+[connection signal="text_changed" from="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer/ModelNameInput" to="." method="_on_model_name_input_text_changed"]
+[connection signal="text_submitted" from="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer/ModelNameInput" to="." method="_on_model_name_input_text_submitted"]
+[connection signal="pressed" from="CanvasLayer/Control/CenterContainer/ModelNameContainer/MarginContainer/VBoxContainer/VBoxContainer/CreateModel" to="." method="_on_create_model_button_up"]
+[connection signal="pressed" from="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/CancelButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_on_delete_canceled"]
+[connection signal="pressed" from="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/DeleteButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_on_delete_confirmed"]
+[connection signal="text_submitted" from="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/RenameInput" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_apply_rename"]
+[connection signal="pressed" from="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/ConfirmButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_apply_rename"]
