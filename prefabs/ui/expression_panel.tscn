@@ -10,6 +10,11 @@
 [ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/runtime/pencil/pencil_disabled.svg" id="7_pencil_d"]
 [ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/runtime/pencil/pencil_focused.svg" id="8_pencil_f"]
 [ext_resource type="Script" uid="uid://dqurko1j84bpl" path="res://script/ui/utils/content_fit_scroll.gd" id="9_fit_scroll"]
+[ext_resource type="Texture2D" uid="uid://g8ajdb2xdmqu" path="res://assets/icons/runtime/trash/trash_normal.svg" id="10_trash_n"]
+[ext_resource type="Texture2D" uid="uid://c7jgar1rs0shf" path="res://assets/icons/runtime/trash/trash_hover.svg" id="11_trash_h"]
+[ext_resource type="Texture2D" uid="uid://66ckvqaenf7y" path="res://assets/icons/runtime/trash/trash_pressed.svg" id="12_trash_p"]
+[ext_resource type="Texture2D" uid="uid://dm5jhnakge0ff" path="res://assets/icons/runtime/trash/trash_disabled.svg" id="13_trash_d"]
+[ext_resource type="Texture2D" uid="uid://menup57lhvdt" path="res://assets/icons/runtime/trash/trash_focused.svg" id="14_trash_f"]
 
 [node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("frames_list", "frame_rate_spin", "animation_chance_spin", "loop_toggle", "override_toggle", "override_chance_toggle", "override_silence_toggle", "override_silence_label", "tile_text", "rename_button")]
 custom_minimum_size = Vector2(270, 0)
@@ -21,10 +26,10 @@ frames_list = NodePath("VBoxContainer/FramesContainer/VBoxContainer/FramesScroll
 frame_rate_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/FrameRateContainer/FrameRate")
 animation_chance_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/ChanceContainer/AnimationChance")
 loop_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopToggle")
-override_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideToggle/OverrideToggle")
-override_chance_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle")
-override_silence_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle")
-override_silence_label = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel")
+override_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle/OverrideToggle")
+override_chance_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle")
+override_silence_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle")
+override_silence_label = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel")
 tile_text = NodePath("VBoxContainer/Title/Tile")
 rename_button = NodePath("VBoxContainer/Title/RenameButton")
 
@@ -55,6 +60,20 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Expression Name"
 
+[node name="DeleteButton" type="TextureButton" parent="VBoxContainer/Title" unique_id=700000118]
+custom_minimum_size = Vector2(24, 24)
+custom_maximum_size = Vector2(24, 24)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "DELETE"
+tooltip_auto_translate_mode = 1
+texture_normal = ExtResource("10_trash_n")
+texture_pressed = ExtResource("12_trash_p")
+texture_hover = ExtResource("11_trash_h")
+texture_disabled = ExtResource("13_trash_d")
+texture_focused = ExtResource("14_trash_f")
+stretch_mode = 5
+
 [node name="RateRow" type="HBoxContainer" parent="VBoxContainer" unique_id=1316879095]
 layout_mode = 2
 
@@ -82,7 +101,7 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 0.1
-max_value = 60.0
+max_value = 480.0
 step = 0.1
 value = 12.0
 alignment = 1
@@ -107,50 +126,10 @@ size_flags_horizontal = 3
 layout_mode = 2
 min_value = 0.5
 max_value = 60.0
-step = 0.5
+step = 0.1
 value = 5.0
 alignment = 1
 suffix = "s"
-
-[node name="OverrideToggle" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=1547375153]
-layout_mode = 2
-
-[node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle" unique_id=620417385]
-layout_mode = 2
-text = "Override Frame Rate"
-metadata/localization_key = &"OVERRIDE_FRAME_RATE"
-
-[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle/OverrideLabel" unique_id=620417386]
-script = ExtResource("3_mar2q")
-metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle" unique_id=1211772574]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="OverrideToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideToggle" unique_id=620417387]
-layout_mode = 2
-size_flags_vertical = 4
-
-[node name="OverrideEveryToggle" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=1547375154]
-layout_mode = 2
-
-[node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle" unique_id=620417388]
-layout_mode = 2
-text = "Override interval"
-metadata/localization_key = &"OVERRIDE_EVERY"
-
-[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle/OverrideLabel" unique_id=620417389]
-script = ExtResource("3_mar2q")
-metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle" unique_id=1211772575]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="OverrideEveryToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle" unique_id=620417390]
-layout_mode = 2
-size_flags_vertical = 4
 
 [node name="LoopContainer" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=609186743]
 layout_mode = 2
@@ -172,28 +151,82 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 4
 
-[node name="OverrideSilenceRow" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=1904237601]
+[node name="OverrideSettings" type="FoldableContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=362884671]
+layout_mode = 2
+folded = true
+title = "Override Settings"
+metadata/localization_key = &"OVERRIDE_SETTINGS"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings" unique_id=425525610]
+script = ExtResource("3_mar2q")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings" unique_id=318035247]
+visible = false
 layout_mode = 2
 
-[node name="OverrideSilenceLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow" unique_id=1904237602]
+[node name="OverrideToggle" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer" unique_id=1547375153]
+layout_mode = 2
+
+[node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle" unique_id=620417385]
+layout_mode = 2
+text = "Override Frame Rate"
+metadata/localization_key = &"OVERRIDE_FRAME_RATE"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle/OverrideLabel" unique_id=620417386]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle" unique_id=1211772574]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OverrideToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle" unique_id=620417387]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="OverrideEveryToggle" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer" unique_id=1547375154]
+layout_mode = 2
+
+[node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle" unique_id=620417388]
+layout_mode = 2
+text = "Override interval"
+metadata/localization_key = &"OVERRIDE_EVERY"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle/OverrideLabel" unique_id=620417389]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle" unique_id=1211772575]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OverrideEveryToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle" unique_id=620417390]
+layout_mode = 2
+size_flags_vertical = 4
+
+[node name="OverrideSilenceRow" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer" unique_id=1904237601]
+layout_mode = 2
+
+[node name="OverrideSilenceLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow" unique_id=1904237602]
 layout_mode = 2
 text = "Override silence"
 metadata/localization_key = &"OVERRIDE_SILENCE"
 
-[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel" unique_id=1904237603]
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel" unique_id=1904237603]
 script = ExtResource("3_mar2q")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow" unique_id=1904237604]
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow" unique_id=1904237604]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="OverrideSilenceToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow" unique_id=1904237605]
+[node name="OverrideSilenceToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow" unique_id=1904237605]
 layout_mode = 2
 size_flags_vertical = 4
 
 [node name="FramesContainer" type="FoldableContainer" parent="VBoxContainer" unique_id=1316879092]
 layout_mode = 2
+folded = true
 title = "Frames"
 metadata/localization_key = &"FRAMES"
 
@@ -202,6 +235,7 @@ script = ExtResource("3_mar2q")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer/FramesContainer" unique_id=1316879094]
+visible = false
 layout_mode = 2
 
 [node name="AddFrameButton" type="Button" parent="VBoxContainer/FramesContainer/VBoxContainer" unique_id=1316879099]
@@ -228,10 +262,11 @@ size_flags_vertical = 3
 theme_override_constants/separation = 6
 
 [connection signal="pressed" from="VBoxContainer/Title/RenameButton" to="." method="_on_rename_pressed"]
+[connection signal="pressed" from="VBoxContainer/Title/DeleteButton" to="." method="_on_delete_pressed"]
 [connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer/FrameRate" to="." method="_on_frame_rate_changed"]
 [connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/ChanceContainer/AnimationChance" to="." method="_on_animation_chance_changed"]
-[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideToggle/OverrideToggle" to="." method="_on_override_toggled"]
-[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle" to="." method="_on_override_chance_toggled"]
 [connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopToggle" to="." method="_on_loop_toggled"]
-[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle" to="." method="_on_silence_override_toggled"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle/OverrideToggle" to="." method="_on_override_toggled"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle" to="." method="_on_override_chance_toggled"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle" to="." method="_on_silence_override_toggled"]
 [connection signal="pressed" from="VBoxContainer/FramesContainer/VBoxContainer/AddFrameButton" to="." method="_on_add_frame_pressed"]

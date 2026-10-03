@@ -194,5 +194,10 @@ func _on_rename_pressed() -> void:
 		return
 	_rename_util.rename_property(tile_text, state_entry, &"state_name", _is_state_name_taken)
 
+func _on_delete_pressed() -> void:
+	if state_entry == null:
+		return
+	ModelLoader.remove_state_from_model(state_entry)
+
 func _is_state_name_taken(candidate: String) -> bool:
 	return ModelLoader.model_loaded != null and ModelLoader.model_loaded.has_entry_named(candidate, state_entry)

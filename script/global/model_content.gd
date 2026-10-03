@@ -194,6 +194,33 @@ func remove_frame_from_state(state: ModelStateEntry, asset_path: String) -> void
 	state.frames.erase(asset_path)
 	_loader.save_model()
 
+func remove_state_from_model(state: ModelStateEntry) -> void:
+	var model := _require_model("remove_state_from_model")
+	if model == null or state == null:
+		return
+	var branch := model.branch_of(state)
+	if branch == null:
+		return
+	if branch.default_entry == state:
+		branch.default_entry = null
+	else:
+		branch.emotion_entries.erase(state)
+	_remove_orphaned_emotion(model, state.state_name)
+	_loader.save_model()
+	SignalBus.states_changed.emit()
+	SignalBus.model_triggers_changed.emit()
+
+func _remove_orphaned_emotion(model: ModelProfile, entry_name: String) -> void:
+	for entry in model.all_entries():
+		if entry.state_name.to_lower() == entry_name.to_lower():
+			return
+	var emotion := model.get_emotion(entry_name)
+	if emotion == null:
+		return
+	if model.default_emotion.to_lower() == entry_name.to_lower():
+		model.default_emotion = ""
+	model.emotions.erase(emotion)
+
 func set_emotion_effect(emotion: ModelEmotion, effect: BaseEffect, category: int) -> void:
 	if emotion == null:
 		return

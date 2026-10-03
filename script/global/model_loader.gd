@@ -158,6 +158,9 @@ func add_dropped_item_to_model(file_path: String, pos: Vector2, sc: Vector2) -> 
 func add_state_to_model(file_path: String, branch_name: String = ModelState.SILENCE) -> ModelStateEntry:
 	return _content.add_state_to_model(file_path, branch_name)
 
+func remove_state_from_model(state: ModelStateEntry) -> void:
+	_content.remove_state_from_model(state)
+
 func add_emotion_with_images(emotion_name: String, talking_path: String = "", silence_path: String = "") -> ModelEmotion:
 	return _content.add_emotion_with_images(emotion_name, talking_path, silence_path)
 

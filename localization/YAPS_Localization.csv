@@ -87,12 +87,12 @@ ITEM_FIXED,Fixed to Model,Preso ao modelo
 ADD_STATE,Add State,Adicionar Estado
 FRAMES,Frames,Quadros
 FRAME_RATE,Animation FPS,FPS da animação
-OVERRIDE_FRAME_RATE,Override FPS,Sobrescrever FPS
-OVERRIDE_EVERY,Override interval,Sobrescrever intervalo
+OVERRIDE_FRAME_RATE,Override FPS,Substituir FPS
+OVERRIDE_EVERY,Override interval,Substituir intervalo
 ANIMATION_INTERVAL,Animation interval,Intervalo da animação
 LOOP,Loop,Loop
-OVERRIDE_SILENCE,Override silence,Sobrescrever silêncio
-OVERRIDE_TALKING,Override talking,Sobrescrever falando
+OVERRIDE_SILENCE,Override silence,Substituir silêncio
+OVERRIDE_TALKING,Override talking,Substituir falando
 ADD_FRAME,Add Frame,Adicionar Quadro
 EMPTY_ASSETS_LIST,No items in scene,Sem itens na cena
 WEBSOCKET_SERVER,Enable server,Ativar servidor
@@ -181,3 +181,4 @@ LOADING_LOADING,Loading model,Carregando modelo
 LOADING_COMPRESSING,Compressing textures,Comprimindo texturas
 LOADING_MENU,Returning to menu,Voltando ao menu
 RENAME_TEXT,Type the new name,Digite o novo nome
+OVERRIDE_SETTINGS,Override Settings,Substituir Configurações
