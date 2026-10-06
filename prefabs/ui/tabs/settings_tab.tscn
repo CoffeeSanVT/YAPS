@@ -22,7 +22,7 @@
 [ext_resource type="Script" uid="uid://btsksonjp3jls" path="res://script/ui/twitch_settings.gd" id="36_twset"]
 [ext_resource type="Script" uid="uid://b356va3moy2dl" path="res://script/ui/reload_images.gd" id="38_reload"]
 [ext_resource type="Script" uid="uid://dperftgl8w3k" path="res://script/ui/performance_overlay_toggle.gd" id="39_perfov"]
-[ext_resource type="Script" path="res://script/ui/vram_compression_toggle.gd" id="40_vram"]
+[ext_resource type="Script" uid="uid://yjwg32l1usqr" path="res://script/ui/vram_compression_toggle.gd" id="40_vram"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lqayg"]
 content_margin_left = 12.0
@@ -53,7 +53,7 @@ layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
 anchor_bottom = 0.919
-offset_bottom = 0.32000732
+offset_bottom = 9.320007
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -290,24 +290,24 @@ layout_mode = 2
 size_flags_horizontal = 3
 script = ExtResource("14_antialias")
 
-[node name="Group 4" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer"]
+[node name="Group 4" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=609467635]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="PerformanceOverlayLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4"]
+[node name="PerformanceOverlayLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4" unique_id=108803528]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "Performance Overlay"
 metadata/localization_key = &"PERFORMANCE_OVERLAY"
 
-[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayLabel"]
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayLabel" unique_id=1649867914]
 script = ExtResource("2_hu0pd")
 
-[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4"]
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4" unique_id=1208921649]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="PerformanceOverlayToggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4"]
+[node name="PerformanceOverlayToggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4" unique_id=2106035643]
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -545,7 +545,7 @@ layout_mode = 2
 text = "Mic Monitoring"
 metadata/localization_key = &"MIC_MONITORING"
 
-[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer/MicMonitoringToggleLabel" unique_id=2187249123]
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer/MicMonitoringToggleLabel" unique_id=-2107718173]
 script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
@@ -692,6 +692,8 @@ metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 [connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/WindowResolutionContainer/WindowResolution" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 2/WindowResolutionContainer/WindowResolution" method="_on_item_selected"]
 [connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/TextureFilterContainer/TextureFilter" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/TextureFilterContainer/TextureFilter" method="_on_item_selected"]
 [connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/AntiAliasContainer/AntiAlias" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 3/AntiAliasContainer/AntiAlias" method="_on_item_selected"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" method="_on_toggled"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" method="_on_toggled"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/ToggleServerContainer/Toggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" method="_on_toggled"]
 [connection signal="item_selected" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/InputDevice/MicDevice" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/InputDevice/MicDevice" method="_on_item_selected"]
 [connection signal="value_changed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_value_changed"]
@@ -700,6 +702,4 @@ metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" method="_on_toggled"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer/MicMonitoringToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer/MicMonitoringToggle" method="_on_toggled"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/Button" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_button_toggled"]
-[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" method="_on_toggled"]
-[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" method="_on_toggled"]
 [connection signal="pressed" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/ReloadImages" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/ReloadImages" method="_on_pressed"]
