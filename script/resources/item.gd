@@ -7,6 +7,7 @@ signal enabled_changed(value: bool)
 
 const TAG := "[Item] "
 const MAX_IMAGE_SIZE := Vector2(800.0, 800.0)
+const ANIM_PREFETCH := 4
 const Z_MIN := -99
 const Z_MAX := 99
 
@@ -41,6 +42,9 @@ var animation_data: Variant
 var _animation_cache_path: String = ""
 var _outline_bounds: Rect2 = TextureCache.FULL_BOUNDS
 var _decoder := ItemAnimationDecoder.new()
+var _requested_frames: Dictionary[int, bool] = {}
+var _failed_frames: Dictionary[int, bool] = {}
+var _playback_held: bool = false
 var _auto_hide_timer: Timer
 var _fading_out: bool = false
 
@@ -56,7 +60,7 @@ func _get_real_path() -> String:
 
 func load_image() -> Texture2D:
 	var full_path := _get_real_path()
-	if animation_data != null and _animation_cache_path == asset_path:
+	if _has_animation_cache() and animation_data.Frames[0] != null:
 		return animation_data.Frames[0]
 	var decoded := ImageUtil.load_texture_with_rect(asset_path)
 	var tex: Texture2D = decoded.texture
@@ -64,9 +68,19 @@ func load_image() -> Texture2D:
 		push_error(TAG + "load_image: failed to decode texture: " + full_path)
 		return null
 	_apply_outline_bounds(decoded.used_rect, tex)
-	if animation_data == null and ImageUtil.is_animated_file(full_path):
-		_decoder.request(full_path, _on_frames_decoded, self)
+	ensure_animation()
 	return tex
+
+func _has_animation_cache() -> bool:
+	return animation_data != null and _animation_cache_path == asset_path
+
+func ensure_animation(source_path: String = "") -> void:
+	if _has_animation_cache() or _decoder.is_busy():
+		return
+	var check_path := PathUtil.get_real_path(source_path) if not source_path.is_empty() else _get_real_path()
+	if not ImageUtil.is_animated_file(check_path):
+		return
+	_decoder.request(asset_path, _on_frames_decoded, self, source_path)
 
 func outline_bounds() -> Rect2:
 	return _outline_bounds
@@ -88,8 +102,12 @@ func _on_frames_decoded(data: AnimatedImageData) -> void:
 func set_animation_data(data: Variant) -> void:
 	animation_data = data
 	_animation_cache_path = asset_path
+	_requested_frames.clear()
+	_failed_frames.clear()
 	if data != null and data.UnionRect.size.x > 0 and data.UnionRect.size.y > 0:
-		_apply_outline_bounds(data.UnionRect, data.Frames[0])
+		var first: Texture2D = data.Frames[0] if data.Frames.size() > 0 else null
+		if first != null:
+			_apply_outline_bounds(data.UnionRect, first)
 
 static func fit_size(image_size: Vector2) -> Vector2:
 	var fitted := image_size
@@ -121,9 +139,93 @@ func _attach_animation_player() -> void:
 	var player := AnimatedImageRuntime.AttachPlayer(animation_data, instance)
 	if player != null:
 		player.Loop = animation_loop
-		if not enabled:
+		if not enabled or _playback_held:
 			player.Pause()
 		NodeUtil.connect_once(player, &"frame_changed", instance.sync_outline_texture)
+		NodeUtil.connect_once(player, &"frame_changed", _on_player_frame_changed)
+		NodeUtil.connect_once(player, &"frame_needed", _on_player_frame_needed)
+		_prefetch_frames(player, player.CurrentFrame)
+
+func set_playback_held(value: bool) -> void:
+	if _playback_held == value:
+		return
+	_playback_held = value
+	if _playback_held:
+		pause_animation()
+		return
+	if enabled:
+		play_animation()
+
+func play_animation() -> void:
+	var player := get_animation_player()
+	if player == null:
+		return
+	if _playback_held or not enabled:
+		player.Pause()
+		return
+	player.Stop()
+	player.Play()
+
+func pause_animation() -> void:
+	var player := get_animation_player()
+	if player != null:
+		player.Pause()
+
+func _on_player_frame_changed(_frame: int) -> void:
+	var player := get_animation_player()
+	if player != null:
+		_prefetch_frames(player, player.CurrentFrame)
+
+func _on_player_frame_needed(frame: int) -> void:
+	var player := get_animation_player()
+	if player != null:
+		_prefetch_frames(player, frame)
+
+func _prefetch_frames(player: AnimatedImagePlayer, index: int) -> void:
+	var count: int = player.FrameCount
+	if count <= 0:
+		return
+	var window: Array[int] = []
+	for offset in ANIM_PREFETCH:
+		var target := ((index + offset) % count) if player.Loop else mini(index + offset, count - 1)
+		window.append(target)
+		_request_frame(target)
+	_release_frames(window)
+
+func _release_frames(window: Array[int]) -> void:
+	var data: AnimatedImageData = animation_data
+	if data == null or data.Frames == null or data.FramePaths == null:
+		return
+	for i in data.Frames.size():
+		if window.has(i) or data.Frames[i] == null:
+			continue
+		data.SetFrameTexture(i, null)
+		ModelLoader.textures.release_texture(data.FramePaths[i])
+
+func _request_frame(index: int) -> void:
+	if _requested_frames.has(index) or _failed_frames.has(index):
+		return
+	var data: AnimatedImageData = animation_data
+	if data == null or data.Frames == null or data.FramePaths == null:
+		return
+	if index < 0 or index >= data.FramePaths.size() or index >= data.Frames.size():
+		return
+	if data.Frames[index] != null:
+		return
+	_requested_frames[index] = true
+	ModelLoader.textures.request_texture(data.FramePaths[index], func(tex: ImageTexture) -> void:
+		_requested_frames.erase(index)
+		if tex == null:
+			_failed_frames[index] = true
+			return
+		if animation_data != data or data.Frames == null or index >= data.Frames.size():
+			return
+		data.SetFrameTexture(index, tex)
+		if index == 0:
+			_apply_outline_bounds(data.UnionRect, tex)
+			if _live_instance() != null:
+				instance.set_texture_bounds(_outline_bounds)
+	, self)
 
 func reparent_for_fixed(free_parent: Node, fixed_parent: Node) -> void:
 	if _live_instance() == null:

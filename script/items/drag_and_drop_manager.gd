@@ -38,12 +38,16 @@ func _restore_items() -> void:
 		LoadingOverlay.hide_loading()
 		return
 	for item in ModelLoader.model_loaded.items:
+		item.set_playback_held(true)
+	for item in ModelLoader.model_loaded.items:
 		item.instantiate_in_scene(_parent_for_item(item))
 		item.activate_trigger()
 		item.activate_twitch_event()
 		item.update_auto_hide_timer()
 	SignalBus.items_changed.emit()
 	await ModelLoader.wait_for_texture_work()
+	for item in ModelLoader.model_loaded.items:
+		item.set_playback_held(false)
 	LoadingOverlay.hide_loading()
 
 func get_model_parent() -> Control:
@@ -77,18 +81,14 @@ func _process_dropped_file(file_path: String) -> void:
 		_process_static_drop(file_path)
 
 func _process_animated_drop(file_path: String) -> void:
-	var animation := AnimatedImageRuntime.LoadFrames(file_path, ImageUtil.model_compress_enabled())
-	if animation == null:
+	var first: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(file_path, ImageUtil.model_compress_enabled())
+	if first == null or first[&"texture"] == null:
 		_process_static_drop(file_path)
 		return
-	var texture: Texture2D = animation.Frames[0]
-	var texture_rect := _create_dropped_item_rect(texture, file_path)
+	var texture_rect := _create_dropped_item_rect(first[&"texture"], file_path)
 	var item: Item = texture_rect.item
 	if item != null:
-		item.set_animation_data(animation)
-	var player := AnimatedImageRuntime.AttachPlayer(animation, texture_rect)
-	if player != null and item != null:
-		player.Loop = item.animation_loop
+		item.ensure_animation(file_path)
 	SignalBus.items_changed.emit()
 
 func _process_static_drop(file_path: String) -> void:

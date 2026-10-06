@@ -8,10 +8,11 @@ public partial class AnimatedImagePlayer : Node
 	[Export] public bool Loop { get; set; } = true;
 
 	public int CurrentFrame => _index;
-	public int FrameCount => Data?.Frames?.Length ?? 0;
+	public int FrameCount => Data?.FramePaths?.Length ?? Data?.Frames?.Length ?? 0;
 	public bool IsPlaying => _playing;
 
 	[Signal] public delegate void FrameChangedEventHandler(int frame);
+	[Signal] public delegate void FrameNeededEventHandler(int frame);
 
 	private int _index;
 	private float _time;
@@ -19,10 +20,10 @@ public partial class AnimatedImagePlayer : Node
 
 	public override void _Process(double delta)
 	{
-		if (!_playing || !IsInstanceValid(Target) || Data == null || Data.Frames == null || Data.Frames.Length == 0)
+		if (!_playing || !IsInstanceValid(Target) || !HasData())
 			return;
 
-		float duration = _index < Data.Durations.Length ? Data.Durations[_index] : 0.1f;
+		float duration = Data.Durations != null && _index < Data.Durations.Length ? Data.Durations[_index] : 0.1f;
 		_time += (float)delta;
 
 		if (_time < duration)
@@ -30,7 +31,7 @@ public partial class AnimatedImagePlayer : Node
 
 		_time -= duration;
 
-		if (_index + 1 >= Data.Frames.Length)
+		if (_index + 1 >= FrameCount)
 		{
 			if (!Loop)
 			{
@@ -42,9 +43,7 @@ public partial class AnimatedImagePlayer : Node
 		else
 			_index++;
 
-		Target.Texture = Data.Frames[_index];
-
-		EmitSignal(SignalName.FrameChanged, _index);
+		ShowCurrentFrame();
 	}
 
     public void Play() => _playing = true;
@@ -57,25 +56,50 @@ public partial class AnimatedImagePlayer : Node
 		_index = 0;
 		_time = 0f;
 
-		if (IsInstanceValid(Target) && Data?.Frames?.Length > 0)
-		{
-			Target.Texture = Data.Frames[0];
-			EmitSignal(SignalName.FrameChanged, 0);
-		}
+		if (!HasData())
+			return;
+
+		Texture2D texture = FrameAt(0);
+		if (IsInstanceValid(Target) && texture != null)
+			Target.Texture = texture;
+		EmitSignal(SignalName.FrameChanged, 0);
+		if (texture == null)
+			EmitSignal(SignalName.FrameNeeded, 0);
 	}
 
 	public void Seek(int frame)
 	{
-		if (Data?.Frames == null || Data.Frames.Length == 0)
+		if (!HasData())
 			return;
 
-		_index = Mathf.Clamp(frame, 0, Data.Frames.Length - 1);
+		_index = Mathf.Clamp(frame, 0, FrameCount - 1);
 		_time = 0f;
 
-		if (IsInstanceValid(Target))
+		Texture2D texture = FrameAt(_index);
+		if (IsInstanceValid(Target) && texture != null)
+			Target.Texture = texture;
+		EmitSignal(SignalName.FrameChanged, _index);
+		if (texture == null)
+			EmitSignal(SignalName.FrameNeeded, _index);
+	}
+
+	private bool HasData()
+		=> Data != null && FrameCount > 0;
+
+	private Texture2D FrameAt(int index)
+		=> Data?.Frames != null && index >= 0 && index < Data.Frames.Length ? Data.Frames[index] : null;
+
+	private void ShowCurrentFrame()
+	{
+		Texture2D texture = FrameAt(_index);
+		if (texture == null)
 		{
-			Target.Texture = Data.Frames[_index];
-			EmitSignal(SignalName.FrameChanged, _index);
+			_time = 0f;
+			EmitSignal(SignalName.FrameNeeded, _index);
+			return;
 		}
+
+		Target.Texture = texture;
+		EmitSignal(SignalName.FrameChanged, _index);
 	}
 }

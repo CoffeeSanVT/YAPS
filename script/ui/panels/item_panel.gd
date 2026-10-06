@@ -117,14 +117,12 @@ func _on_anim_loop_toggled(pressed: bool) -> void:
 func _on_item_enabled_changed(value: bool) -> void:
 	enable_toggle.set_pressed_no_signal(value)
 	anim_controls.set_enabled(value)
-	var player := anim_controls.get_player()
-	if player == null:
+	if item == null:
 		return
 	if value:
-		player.Stop()
-		player.Play()
+		item.play_animation()
 	else:
-		player.Pause()
+		item.pause_animation()
 
 func _on_enable_toggled(pressed: bool) -> void:
 	if item == null:
