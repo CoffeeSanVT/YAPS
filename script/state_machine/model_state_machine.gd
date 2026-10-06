@@ -10,6 +10,7 @@ signal talking_changed(exceeded: bool)
 var current_entry: ModelStateEntry
 var is_talking: bool = false
 var active_emotion: ModelEmotion
+var _emotion_stack: Array[ModelEmotion] = []
 
 func _ready() -> void:
 	add_to_group(&"model_state_machine")
@@ -57,6 +58,8 @@ func _sync_emotion_triggers() -> void:
 	for emotion in profile.emotions:
 		_bind_emotion_trigger(emotion)
 
+	_prune_stale_emotions(profile)
+
 	if active_emotion == null and not profile.default_emotion.is_empty():
 		active_emotion = profile.get_emotion(profile.default_emotion)
 		if active_emotion == null:
@@ -70,6 +73,13 @@ func _sync_emotion_triggers() -> void:
 		entry_changed.emit(null, initial)
 	else:
 		resolve()
+
+func _prune_stale_emotions(profile: ModelProfile) -> void:
+	for i in range(_emotion_stack.size() - 1, -1, -1):
+		if profile.get_emotion(_emotion_stack[i].emotion_name) == null:
+			_emotion_stack.remove_at(i)
+	if active_emotion != null and profile.get_emotion(active_emotion.emotion_name) == null:
+		active_emotion = null
 
 func _unbind_emotion_triggers() -> void:
 	var profile := ModelLoader.model_loaded
@@ -109,13 +119,41 @@ func _bind_trigger(trigger: BaseTrigger, emotion: ModelEmotion) -> void:
 
 func _on_emotion_trigger_changed(trigger: BaseTrigger, emotion: ModelEmotion) -> void:
 	if trigger.enabled:
-		_mute_other_emotions(emotion, true)
-		_set_active_emotion(emotion)
+		_activate_emotion(emotion)
 		return
+	_deactivate_emotion(emotion)
 
-	if active_emotion == emotion:
-		var next := _first_enabled_emotion()
-		_set_active_emotion(next)
+func _activate_emotion(emotion: ModelEmotion) -> void:
+	_emotion_stack.erase(emotion)
+	_emotion_stack.append(emotion)
+	_set_active_emotion(emotion)
+
+func _deactivate_emotion(emotion: ModelEmotion) -> void:
+	_emotion_stack.erase(emotion)
+	if active_emotion != emotion:
+		return
+	_set_active_emotion(_fallback_emotion())
+
+func _fallback_emotion() -> ModelEmotion:
+	for i in range(_emotion_stack.size() - 1, -1, -1):
+		var candidate := _emotion_stack[i]
+		if _is_emotion_engaged(candidate):
+			return candidate
+		_emotion_stack.remove_at(i)
+	return _default_emotion()
+
+func _default_emotion() -> ModelEmotion:
+	var profile := ModelLoader.model_loaded
+	if profile == null or profile.default_emotion.is_empty():
+		return null
+	return profile.get_emotion(profile.default_emotion)
+
+func _is_emotion_engaged(emotion: ModelEmotion) -> bool:
+	if emotion == null:
+		return false
+	if emotion.trigger != null and emotion.trigger.enabled:
+		return true
+	return emotion.twitch_event != null and emotion.twitch_event.enabled
 
 func _set_active_emotion(emotion: ModelEmotion) -> void:
 	if emotion == active_emotion:
@@ -125,32 +163,6 @@ func _set_active_emotion(emotion: ModelEmotion) -> void:
 	active_emotion = emotion
 	emotion_changed.emit(previous, emotion)
 	resolve()
-
-func _first_enabled_emotion() -> ModelEmotion:
-	var profile := ModelLoader.model_loaded
-	if profile == null:
-		return null
-	for emotion in profile.emotions:
-		var trigger := emotion.trigger
-		if trigger != null and trigger.enabled:
-			return emotion
-		var twitch_event := emotion.twitch_event
-		if twitch_event != null and twitch_event.enabled:
-			return emotion
-	return null
-
-func _mute_other_emotions(active: ModelEmotion, only_key_pressed: bool) -> void:
-	var profile := ModelLoader.model_loaded
-	if profile == null:
-		return
-	for emotion in profile.emotions:
-		if emotion == active:
-			continue
-		var trigger := emotion.trigger
-		if only_key_pressed and trigger is not KeyPressed:
-			continue
-		if trigger != null and trigger.enabled:
-			trigger.set_enabled(false)
 
 func resolve() -> void:
 	var next := _pick_entry()
@@ -187,10 +199,11 @@ func _override_entry(profile: ModelProfile) -> ModelStateEntry:
 	var silence := profile.get_branch(ModelState.SILENCE)
 	var talk_entry := talking.find_entry(active_emotion.emotion_name) if talking != null else null
 	var silence_entry := silence.find_entry(active_emotion.emotion_name) if silence != null else null
-	if talk_entry != null and talk_entry.override_silence:
+	if is_talking:
+		if silence_entry != null and silence_entry.override_silence:
+			return silence_entry
+	elif talk_entry != null and talk_entry.override_silence:
 		return talk_entry
-	if silence_entry != null and silence_entry.override_silence:
-		return silence_entry
 	return null
 
 func get_initial_entry() -> ModelStateEntry:
@@ -214,14 +227,12 @@ func force_emotion(emotion_name: String) -> String:
 	if profile == null:
 		return "no model loaded"
 	if emotion_name.is_empty():
-		_mute_other_emotions(null, false)
-		_set_active_emotion(null)
+		_deactivate_emotion(active_emotion)
 		return ""
 	var emotion := profile.get_emotion(emotion_name)
 	if emotion == null:
 		return "unknown emotion: " + emotion_name
-	_mute_other_emotions(emotion, false)
-	_set_active_emotion(emotion)
+	_activate_emotion(emotion)
 	return ""
 
 func force_entry_by_path(entry_path: String) -> String:
