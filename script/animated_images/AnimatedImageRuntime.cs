@@ -115,7 +115,7 @@ public partial class AnimatedImageRuntime : RefCounted
 
 	public static bool EncodeBc(Image image)
 	{
-		if (image == null || image.IsEmpty() || image.IsCompressed())
+		if (image == null || image.IsEmpty() || image.IsCompressed() || image.HasMipmaps())
 			return false;
 		if (image.GetWidth() % 4 != 0 || image.GetHeight() % 4 != 0)
 			return false;

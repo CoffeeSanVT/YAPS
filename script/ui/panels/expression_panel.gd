@@ -2,6 +2,7 @@ extends ModelEntityPanel
 
 @export_category("Frames")
 @export var frames_list: VBoxContainer
+@export var frames_fold: FoldableContainer
 @export var frame_rate_spin: SpinBox
 @export var animation_chance_spin: SpinBox
 @export var loop_toggle: CheckButton
@@ -26,10 +27,18 @@ func _ready() -> void:
 	_setup_rename_util(rename_button)
 	SignalBus.model_images_reloaded.connect(_populate_frames)
 	SignalBus.state_frames_changed.connect(_populate_frames)
+	if frames_fold != null:
+		frames_fold.folding_changed.connect(_on_frames_fold_changed)
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and is_inside_tree():
+		_populate_frames()
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"model_images_reloaded", _populate_frames)
 	NodeUtil.safe_disconnect(SignalBus, &"state_frames_changed", _populate_frames)
+	if frames_fold != null:
+		NodeUtil.safe_disconnect(frames_fold, &"folding_changed", _on_frames_fold_changed)
 
 func set_state_entry(entry: ModelStateEntry) -> void:
 	state_entry = entry
@@ -48,12 +57,18 @@ func set_state_entry(entry: ModelStateEntry) -> void:
 		_update_silence_toggle_label()
 	_populate_frames()
 
+func _frames_visible() -> bool:
+	return is_visible_in_tree() and frames_fold != null and not frames_fold.folded
+
 func _populate_frames() -> void:
 	NodeUtil.clear_children(frames_list)
-	if state_entry == null:
+	if state_entry == null or not _frames_visible():
 		return
 	for frame_path in state_entry.frames:
 		_add_frame_row(frame_path)
+
+func _on_frames_fold_changed(_is_folded: bool) -> void:
+	_populate_frames()
 
 func _add_frame_row(frame_path: String) -> void:
 	var row := HBoxContainer.new()
@@ -63,6 +78,7 @@ func _add_frame_row(frame_path: String) -> void:
 	thumb.custom_minimum_size = Vector2(32, 32)
 	thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	thumb.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	ModelLoader.textures.request_texture(frame_path, func(tex: ImageTexture) -> void:
 		thumb.texture = tex
 	, thumb)

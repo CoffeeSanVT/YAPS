@@ -53,6 +53,7 @@ func request_texture(path: String, done: Callable, owner: Object = null) -> void
 		if image == null:
 			return [null, Rect2i()]
 		var used_rect := image.get_used_rect()
+		ImageUtil.ensure_mipmaps(image)
 		ImageUtil.compress_for_gpu(image, path, used_rect)
 		return [image, used_rect],
 	func(result: Array) -> void:

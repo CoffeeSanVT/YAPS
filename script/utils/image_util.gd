@@ -16,7 +16,7 @@ static var _count_lock := Mutex.new()
 
 const FORMAT_NAMES := { Image.FORMAT_DXT1: "BC1/DXT1", Image.FORMAT_DXT5: "BC3/DXT5", Image.FORMAT_BPTC_RGBA: "BC7/BPTC", Image.FORMAT_BPTC_RGBFU: "BC6H/BPTC" }
 const VRAM_CACHE_SUFFIX := ".bc"
-const VRAM_CACHE_VERSION := 2
+const VRAM_CACHE_VERSION := 3
 const COMPRESS_SKIPPED := 0
 const COMPRESS_DONE := 1
 const COMPRESS_FAILED := 2
@@ -25,6 +25,15 @@ const VRAM_CACHE_FORMATS := { Image.FORMAT_DXT1: 8, Image.FORMAT_DXT5: 16, Image
 static func model_compress_enabled() -> bool:
 	var model := ModelLoader.model_loaded
 	return model != null and model.vram_texture_compression
+
+static func ensure_mipmaps(image: Image) -> void:
+	if image == null or image.is_empty():
+		return
+	if image.is_compressed() or image.has_mipmaps():
+		return
+	if image.get_width() <= 1 and image.get_height() <= 1:
+		return
+	image.generate_mipmaps()
 
 static func compress_for_gpu(image: Image, path := "", used_rect := Rect2i()) -> void:
 	if not model_compress_enabled():
@@ -66,12 +75,11 @@ static func load_vram_cache(path: String) -> Dictionary:
 	var width := f.get_32()
 	var height := f.get_32()
 	var format := f.get_32()
+	var mipmaps := f.get_32()
 	var rect := Rect2i(f.get_32(), f.get_32(), f.get_32(), f.get_32())
 	var data_size := f.get_32()
 	var bytes_per_block: int = VRAM_CACHE_FORMATS.get(format, 0)
-	@warning_ignore("integer_division")
-	var blocks := ((width + 3) / 4) * ((height + 3) / 4)
-	var expected := blocks * bytes_per_block
+	var expected := _vram_data_size(width, height, mipmaps > 0, bytes_per_block)
 	if width <= 0 or height <= 0 or bytes_per_block == 0 or data_size != expected:
 		f.close()
 		return {}
@@ -79,7 +87,7 @@ static func load_vram_cache(path: String) -> Dictionary:
 	f.close()
 	if data.size() != data_size:
 		return {}
-	var image := Image.create_from_data(width, height, false, format, data)
+	var image := Image.create_from_data(width, height, mipmaps > 0, format, data)
 	if image == null:
 		return {}
 	_count_lock.lock()
@@ -87,6 +95,19 @@ static func load_vram_cache(path: String) -> Dictionary:
 	_last_compressed_format = str(FORMAT_NAMES.get(format, format))
 	_count_lock.unlock()
 	return { "image": image, "used_rect": rect }
+
+static func _vram_data_size(width: int, height: int, mipmapped: bool, bytes_per_block: int) -> int:
+	var total := 0
+	var w := width
+	var h := height
+	while true:
+		@warning_ignore("integer_division")
+		total += ((w + 3) / 4) * ((h + 3) / 4) * bytes_per_block
+		if not mipmapped or (w == 1 and h == 1):
+			break
+		w = maxi(1, w >> 1)
+		h = maxi(1, h >> 1)
+	return total
 
 static func _write_vram_cache(path: String, image: Image, used_rect: Rect2i) -> void:
 	var format := image.get_format()
@@ -101,6 +122,7 @@ static func _write_vram_cache(path: String, image: Image, used_rect: Rect2i) -> 
 	f.store_32(image.get_width())
 	f.store_32(image.get_height())
 	f.store_32(format)
+	f.store_32(1 if image.has_mipmaps() else 0)
 	f.store_32(used_rect.position.x)
 	f.store_32(used_rect.position.y)
 	f.store_32(used_rect.size.x)
@@ -151,6 +173,7 @@ static func load_texture_with_rect(path: String) -> TextureLoadResult:
 	if image == null:
 		return TextureLoadResult.new()
 	var used_rect := image.get_used_rect()
+	ensure_mipmaps(image)
 	compress_for_gpu(image, path, used_rect)
 	return TextureLoadResult.new(ImageTexture.create_from_image(image), used_rect)
 
