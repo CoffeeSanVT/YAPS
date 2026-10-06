@@ -3,7 +3,7 @@ extends KeyTriggerBase
 
 func _init() -> void:
 	trigger_name = &"key_holding"
-	ui_prefab = preload("uid://cgt1kyholdd00")
+	ui_prefab = load("uid://cgt1kyholdd00")
 
 func _listens_release() -> bool:
 	return true
