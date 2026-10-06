@@ -161,7 +161,8 @@ func _add_animated_frames_to_state(state: ModelStateEntry, file_path: String, do
 	)
 
 func extract_frames_for_entry(model: ModelProfile, entry: ModelStateEntry, source_path: String, on_finished: Callable = Callable(), owner: Object = null) -> void:
-	_extract_frames(model, entry, source_path, entry.state_name, func(frame_paths: Array[String], frame_rate: float) -> void:
+	var file_base := _unique_frame_base(entry, source_path.get_file().get_basename())
+	_extract_frames(model, entry, source_path, file_base, func(frame_paths: Array[String], frame_rate: float) -> void:
 		if not frame_paths.is_empty():
 			entry.frames.append_array(frame_paths)
 			entry.frame_rate = frame_rate
@@ -178,8 +179,8 @@ func extract_frames_for_entry(model: ModelProfile, entry: ModelStateEntry, sourc
 func _extract_frames(model: ModelProfile, entry: ModelStateEntry, source_path: String, file_base: String, on_done: Callable, owner: Object = null) -> void:
 	ImageUtil.extract_frames(
 		source_path,
-		PathUtil.frames_folder_path(model.model_name, entry.state_name),
-		PathUtil.frames_res_path(model.model_name, entry.state_name),
+		PathUtil.frames_folder_path(model.model_name, file_base),
+		PathUtil.frames_res_path(model.model_name, file_base),
 		file_base,
 		on_done,
 		owner

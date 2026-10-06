@@ -17,7 +17,7 @@ func _init(name: String = "", path: String = "") -> void:
 	asset_path = path
 
 func get_frame_paths() -> Array[String]:
-	var paths := [asset_path]
+	var paths: Array[String] = [asset_path]
 	paths.append_array(frames)
 	return paths
 

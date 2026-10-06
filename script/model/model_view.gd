@@ -3,6 +3,8 @@ extends Node
 
 const TAG := "[ModelView] "
 const MODEL_SHADER := "uid://brgxnej006wdu"
+const HOT_WINDOW := 5
+const HOT_LOOKAHEAD := 4
 
 var model_render: TextureRect
 
@@ -12,6 +14,7 @@ var _active_tween: Tween
 var _cycle_timer: Timer
 var _track := FrameTrack.new()
 var _out_track := FrameTrack.new()
+var _snap_start_cache: Dictionary[ModelStateEntry, int] = {}
 var _anim_frames_left: int = 0
 var _transitioning: bool = false
 var _next_tex_current: Texture2D
@@ -67,7 +70,9 @@ func show_state(tex: Texture2D, state: ModelStateEntry, transition_duration: flo
 	_snapshot_outgoing_track()
 	_transitioning = true
 	_start_out_track()
-	var current_tex := _out_track.frames[_out_track.index] if not _out_track.frames.is_empty() else base_tex
+	var current_tex := base_tex
+	if not _out_track.frames.is_empty() and _out_track.frames[_out_track.index] != null:
+		current_tex = _out_track.frames[_out_track.index]
 	_active_tween = _build_crossfade_tween(mat, current_tex, tex, transition_duration, _finish_state_transition)
 	_next_tex_current = tex
 	show_state_frames(state)
@@ -195,7 +200,10 @@ func _advance_out() -> void:
 		_out_track.clear()
 		return
 	_out_track.advance()
-	_set_current_tex(model_render.material as ShaderMaterial, _out_track.frames[_out_track.index])
+	var out_tex := _out_track.frames[_out_track.index]
+	if out_tex == null:
+		return
+	_set_current_tex(model_render.material as ShaderMaterial, out_tex)
 
 func _start_frame_animation(state: ModelStateEntry) -> void:
 	if model_render == null:
@@ -203,17 +211,51 @@ func _start_frame_animation(state: ModelStateEntry) -> void:
 		return
 	if state.frames.is_empty():
 		return
-	_track.frames = ModelLoader.textures.load_state_frames(state)
-	if _track.frames.size() <= 1:
-		push_warning(TAG + "Frame animation for state '%s' produced %d frame(s); skipping animation." % [state.state_name, _track.frames.size()])
-		return
 	_track.entry = state
 	_track.index = 0
 	show_static(state)
-	if state.loop_animation:
-		_start_burst_timer()
+	_track.frames = ModelLoader.textures.state_frame_array(state)
+	_track.index = _snap_start_index(state, ModelLoader.textures.has_all_thumbs(state))
+	ModelLoader.textures.request_frame_window(state, _track.index, HOT_WINDOW, _track.frames, self, func(ready: int) -> void:
+		_on_frames_buffered(state, ready)
+	)
+
+func _on_frames_buffered(state: ModelStateEntry, _ready: int) -> void:
+	if _track.entry != state or _track.frames.is_empty():
 		return
-	_start_cycle_timer()
+	_show_track_frame()
+	if _is_looping():
+		_start_burst_timer()
+	else:
+		_start_cycle_timer()
+
+func _show_track_frame() -> void:
+	var tex := _track.frames[_track.index]
+	if tex == null:
+		return
+	if _transitioning:
+		_set_next_tex(tex)
+	else:
+		_commit_texture(tex)
+
+func _stream_lookahead() -> void:
+	var state := _track.entry
+	if state == null or _track.frames.is_empty():
+		return
+	var size := _track.frames.size()
+	ModelLoader.textures.request_state_frame(state, (_track.index + HOT_LOOKAHEAD) % size, _track.frames, self)
+	if size > (HOT_LOOKAHEAD + 1) * 2:
+		_track.frames[(_track.index - HOT_LOOKAHEAD - 1 + size) % size] = null
+	if not _snap_start_cache.has(state) and ModelLoader.textures.has_all_thumbs(state):
+		_snap_start_cache[state] = ModelLoader.textures.snap_start_index(state, _applied_tex)
+
+func _snap_start_index(state: ModelStateEntry, complete: bool) -> int:
+	if _snap_start_cache.has(state):
+		return _snap_start_cache[state]
+	var best := ModelLoader.textures.snap_start_index(state, _applied_tex)
+	if complete:
+		_snap_start_cache[state] = best
+	return best
 
 func _start_cycle_timer() -> void:
 	_cycle_timer = NodeUtil.ensure_timer(self, _cycle_timer, _on_cycle_done, true)
@@ -248,7 +290,10 @@ func _advance_frame() -> void:
 		_track.stop()
 		return
 	_track.advance()
+	_stream_lookahead()
 	var next_tex := _track.frames[_track.index]
+	if next_tex == null:
+		return
 	if _transitioning:
 		_set_next_tex(next_tex)
 	else:

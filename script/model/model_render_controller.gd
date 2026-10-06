@@ -61,11 +61,18 @@ func _prewarm_textures() -> void:
 	var seen: Dictionary[String, bool] = {}
 	for branch in profile.branches:
 		for entry in branch.all_entries():
-			for path in entry.get_frame_paths():
-				if path.is_empty() or seen.has(path) or not _is_static_image(path):
+			if not entry.asset_path.is_empty() and not seen.has(entry.asset_path):
+				seen[entry.asset_path] = true
+				if _is_static_image(entry.asset_path):
+					ModelLoader.textures.request_texture(entry.asset_path, Callable())
+			if entry.frames.is_empty():
+				continue
+			ModelLoader.textures.request_texture(entry.frames[0], Callable())
+			for frame_path in entry.frames:
+				if frame_path.is_empty() or seen.has(frame_path):
 					continue
-				seen[path] = true
-				ModelLoader.textures.request_texture(path, Callable())
+				seen[frame_path] = true
+				ModelLoader.textures.request_thumb(frame_path)
 
 static func _is_static_image(path: String) -> bool:
 	return path.get_extension().to_lower() in STATIC_EXTENSIONS

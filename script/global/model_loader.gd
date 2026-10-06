@@ -29,11 +29,19 @@ func reload_textures() -> void:
 	if with_overlay:
 		var status: StringName = &"LOADING_COMPRESSING" if model_loaded.vram_texture_compression else &"LOADING_LOADING"
 		await LoadingOverlay.show_loading(status)
+		_hold_item_playback(true)
 	textures.clear()
 	SignalBus.model_images_reloaded.emit()
 	if with_overlay:
 		await wait_for_texture_work()
+		_hold_item_playback(false)
 		LoadingOverlay.hide_loading()
+
+func _hold_item_playback(value: bool) -> void:
+	if model_loaded == null:
+		return
+	for item in model_loaded.items:
+		item.set_playback_held(value)
 
 func wait_for_texture_work() -> void:
 	var deadline_ms := Time.get_ticks_msec() + TEXTURE_WORK_TIMEOUT_MS

@@ -184,10 +184,13 @@ func _set_override_for_emotion(pressed: bool) -> void:
 	if profile == null:
 		state_entry.override_silence = pressed
 		return
-	for branch in profile.branches:
-		for entry in branch.all_entries():
-			if entry.state_name.to_lower() == state_entry.state_name.to_lower():
-				entry.override_silence = pressed
+	if not pressed:
+		for branch in profile.branches:
+			for entry in branch.all_entries():
+				if entry.state_name.to_lower() == state_entry.state_name.to_lower():
+					entry.override_silence = false
+		return
+	state_entry.override_silence = true
 
 func _update_silence_toggle_label() -> void:
 	if override_silence_label == null:

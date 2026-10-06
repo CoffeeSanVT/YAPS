@@ -30,7 +30,10 @@ func stop() -> void:
 func advance() -> void:
 	if frames.is_empty():
 		return
-	index = (index + 1) % frames.size()
+	var next := (index + 1) % frames.size()
+	if frames[next] == null:
+		return
+	index = next
 
 func clear() -> void:
 	stop()
