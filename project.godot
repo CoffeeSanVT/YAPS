@@ -15,7 +15,7 @@ translations_plugin/last_edited_file_path="res://localization/YAPS_Localization.
 [application]
 
 config/name="YAPS"
-config/version="1.2.0.107"
+config/version="1.0.0_rc"
 run/main_scene="res://scenes/menu.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="yaps"
