@@ -13,6 +13,9 @@ resource_name = "Filter"
 [sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_l66t3"]
 resource_name = "HardLimiter"
 
+[sub_resource type="AudioEffectAmplify" id="AudioEffectAmplify_l66t3"]
+resource_name = "Amplify"
+
 [resource]
 bus/1/name = &"TrappedOutput"
 bus/1/solo = false
@@ -34,3 +37,5 @@ bus/2/effect/2/effect = SubResource("AudioEffectFilter_l66t3")
 bus/2/effect/2/enabled = true
 bus/2/effect/3/effect = SubResource("AudioEffectHardLimiter_l66t3")
 bus/2/effect/3/enabled = true
+bus/2/effect/4/effect = SubResource("AudioEffectAmplify_l66t3")
+bus/2/effect/4/enabled = true

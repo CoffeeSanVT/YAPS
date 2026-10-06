@@ -24,6 +24,7 @@ func _ready() -> void:
 	SignalBus.mic_device_changed.connect(_apply_setting.bind(&"mic_device"))
 	SignalBus.mic_visualizer_changed.connect(_apply_setting.bind(&"show_mic_visualizer"))
 	SignalBus.mic_monitoring_changed.connect(_apply_setting.bind(&"mic_monitoring"))
+	SignalBus.mic_gain_changed.connect(_apply_setting.bind(&"mic_gain_db"))
 	SignalBus.spout_enabled_changed.connect(_apply_setting.bind(&"spout_enabled"))
 	SignalBus.websocket_enabled_changed.connect(_apply_setting.bind(&"websocket_enabled"))
 	SignalBus.websocket_port_changed.connect(_apply_setting.bind(&"websocket_port"))

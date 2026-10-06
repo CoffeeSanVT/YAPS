@@ -20,11 +20,14 @@ func _ready() -> void:
 	setup_mic_recording()
 	threshold_db = Settings.settings.mic_threshold
 	SignalBus.mic_threshold_changed.connect(_on_mic_threshold_changed)
+	SignalBus.mic_gain_changed.connect(_on_mic_gain_changed)
+	_apply_mic_gain(Settings.settings.mic_gain_db)
 	SignalBus.mic_monitoring_changed.connect(_on_mic_monitoring_changed)
 	_apply_mic_monitoring(Settings.settings.mic_monitoring)
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"mic_threshold_changed", _on_mic_threshold_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"mic_gain_changed", _on_mic_gain_changed)
 	NodeUtil.safe_disconnect(SignalBus, &"mic_monitoring_changed", _on_mic_monitoring_changed)
 	if _audio_player != null:
 		_audio_player.stop()
@@ -33,6 +36,25 @@ func _exit_tree() -> void:
 
 func _on_mic_threshold_changed(value: float) -> void:
 	threshold_db = value
+
+func _on_mic_gain_changed(gain_db: float) -> void:
+	_apply_mic_gain(gain_db)
+
+func _apply_mic_gain(gain_db: float) -> void:
+	if record_bus_index == -1:
+		return
+	var effect_index := _get_amplify_effect_index()
+	if effect_index == -1:
+		push_warning(TAG + "AudioEffectAmplify not found on 'RecordingBus'. Mic gain will not work.")
+		return
+	var effect := AudioServer.get_bus_effect(record_bus_index, effect_index) as AudioEffectAmplify
+	effect.volume_db = gain_db
+
+func _get_amplify_effect_index() -> int:
+	for i in AudioServer.get_bus_effect_count(record_bus_index):
+		if AudioServer.get_bus_effect(record_bus_index, i) is AudioEffectAmplify:
+			return i
+	return -1
 
 func _process(_delta: float) -> void:
 	if record_bus_index == -1:

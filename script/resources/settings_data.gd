@@ -10,6 +10,7 @@ extends Resource
 @export var mic_device: String = ""
 @export var show_mic_visualizer: bool = false
 @export var mic_monitoring: bool = false
+@export var mic_gain_db: float = 0.0
 
 @export_category("Display")
 @export var texture_filter: int = CanvasItem.TEXTURE_FILTER_LINEAR
