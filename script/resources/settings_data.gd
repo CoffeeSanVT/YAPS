@@ -9,6 +9,7 @@ extends Resource
 @export var mic_threshold: float = -48
 @export var mic_device: String = ""
 @export var show_mic_visualizer: bool = false
+@export var mic_monitoring: bool = false
 
 @export_category("Display")
 @export var texture_filter: int = CanvasItem.TEXTURE_FILTER_LINEAR

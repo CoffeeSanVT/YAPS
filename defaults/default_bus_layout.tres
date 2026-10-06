@@ -16,7 +16,7 @@ resource_name = "HardLimiter"
 [resource]
 bus/1/name = &"TrappedOutput"
 bus/1/solo = false
-bus/1/mute = false
+bus/1/mute = true
 bus/1/bypass_fx = false
 bus/1/volume_db = 0.0
 bus/1/send = &"Master"

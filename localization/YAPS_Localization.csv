@@ -50,6 +50,7 @@ DEFAULT,Default,Padrão
 MARK_AS_DEFAULT,Mark as default,Marcar como padrão
 MIC_ACTIVATION_THRESHOLD,Activation Threshold,Volume de ativação
 SHOW_VOLUME_VISUALIZATION,Show Volume Visualizer,Mostrar visualização de volume
+MIC_MONITORING,Mic Monitoring,Retorno do microfone
 AVERAGE_DB,Average volume: %.1f dB,Média de volume: %.1f dB
 START_CALC_AVERAGE_DB,Calculate average volume,Calcular média de volume
 CALC_AVERAGE_DB,Average: %.1f dB,Média: %.1f dB

@@ -9,6 +9,7 @@
 [ext_resource type="Script" uid="uid://ck7vo8t3tjfbd" path="res://script/ui/background/background_color.gd" id="9_bgcol"]
 [ext_resource type="Script" uid="uid://bvuxju16yneol" path="res://script/ui/audio/mic_device.gd" id="10_micdev"]
 [ext_resource type="Script" uid="uid://cv2micvi2toga" path="res://script/ui/audio/mic_visualizer_toggle.gd" id="11_micviz"]
+[ext_resource type="Script" uid="uid://dmicon8tg2ab1" path="res://script/ui/audio/mic_monitoring_toggle.gd" id="12_micmon"]
 [ext_resource type="Script" uid="uid://cedbg5aq1ya2e" path="res://script/ui/texture_filter.gd" id="13_texflt"]
 [ext_resource type="Script" uid="uid://dal0bfpsqq8ha" path="res://script/ui/antialias.gd" id="14_antialias"]
 [ext_resource type="Script" uid="uid://bwyd88py1dhfc" path="res://script/ui/spout_toggle.gd" id="15_spout"]
@@ -536,6 +537,26 @@ size_flags_horizontal = 3
 layout_mode = 2
 script = ExtResource("11_micviz")
 
+[node name="MicMonitoringToggleContainer" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold" unique_id=1256303087]
+layout_mode = 2
+
+[node name="MicMonitoringToggleLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer" unique_id=720473471]
+layout_mode = 2
+text = "Mic Monitoring"
+metadata/localization_key = &"MIC_MONITORING"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer/MicMonitoringToggleLabel" unique_id=2187249123]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer" unique_id=1290009173]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MicMonitoringToggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer" unique_id=1689063115]
+layout_mode = 2
+script = ExtResource("12_micmon")
+
 [node name="ProgressBar" type="ProgressBar" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold" unique_id=1087046862]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
@@ -677,6 +698,7 @@ metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 [connection signal="timeout" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue/Timer" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_timer_timeout"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_global_mic_visualizer_toggled"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicVisualizerToggleContainer/MicVisualizerToggle" method="_on_toggled"]
+[connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer/MicMonitoringToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicMonitoringToggleContainer/MicMonitoringToggle" method="_on_toggled"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/Button" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/Group 1/ActiveThresholdContainer/ThresholdValue" method="_on_button_toggled"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 4/PerformanceOverlayToggle" method="_on_toggled"]
 [connection signal="toggled" from="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" to="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer/Group 5/VRAMCompressionToggle" method="_on_toggled"]

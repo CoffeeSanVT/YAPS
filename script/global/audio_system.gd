@@ -17,9 +17,12 @@ func _ready() -> void:
 	setup_mic_recording()
 	threshold_db = Settings.settings.mic_threshold
 	SignalBus.mic_threshold_changed.connect(_on_mic_threshold_changed)
+	SignalBus.mic_monitoring_changed.connect(_on_mic_monitoring_changed)
+	_apply_mic_monitoring(Settings.settings.mic_monitoring)
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"mic_threshold_changed", _on_mic_threshold_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"mic_monitoring_changed", _on_mic_monitoring_changed)
 	if _audio_player != null:
 		_audio_player.stop()
 		_audio_player.stream = null
@@ -53,3 +56,13 @@ func setup_mic_recording() -> void:
 	_audio_player.bus = &"RecordingBus"
 	_audio_player.stream = AudioStreamMicrophone.new()
 	add_child(_audio_player)
+
+func _on_mic_monitoring_changed(enabled: bool) -> void:
+	_apply_mic_monitoring(enabled)
+
+func _apply_mic_monitoring(enabled: bool) -> void:
+	var trapped_bus_index := AudioServer.get_bus_index(&"TrappedOutput")
+	if trapped_bus_index == -1:
+		push_warning(TAG + "Audio bus 'TrappedOutput' not found. Mic monitoring will not work.")
+		return
+	AudioServer.set_bus_mute(trapped_bus_index, not enabled)
