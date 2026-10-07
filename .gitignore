@@ -7,6 +7,7 @@
 .godot/
 .nomedia
 addons/ffmpeg
+model/
 
 # Godot-specific ignores
 .import/
@@ -30,3 +31,11 @@ mono_crash.*.json
 
 model/*
 settings.tres
+
+.secrets
+
+# CI local build output
+builds/
+
+# Godot export templates bundled for CI
+!.github/workflows/export templates/*.exe

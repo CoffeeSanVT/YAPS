@@ -10,10 +10,10 @@
     <PackageReference Include="SharpHook" Version="7.1.3" />
   </ItemGroup>
 
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <None Include="addons\ffmpeg\bin\**\ffmpeg.exe;addons\ffmpeg\bin\**\ffprobe.exe" CopyToOutputDirectory="PreserveNewest" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+  <ItemGroup Condition="'$(GodotTargetPlatform)' == 'windows' Or ('$(GodotTargetPlatform)' == '' And $([MSBuild]::IsOSPlatform('Windows')))">
+    <None Include="$(MSBuildThisFileDirectory)addons/ffmpeg/bin/ffmpeg.exe" Condition="Exists('$(MSBuildThisFileDirectory)addons/ffmpeg/bin/ffmpeg.exe')" CopyToOutputDirectory="PreserveNewest" Link="addons\ffmpeg\bin\ffmpeg.exe" />
   </ItemGroup>
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <None Include="addons\ffmpeg\bin\**\ffmpeg;addons\ffmpeg\bin\**\ffprobe" CopyToOutputDirectory="PreserveNewest" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+  <ItemGroup Condition="'$(GodotTargetPlatform)' == 'linux' Or ('$(GodotTargetPlatform)' == '' And $([MSBuild]::IsOSPlatform('Linux')))">
+    <None Include="$(MSBuildThisFileDirectory)addons/ffmpeg/bin/ffmpeg" Condition="Exists('$(MSBuildThisFileDirectory)addons/ffmpeg/bin/ffmpeg')" CopyToOutputDirectory="PreserveNewest" Link="addons\ffmpeg\bin\ffmpeg" />
   </ItemGroup>
 </Project>

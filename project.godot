@@ -46,7 +46,6 @@ TwitchClient="*res://script/external_connections/twitch_client.gd"
 GlobalInput="*uid://dtqvsd027rpqs"
 FileLogger="*res://script/global/file_logger.gd"
 LoadingOverlay="*res://scenes/loading_overlay.tscn"
-ScreenshotCapture="*res://script/global/screenshot_capture.gd"
 
 [copy_files_on_export]
 

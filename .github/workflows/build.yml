@@ -1,0 +1,110 @@
+name: Build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: 4.7.2
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Generate export presets
+        run: |
+          TPL="$PWD/.github/workflows/export templates"
+          cat > export_presets.cfg <<EOF
+          [preset.0]
+
+          name="Windows Custom"
+          platform="Windows Desktop"
+          export_filter="all_resources"
+          include_filter="*html"
+          exclude_filter="model/*,addons/csvedit/*,*.md"
+          script_export_mode=2
+
+          [preset.0.options]
+
+          custom_template/release="$TPL/godot.windows.template_release.x86_64.mono.exe"
+          debug/export_console_wrapper=1
+          binary_format/embed_pck=false
+          texture_format/s3tc_bptc=true
+          texture_format/etc2_astc=false
+          binary_format/architecture="x86_64"
+          dotnet/include_scripts_content=false
+          dotnet/include_debug_symbols=true
+          dotnet/embed_build_outputs=false
+
+          [preset.1]
+
+          name="Linux Custom"
+          platform="Linux"
+          export_filter="all_resources"
+          include_filter="*html"
+          exclude_filter="model/*,addons/csvedit/*,addons/spout-gd/*,*.md"
+          script_export_mode=2
+
+          [preset.1.options]
+
+          custom_template/release="$TPL/godot.linuxbsd.template_release.x86_64.mono"
+          debug/export_console_wrapper=1
+          binary_format/embed_pck=false
+          texture_format/s3tc_bptc=true
+          texture_format/etc2_astc=false
+          binary_format/architecture="x86_64"
+          dotnet/include_scripts_content=false
+          dotnet/include_debug_symbols=true
+          dotnet/embed_build_outputs=false
+          EOF
+
+      - name: Setup Godot and ffmpeg
+        run: |
+          DIR="Godot_v${GODOT_VERSION}-stable_mono_linux_x86_64"
+          BIN="$DIR/Godot_v${GODOT_VERSION}-stable_mono_linux.x86_64"
+          curl -sL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_mono_linux_x86_64.zip"
+          unzip -q godot.zip && chmod +x "$BIN"
+          sudo ln -sf "$PWD/$BIN" /usr/local/bin/godot
+
+          mkdir -p addons/ffmpeg/bin
+          curl -sL -o ffmpeg-win.zip "https://github.com/GyanD/codexffmpeg/releases/download/9.0.2/ffmpeg-9.0.2-essentials_build.zip"
+          unzip -qj ffmpeg-win.zip "*ffmpeg.exe" -d addons/ffmpeg/bin
+          curl -sL -o ffmpeg-linux.tar.xz "https://johnvansickle.com/ffmpeg/releases/ffmpeg-7.0.2-amd64-static.tar.xz"
+          tar -xJf ffmpeg-linux.tar.xz -C addons/ffmpeg/bin --strip-components=1 "ffmpeg-7.0.2-amd64-static/ffmpeg"
+          chmod +x addons/ffmpeg/bin/ffmpeg
+
+      - name: Build and export
+        run: |
+          dotnet build YAPS.csproj -c Debug
+          godot --headless --import
+          grep -q '&"C#"' .godot/global_script_class_cache.cfg || { echo "::error::global_script_class_cache.cfg is missing C# global classes; export would be broken"; exit 1; }
+          mkdir -p builds/windows builds/linux
+          godot --headless --export-release "Windows Custom" builds/windows/yaps.exe
+          godot --headless --export-release "Linux Custom" builds/linux/yaps.x86_64
+          find builds/linux -path "*addons/ffmpeg/bin/ffmpeg" -exec chmod +x {} \;
+
+      - name: Deploy to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          [ -n "${BUTLER_API_KEY:-}" ] || { echo "::error::BUTLER_API_KEY is not set (GitHub Secrets / .secrets no act)"; exit 1; }
+          test -f builds/windows/yaps.exe || { echo "::error::Windows build not found"; exit 1; }
+          test -f builds/linux/yaps.x86_64 || { echo "::error::Linux build not found"; exit 1; }
+          curl -sL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d butler-bin && chmod +x butler-bin/butler
+          VER="$(grep -m1 '^config/version=' project.godot | cut -d'"' -f2)"
+          VER="${VER:-ci-${GITHUB_SHA::8}}"
+          butler-bin/butler push builds/windows coffeesanvt/yaps:windows --userversion "$VER"
+          butler-bin/butler push builds/linux coffeesanvt/yaps:linux --fix-permissions --userversion "$VER"
