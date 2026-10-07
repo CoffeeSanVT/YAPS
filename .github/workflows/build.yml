@@ -106,5 +106,15 @@ jobs:
           unzip -q butler.zip -d butler-bin && chmod +x butler-bin/butler
           VER="$(grep -m1 '^config/version=' project.godot | cut -d'"' -f2)"
           VER="${VER:-ci-${GITHUB_SHA::8}}"
+          echo "VER=$VER" >> "$GITHUB_ENV"
           butler-bin/butler push builds/windows coffeesanvt/yaps:windows --userversion "$VER"
           butler-bin/butler push builds/linux coffeesanvt/yaps:linux --fix-permissions --userversion "$VER"
+
+      - name: Notify Discord
+        if: env.DISCORD_WEBHOOK != ''
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: tsickert/discord-webhook@v7.0.0
+        with:
+          webhook-url: ${{ env.DISCORD_WEBHOOK }}
+          content: "<@&1557378706060607509>Nova versão **${{ env.VER }}** do YAPS no itch.io: https://coffeesanvt.itch.io/yaps"
