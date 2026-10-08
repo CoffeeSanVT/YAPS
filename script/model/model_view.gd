@@ -216,8 +216,8 @@ func _start_frame_animation(state: ModelStateEntry) -> void:
 	show_static(state)
 	_track.frames = ModelLoader.textures.state_frame_array(state)
 	_track.index = _snap_start_index(state, ModelLoader.textures.has_all_thumbs(state))
-	ModelLoader.textures.request_frame_window(state, _track.index, HOT_WINDOW, _track.frames, self, func(ready: int) -> void:
-		_on_frames_buffered(state, ready)
+	ModelLoader.textures.request_frame_window(state, _track.index, HOT_WINDOW, _track.frames, self, func(ready_count: int) -> void:
+		_on_frames_buffered(state, ready_count)
 	)
 
 func _on_frames_buffered(state: ModelStateEntry, _ready: int) -> void:

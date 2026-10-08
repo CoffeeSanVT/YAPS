@@ -79,7 +79,7 @@ func _update_exceeded(current_db: float) -> void:
 		return
 	_below_since_ms = -1
 
-func _set_exceeded(value: bool, current_db: float) -> void:
+func _set_exceeded(value: bool, _current_db: float) -> void:
 	if value == _was_exceeded:
 		return
 	_was_exceeded = value

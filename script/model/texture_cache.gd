@@ -163,9 +163,9 @@ func has_all_thumbs(state: ModelStateEntry) -> bool:
 			return false
 	return true
 
-func snap_start_index(state: ModelStateEntry, reference: Texture2D) -> int:
+func snap_start_index(state: ModelStateEntry, reference_tex: Texture2D) -> int:
 	var paths := _state_frame_paths(state)
-	var reference_thumb := _texture_to_thumb(reference)
+	var reference_thumb := _texture_to_thumb(reference_tex)
 	var best := 0
 	var best_diff := -1.0
 	for i in paths.size():

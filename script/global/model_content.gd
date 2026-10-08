@@ -176,7 +176,7 @@ func extract_frames_for_entry(model: ModelProfile, entry: ModelStateEntry, sourc
 			on_finished.call()
 	, owner)
 
-func _extract_frames(model: ModelProfile, entry: ModelStateEntry, source_path: String, file_base: String, on_done: Callable, owner: Object = null) -> void:
+func _extract_frames(model: ModelProfile, _entry: ModelStateEntry, source_path: String, file_base: String, on_done: Callable, owner: Object = null) -> void:
 	ImageUtil.extract_frames(
 		source_path,
 		PathUtil.frames_folder_path(model.model_name, file_base),
