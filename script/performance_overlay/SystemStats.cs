@@ -122,9 +122,9 @@ public partial class SystemStats : Node
 				if (_cpuCounter != IntPtr.Zero)
 					Volatile.Write(ref _cpuUsage, ReadSingleCounter(_cpuCounter, PdhFmtDouble, Volatile.Read(ref _cpuUsage)));
 				if (_gpuCounter != IntPtr.Zero)
-					Volatile.Write(ref _gpuUsage, ReadSummedCounter(_gpuCounter, PdhFmtDouble, Volatile.Read(ref _gpuUsage), null));
+					Volatile.Write(ref _gpuUsage, ReadAggregatedCounter(_gpuCounter, PdhFmtDouble, Volatile.Read(ref _gpuUsage), _processInstanceFilter, true));
 				if (_vramCounter != IntPtr.Zero)
-					Volatile.Write(ref _vramUsed, (long)ReadSummedCounter(_vramCounter, PdhFmtLarge, Volatile.Read(ref _vramUsed), _processInstanceFilter));
+					Volatile.Write(ref _vramUsed, (long)ReadAggregatedCounter(_vramCounter, PdhFmtLarge, Volatile.Read(ref _vramUsed), _processInstanceFilter, false));
 			}
 			if (_wsPrivateCounter != IntPtr.Zero && _processIdCounter != IntPtr.Zero)
 				Volatile.Write(ref _ramUsed, ReadProcessPrivateWorkingSetBytes());
@@ -142,7 +142,7 @@ public partial class SystemStats : Node
 		return format == PdhFmtLarge ? value.LongValue : value.DoubleValue;
 	}
 
-	private double ReadSummedCounter(IntPtr counter, uint format, double fallback, string instanceFilter)
+	private double ReadAggregatedCounter(IntPtr counter, uint format, double fallback, string instanceFilter, bool maximize)
 	{
 		uint bufferSize = (uint)_arrayBufferCapacity;
 		int result = PdhGetFormattedCounterArrayW(counter, format, ref bufferSize, out uint itemCount, _arrayBuffer);
@@ -156,7 +156,7 @@ public partial class SystemStats : Node
 		if (result != 0)
 			return fallback;
 		int itemSize = Marshal.SizeOf<PdhFmtCounterValueItem>();
-		double sum = 0.0;
+		double aggregate = maximize ? -1.0 : 0.0;
 		bool anyValid = false;
 		for (uint i = 0; i < itemCount; i++)
 		{
@@ -169,10 +169,21 @@ public partial class SystemStats : Node
 				if (name == null || !name.Contains(instanceFilter))
 					continue;
 			}
-			sum += format == PdhFmtLarge ? value.FmtValue.LongValue : value.FmtValue.DoubleValue;
+			double itemValue = format == PdhFmtLarge ? value.FmtValue.LongValue : value.FmtValue.DoubleValue;
+			if (maximize)
+			{
+				if (!anyValid || itemValue > aggregate)
+					aggregate = itemValue;
+			}
+			else
+			{
+				aggregate += itemValue;
+			}
 			anyValid = true;
 		}
-		return anyValid ? sum : fallback;
+		if (!anyValid)
+			return fallback;
+		return maximize ? Math.Max(aggregate, 0.0) : aggregate;
 	}
 
 	private bool GrowArrayBuffer(int requiredSize)
