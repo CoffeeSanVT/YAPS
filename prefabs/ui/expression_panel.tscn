@@ -16,7 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://dm5jhnakge0ff" path="res://assets/icons/runtime/trash/trash_disabled.svg" id="13_trash_d"]
 [ext_resource type="Texture2D" uid="uid://menup57lhvdt" path="res://assets/icons/runtime/trash/trash_focused.svg" id="14_trash_f"]
 
-[node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("frames_list", "frames_fold", "frame_rate_spin", "animation_chance_spin", "loop_toggle", "override_toggle", "override_chance_toggle", "override_silence_toggle", "override_silence_label", "tile_text", "rename_button")]
+[node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("frames_list", "frames_fold", "override_fold", "frame_rate_spin", "animation_chance_spin", "loop_toggle", "override_toggle", "override_chance_toggle", "override_silence_toggle", "override_silence_label", "tile_text", "rename_button")]
 custom_minimum_size = Vector2(270, 0)
 size_flags_horizontal = 3
 theme = ExtResource("1_mar2q")
@@ -24,6 +24,7 @@ theme_override_styles/panel = ExtResource("2_a0oin")
 script = ExtResource("1_x483a")
 frames_list = NodePath("VBoxContainer/FramesContainer/VBoxContainer/FramesScroll/FramesList")
 frames_fold = NodePath("VBoxContainer/FramesContainer")
+override_fold = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings")
 frame_rate_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/FrameRateContainer/FrameRate")
 animation_chance_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/ChanceContainer/AnimationChance")
 loop_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopToggle")

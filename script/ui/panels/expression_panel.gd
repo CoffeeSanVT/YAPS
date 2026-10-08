@@ -3,6 +3,7 @@ extends ModelEntityPanel
 @export_category("Frames")
 @export var frames_list: VBoxContainer
 @export var frames_fold: FoldableContainer
+@export var override_fold: FoldableContainer
 @export var frame_rate_spin: SpinBox
 @export var animation_chance_spin: SpinBox
 @export var loop_toggle: CheckButton
@@ -20,6 +21,8 @@ const TRASH_ICON_PRESSED := "uid://66ckvqaenf7y"
 const TRASH_ICON_HOVER := "uid://c7jgar1rs0shf"
 const TRASH_ICON_DISABLED := "uid://dm5jhnakge0ff"
 const TRASH_ICON_FOCUSED := "uid://menup57lhvdt"
+const OVERRIDE_FOLDED_META := &"override_settings_folded"
+const FRAMES_FOLDED_META := &"frames_folded"
 
 var state_entry: ModelStateEntry
 
@@ -29,6 +32,8 @@ func _ready() -> void:
 	SignalBus.state_frames_changed.connect(_populate_frames)
 	if frames_fold != null:
 		frames_fold.folding_changed.connect(_on_frames_fold_changed)
+	if override_fold != null:
+		override_fold.folding_changed.connect(_on_override_fold_changed)
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_VISIBILITY_CHANGED and is_inside_tree():
@@ -39,10 +44,13 @@ func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"state_frames_changed", _populate_frames)
 	if frames_fold != null:
 		NodeUtil.safe_disconnect(frames_fold, &"folding_changed", _on_frames_fold_changed)
+	if override_fold != null:
+		NodeUtil.safe_disconnect(override_fold, &"folding_changed", _on_override_fold_changed)
 
 func set_state_entry(entry: ModelStateEntry) -> void:
 	state_entry = entry
 	tile_text.text = String(entry.state_name).capitalize()
+	_restore_fold_state()
 	if override_toggle != null:
 		override_toggle.set_pressed_no_signal(entry.override_frame_rate)
 	_update_frame_rate_spin()
@@ -68,7 +76,25 @@ func _populate_frames() -> void:
 		_add_frame_row(frame_path)
 
 func _on_frames_fold_changed(_is_folded: bool) -> void:
+	_store_fold_state()
 	_populate_frames()
+
+func _on_override_fold_changed(_is_folded: bool) -> void:
+	_store_fold_state()
+
+func _store_fold_state() -> void:
+	if state_entry == null:
+		return
+	if frames_fold != null:
+		state_entry.set_meta(FRAMES_FOLDED_META, frames_fold.folded)
+	if override_fold != null:
+		state_entry.set_meta(OVERRIDE_FOLDED_META, override_fold.folded)
+
+func _restore_fold_state() -> void:
+	if frames_fold != null:
+		frames_fold.folded = state_entry.get_meta(FRAMES_FOLDED_META, true)
+	if override_fold != null:
+		override_fold.folded = state_entry.get_meta(OVERRIDE_FOLDED_META, true)
 
 func _add_frame_row(frame_path: String) -> void:
 	var row := HBoxContainer.new()
