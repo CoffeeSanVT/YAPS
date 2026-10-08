@@ -70,12 +70,23 @@ func _reload_rewards() -> void:
 	reward_option.clear()
 	reward_option.add_item(tr(&"TWITCH_REWARD_NONE"))
 	var selected_id := _trigger.reward_id if _trigger != null else ""
+	var selected_name := _trigger.reward_name if _trigger != null else ""
 	var selected_index := 0
+	var name_index := 0
 	for i in range(TwitchClient.channel_rewards.size()):
 		var reward: Dictionary = TwitchClient.channel_rewards[i]
 		reward_option.add_item(String(reward.get("title", "")))
-		if String(reward.get("id", "")) == selected_id:
+		if String(reward.get("id", "")) == selected_id and selected_index == 0:
 			selected_index = i + 1
+		elif String(reward.get("title", "")) == selected_name and name_index == 0:
+			name_index = i + 1
+	if selected_index == 0 and name_index > 0 and not selected_id.is_empty() and _trigger != null:
+		var matched_reward: Dictionary = TwitchClient.channel_rewards[name_index - 1]
+		_trigger.reward_id = String(matched_reward.get("id", ""))
+		_trigger.reward_name = String(matched_reward.get("title", ""))
+		_trigger.refresh_subscription()
+		ModelLoader.save_model()
+		selected_index = name_index
 	if not selected_id.is_empty() and selected_index == 0 and not TwitchClient.channel_rewards.is_empty():
 		push_warning(TAG + "trigger reward id '%s' not found in channel rewards; re-select it" % selected_id)
 	reward_option.select(selected_index)
@@ -85,8 +96,11 @@ func _on_reward_selected(index: int) -> void:
 		return
 	if index <= 0 or index - 1 >= TwitchClient.channel_rewards.size():
 		_trigger.reward_id = ""
+		_trigger.reward_name = ""
 	else:
-		_trigger.reward_id = String(TwitchClient.channel_rewards[index - 1].get("id", ""))
+		var reward: Dictionary = TwitchClient.channel_rewards[index - 1]
+		_trigger.reward_id = String(reward.get("id", ""))
+		_trigger.reward_name = String(reward.get("title", ""))
 	_trigger.refresh_subscription()
 	ModelLoader.save_model()
 

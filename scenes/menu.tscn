@@ -371,16 +371,22 @@ metadata/localization_key = &"CONFIRM"
 script = ExtResource("4_5ewt4")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="VersionLabel" type="Label" parent="CanvasLayer" unique_id=57957477]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer" unique_id=1153113263]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -123.0
-offset_top = -23.0
+offset_left = -59.0
+offset_top = -21.0
 grow_horizontal = 0
 grow_vertical = 0
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_constants/margin_right = 4
+
+[node name="VersionLabel" type="Label" parent="CanvasLayer/MarginContainer" unique_id=57957477]
+layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 theme_override_fonts/font = ExtResource("14_7jp70")

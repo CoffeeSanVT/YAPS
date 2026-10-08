@@ -118,7 +118,7 @@ func _on_token_validated(validated_user_id: String, validated_username: String) 
 	state = ConnectionState.CONNECTED
 	Settings.settings.twitch_user_id = user_id
 	Settings.settings.twitch_username = username
-	SignalBus.twitch_connected.emit(username)
 	print(TAG + "authenticated as %s" % username)
 	_eventsub.start_session()
+	SignalBus.twitch_connected.emit(username)
 	fetch_channel_redeems()

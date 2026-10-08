@@ -29,7 +29,8 @@ signal websocket_port_changed(value: int)
 signal websocket_actions_changed
 signal twitch_connected(username: String)
 signal twitch_disconnected
-signal twitch_event_received(event_type: StringName, event_data: Dictionary)
+signal twitch_event_received(event_type: StringName, event_data: Dictionary, subscription_reward_id: String)
+signal twitch_reward_revoked(subscription_reward_id: String)
 signal twitch_auth_failed(reason: String)
 signal twitch_rewards_fetched(rewards: Array)
 

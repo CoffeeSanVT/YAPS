@@ -26,6 +26,7 @@ var _last_keepalive_time: float = 0.0
 var _reconnect_attempts: int = 0
 
 var _subs: Dictionary = {}
+var _deleting_ids: Dictionary = {}
 var _create_retry_scheduled := false
 
 func _ready() -> void:
@@ -59,13 +60,14 @@ func start_session() -> void:
 func stop_session() -> void:
 	_shutdown_ws()
 	_subs.clear()
+	_deleting_ids.clear()
 	_reconnect_attempts = 0
 
 func subscribe_event(event_type: StringName, reward_id: String = "") -> void:
 	var key := _sub_key(event_type, reward_id)
 	var sub: Dictionary = _subs.get(key, {})
 	if sub.is_empty():
-		sub = {"event_type": event_type, "reward_id": reward_id, "id": "", "refs": 0, "attempts": 0}
+		sub = {"event_type": event_type, "reward_id": reward_id, "id": "", "refs": 0, "attempts": 0, "in_flight": false, "session": ""}
 		_subs[key] = sub
 	sub["refs"] = int(sub.get("refs", 0)) + 1
 	_sync_subscriptions()
@@ -82,8 +84,13 @@ func unsubscribe_event(event_type: StringName, reward_id: String = "") -> void:
 	_subs.erase(key)
 	var sub_id := String(sub.get("id", ""))
 	if not sub_id.is_empty():
-		_api.delete_eventsub_subscription(sub_id)
+		_deleting_ids[sub_id] = true
+		_api.delete_eventsub_subscription(sub_id, _on_subscription_deleted)
 	print(TAG + "unsubscribed from %s" % TwitchEvent.EVENT_TYPES.get(event_type, event_type))
+
+func _on_subscription_deleted(sub_id: String) -> void:
+	_deleting_ids.erase(sub_id)
+	_sync_subscriptions()
 
 func _now_sec() -> float:
 	return Time.get_ticks_msec() / 1000.0
@@ -202,8 +209,10 @@ func _handle_notification(payload: Dictionary) -> void:
 	var subscription: Dictionary = payload.get("subscription", {})
 	var event: Dictionary = payload.get("event", {})
 	var key: StringName = _event_keys.get(subscription.get("type", ""), &"")
-	if key != &"":
-		SignalBus.twitch_event_received.emit(key, event)
+	if key == &"":
+		return
+	var condition: Dictionary = subscription.get("condition", {})
+	SignalBus.twitch_event_received.emit(key, event, String(condition.get("reward_id", "")))
 
 func _handle_session_reconnect(payload: Dictionary) -> void:
 	var session: Dictionary = payload.get("session", {})
@@ -216,16 +225,28 @@ func _handle_revocation(payload: Dictionary) -> void:
 	var sub_id := String(subscription.get("id", ""))
 	var status: String = subscription.get("status", "")
 	push_warning(TAG + "subscription revoked: %s (status: %s)" % [sub_type, status])
+	var condition: Dictionary = subscription.get("condition", {})
+	var revoked_reward := String(condition.get("reward_id", ""))
 	for key: String in _subs.keys():
 		if String(_subs[key].get("id", "")) == sub_id:
 			_subs.erase(key)
+	if _event_keys.get(sub_type, &"") == &"channel_points" and not revoked_reward.is_empty():
+		SignalBus.twitch_reward_revoked.emit(revoked_reward)
 
 static func _sub_key(event_type: StringName, reward_id: String) -> String:
 	return String(event_type) if reward_id.is_empty() else "%s|%s" % [event_type, reward_id]
 
+static func _existing_id_from_conflict(message: String) -> String:
+	var idx := message.rfind("id=")
+	return "" if idx < 0 else message.substr(idx + 3).strip_edges()
+
 func _sync_subscriptions() -> void:
 	_create_retry_scheduled = false
-	if not _is_connected.call() or _session_id.is_empty():
+	if not _is_connected.call():
+		return
+	if _session_id.is_empty():
+		if state == ConnectionState.IDLE and not _subs.is_empty():
+			start_session()
 		return
 	for key: String in _subs:
 		if String(_subs[key].get("id", "")).is_empty():
@@ -233,22 +254,38 @@ func _sync_subscriptions() -> void:
 
 func _create_eventsub_subscription(key: String) -> void:
 	var sub: Dictionary = _subs.get(key, {})
-	if sub.is_empty():
+	if sub.is_empty() or bool(sub.get("in_flight", false)):
 		return
-	sub["attempts"] = int(sub.get("attempts", 0)) + 1
 	var event_type: StringName = sub["event_type"]
 	if not TwitchEvent.EVENT_TYPES.has(event_type):
 		push_error(TAG + "unknown event type: %s" % event_type)
 		return
+	sub["attempts"] = int(sub.get("attempts", 0)) + 1
+	sub["in_flight"] = true
+	sub["session"] = _session_id
 	var sub_type := String(TwitchEvent.EVENT_TYPES[event_type])
 	var reward_id := String(sub.get("reward_id", ""))
-	_api.create_eventsub_subscription(_subscription_body(event_type, reward_id), sub_type, func(sub_id: String) -> void:
+	_api.create_eventsub_subscription(_subscription_body(event_type, reward_id), sub_type, func(sub_id: String, response_code: int, error_message: String) -> void:
 		if not _subs.has(key):
+			return
+		var current: Dictionary = _subs[key]
+		current["in_flight"] = false
+		if _session_id != String(current.get("session", "")):
+			print(TAG + "discarding stale session response for %s; resyncing" % sub_type)
+			_sync_subscriptions()
+			return
+		if response_code == 409:
+			var existing := _existing_id_from_conflict(error_message)
+			if existing.is_empty() or _deleting_ids.has(existing):
+				_on_create_failed(key, sub_type)
+			else:
+				current["id"] = existing
+				print(TAG + "subscription already exists for %s; reusing %s" % [sub_type, existing])
 			return
 		if sub_id.is_empty():
 			_on_create_failed(key, sub_type)
 			return
-		_subs[key]["id"] = sub_id
+		current["id"] = sub_id
 		print(TAG + "subscribed to %s (reward: %s)" % [sub_type, reward_id if not reward_id.is_empty() else "any"])
 	)
 

@@ -50,18 +50,22 @@ func create_eventsub_subscription(body: Dictionary, sub_type: String, on_done: C
 	headers.append("Content-Type: application/json")
 	_oneshot_request(HELIX_API_URL + "/eventsub/subscriptions", headers, HTTPClient.METHOD_POST, JSON.stringify(body), func(result: int, response_code: int, response_body: PackedByteArray) -> void:
 		var sub_id := ""
+		var error_message := ""
 		if result != HTTPRequest.RESULT_SUCCESS:
 			push_error(TAG + "failed to create EventSub subscription for %s" % sub_type)
 		elif response_code == 401:
 			_token_expired("EventSub subscription for %s" % sub_type)
 		elif response_code != 202:
-			push_error(TAG + "EventSub subscription failed for %s: %d - %s" % [sub_type, response_code, _response_error_message(response_body)])
+			error_message = _response_error_message(response_body)
+			var stale_session := response_code == 400 and error_message.contains("session does not exist")
+			if response_code != 409 and not stale_session:
+				push_error(TAG + "EventSub subscription failed for %s: %d - %s" % [sub_type, response_code, error_message])
 		else:
 			sub_id = _extract_subscription_id(response_body)
-		on_done.call(sub_id)
+		on_done.call(sub_id, response_code, error_message)
 	)
 
-func delete_eventsub_subscription(sub_id: String) -> void:
+func delete_eventsub_subscription(sub_id: String, on_done: Callable = Callable()) -> void:
 	var url := HELIX_API_URL + "/eventsub/subscriptions?id=%s" % sub_id.uri_encode()
 	_oneshot_request(url, _auth_headers.call(), HTTPClient.METHOD_DELETE, "", func(result: int, response_code: int, _response_body: PackedByteArray) -> void:
 		if result != HTTPRequest.RESULT_SUCCESS:
@@ -72,6 +76,8 @@ func delete_eventsub_subscription(sub_id: String) -> void:
 			push_warning(TAG + "failed to delete EventSub subscription %s (code %d)" % [sub_id, response_code])
 		else:
 			print(TAG + "deleted EventSub subscription %s" % sub_id)
+		if on_done.is_valid():
+			on_done.call(sub_id)
 	)
 
 func _oneshot_request(url: String, headers: PackedStringArray, method: int, body: String, on_done: Callable) -> void:
