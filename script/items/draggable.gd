@@ -59,7 +59,7 @@ func set_texture_bounds(bounds: Rect2) -> void:
 	if _outline_live() != null:
 		_outline.set_sprite_bounds(bounds)
 
-func sync_outline_texture() -> void:
+func sync_outline_texture(_frame: int = -1) -> void:
 	if _outline_live() != null:
 		_outline.sync_texture(texture)
 

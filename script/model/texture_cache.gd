@@ -218,6 +218,7 @@ func release_texture(path: String) -> void:
 	var texture: ImageTexture = _cache.get(path)
 	if texture == null:
 		return
+	_bytes -= _texture_bytes(texture)
 	_cache.erase(path)
 	_order.erase(path)
 	_bounds.erase(texture)
