@@ -55,8 +55,9 @@ func _handle_change_panels() -> void:
 		if i != _index:
 			_tween_exit(panel)
 		else:
+			var first_open := not panel.visible
 			panel.show()
-			_tween_enter(panel)
+			_tween_enter(panel, first_open)
 
 func _on_model_button_up() -> void:
 	_on_tab_pressed(0)
@@ -80,7 +81,7 @@ func _handle_application_focus(in_screen: bool = true) -> void:
 		if _index != -1:
 			_panels[_index].hide()
 
-func _tween_enter(panel: Control) -> void:
+func _tween_enter(panel: Control, first_open: bool = false) -> void:
 	_kill_panel_tween(panel)
 	var tween: Tween = create_tween()
 	_panel_tweens[panel] = tween
@@ -88,6 +89,8 @@ func _tween_enter(panel: Control) -> void:
 	var panel_out_pos: float = panel.get_meta("out_screen_x_pos", 0)
 
 	panel.offset_transform_pivot_ratio.x = panel_out_pos
+	if first_open:
+		panel.offset_transform_position_ratio.x = panel_out_pos
 
 	tween.tween_property(panel, "offset_transform_position_ratio:x", panel_in_pos, 0.2)
 	tween.set_ease(Tween.EASE_IN)
