@@ -10,7 +10,6 @@
 [ext_resource type="Script" uid="uid://bvuxju16yneol" path="res://script/ui/audio/mic_device.gd" id="10_micdev"]
 [ext_resource type="Script" uid="uid://cv2micvi2toga" path="res://script/ui/audio/mic_visualizer_toggle.gd" id="11_micviz"]
 [ext_resource type="Script" uid="uid://dmicon8tg2ab1" path="res://script/ui/audio/mic_monitoring_toggle.gd" id="12_micmon"]
-[ext_resource type="Script" uid="uid://d2micgain8t1a" path="res://script/ui/audio/mic_gain_slider.gd" id="41_micgain"]
 [ext_resource type="Script" uid="uid://cedbg5aq1ya2e" path="res://script/ui/texture_filter.gd" id="13_texflt"]
 [ext_resource type="Script" uid="uid://dal0bfpsqq8ha" path="res://script/ui/antialias.gd" id="14_antialias"]
 [ext_resource type="Script" uid="uid://bwyd88py1dhfc" path="res://script/ui/spout_toggle.gd" id="15_spout"]
@@ -24,6 +23,7 @@
 [ext_resource type="Script" uid="uid://b356va3moy2dl" path="res://script/ui/reload_images.gd" id="38_reload"]
 [ext_resource type="Script" uid="uid://dperftgl8w3k" path="res://script/ui/performance_overlay_toggle.gd" id="39_perfov"]
 [ext_resource type="Script" uid="uid://yjwg32l1usqr" path="res://script/ui/vram_compression_toggle.gd" id="40_vram"]
+[ext_resource type="Script" uid="uid://d2micgain8t1a" path="res://script/ui/audio/mic_gain_slider.gd" id="41_micgain"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lqayg"]
 content_margin_left = 12.0
@@ -37,24 +37,25 @@ corner_radius_bottom_left = 8
 [node name="Settings" type="Panel" unique_id=978647401]
 custom_minimum_size = Vector2(360, 0)
 clip_contents = true
-anchors_preset = -1
-anchor_left = 0.71900004
+anchors_preset = 11
+anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 359.67993
 grow_horizontal = 0
 grow_vertical = 2
 offset_transform_enabled = true
 theme = ExtResource("1_rnrbe")
 theme_override_styles/panel = SubResource("StyleBoxFlat_lqayg")
 metadata/out_screen_x_pos = 1.0
+metadata/_edit_use_anchors_ = true
 
 [node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1603580352]
+custom_maximum_size = Vector2(360, -1)
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
-anchor_bottom = 0.919
-offset_bottom = 9.320007
+anchor_bottom = 0.93200004
+offset_bottom = -0.040039063
 grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 3
@@ -566,7 +567,7 @@ layout_mode = 2
 text = "Mic Gain"
 metadata/localization_key = &"MIC_GAIN"
 
-[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicGainContainer/MicGainLabel" unique_id=2287249124]
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/ActivationThreshold/MicGainContainer/MicGainLabel" unique_id=-2007718172]
 script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
@@ -574,10 +575,7 @@ metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
-min_value = 0.0
 max_value = 40.0
-step = 1.0
-value = 0.0
 script = ExtResource("41_micgain")
 value_label = NodePath("../MicGainValue")
 

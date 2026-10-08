@@ -78,9 +78,6 @@ layout_mode = 1
 [node name="Settings" parent="CanvasLayer/Panels" unique_id=1182424716 instance=ExtResource("TAB_CFG")]
 visible = false
 layout_mode = 1
-anchors_preset = 11
-anchor_left = 1.0
-offset_left = 0.0
 
 [node name="HTabContainer" type="Panel" parent="CanvasLayer" unique_id=1942881397 node_paths=PackedStringArray("model_panel", "expression_panel", "assets_panel", "config_panel")]
 z_index = 1
