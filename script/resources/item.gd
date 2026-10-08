@@ -141,9 +141,9 @@ func _attach_animation_player() -> void:
 		player.Loop = animation_loop
 		if not enabled or _playback_held:
 			player.Pause()
-		NodeUtil.connect_once(player, &"frame_changed", instance.sync_outline_texture)
-		NodeUtil.connect_once(player, &"frame_changed", _on_player_frame_changed)
-		NodeUtil.connect_once(player, &"frame_needed", _on_player_frame_needed)
+		NodeUtil.connect_once(player, &"FrameChanged", instance.sync_outline_texture)
+		NodeUtil.connect_once(player, &"FrameChanged", _on_player_frame_changed)
+		NodeUtil.connect_once(player, &"FrameNeeded", _on_player_frame_needed)
 		_prefetch_frames(player, player.CurrentFrame)
 
 func set_playback_held(value: bool) -> void:
