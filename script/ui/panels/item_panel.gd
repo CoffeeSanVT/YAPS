@@ -82,7 +82,7 @@ func _refresh_trigger_ui(trigger: BaseTrigger) -> void:
 	_refresh_fade_and_hide_options()
 
 func _refresh_fade_and_hide_options() -> void:
-	var trigger := item.state_trigger if item != null else null
+	var trigger := _settings_trigger()
 	if trigger == null:
 		trigger = BaseTrigger.new()
 	if fade_spin != null:
@@ -90,16 +90,23 @@ func _refresh_fade_and_hide_options() -> void:
 	if hide_spin != null:
 		hide_spin.set_value_no_signal(trigger.auto_hide_after)
 
+func _settings_trigger() -> BaseTrigger:
+	if item == null:
+		return null
+	return item.state_trigger if item.state_trigger != null else item.twitch_event
+
 func _on_fade_duration_changed(value: float) -> void:
-	if item == null or item.state_trigger == null:
+	var trigger := _settings_trigger()
+	if item == null or trigger == null:
 		return
-	item.state_trigger.fade_duration = value
+	trigger.fade_duration = value
 	commit()
 
 func _on_auto_hide_changed(value: float) -> void:
-	if item == null or item.state_trigger == null:
+	var trigger := _settings_trigger()
+	if item == null or trigger == null:
 		return
-	item.state_trigger.auto_hide_after = value
+	trigger.auto_hide_after = value
 	item.update_auto_hide_timer()
 	commit()
 

@@ -269,6 +269,7 @@ func set_enabled(value: bool) -> void:
 		_sync_triggers(true)
 		enabled_changed.emit(true)
 		_fade_instance(true)
+		play_animation()
 		update_auto_hide_timer()
 		schedule_save()
 	else:
@@ -291,15 +292,19 @@ func update_auto_hide_timer() -> void:
 	_clear_auto_hide_timer()
 	if not enabled:
 		return
-	if state_trigger == null:
+	var trigger := _settings_trigger()
+	if trigger == null:
 		return
-	if state_trigger.auto_hide_after <= 0.0:
+	if trigger.auto_hide_after <= 0.0:
 		return
 	if _live_instance() == null:
 		return
 	_auto_hide_timer = NodeUtil.ensure_timer(instance, _auto_hide_timer, _on_auto_hide_timeout, true)
-	_auto_hide_timer.wait_time = state_trigger.auto_hide_after
+	_auto_hide_timer.wait_time = trigger.auto_hide_after
 	_auto_hide_timer.start()
+
+func _settings_trigger() -> BaseTrigger:
+	return state_trigger if state_trigger != null else twitch_event
 
 func _clear_auto_hide_timer() -> void:
 	_auto_hide_timer = NodeUtil.free_timer(_auto_hide_timer)
@@ -307,14 +312,17 @@ func _clear_auto_hide_timer() -> void:
 func _on_auto_hide_timeout() -> void:
 	if state_trigger != null and state_trigger.enabled:
 		state_trigger.set_enabled(false)
+	if twitch_event != null and twitch_event.enabled:
+		twitch_event.set_enabled(false)
 	set_enabled(false)
 
 func _fade_instance(show: bool) -> void:
 	if _live_instance() == null:
 		_finalize_disable()
 		return
-	if state_trigger != null:
-		instance.fade_duration = state_trigger.fade_duration
+	var trigger := _settings_trigger()
+	if trigger != null:
+		instance.fade_duration = trigger.fade_duration
 	instance.set_visible_with_fade(show)
 	if not show:
 		NodeUtil.connect_once(instance, &"fade_out_done", _on_fade_out_done)
