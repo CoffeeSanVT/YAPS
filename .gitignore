@@ -39,3 +39,4 @@ builds/
 
 # Godot export templates bundled for CI
 !.github/workflows/export templates/*.exe
+twitch_token.dat

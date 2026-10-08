@@ -41,12 +41,18 @@ func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"twitch_connected", _on_connection_changed)
 	NodeUtil.safe_disconnect(SignalBus, &"twitch_disconnected", _on_connection_changed)
 	NodeUtil.safe_disconnect(SignalBus, &"twitch_rewards_fetched", _on_rewards_fetched)
+	if _trigger != null:
+		NodeUtil.safe_disconnect(_trigger, &"reward_invalidated", _on_reward_invalidated)
 
 func _on_connection_changed(_username: String = "") -> void:
 	_update_login_warning()
 
 func _on_rewards_fetched(_rewards: Array) -> void:
 	_reload_rewards()
+
+func _on_reward_invalidated(_trigger: TwitchEvent) -> void:
+	reward_option.select(0)
+	ModelLoader.save_model()
 
 func _update_login_warning() -> void:
 	if login_warning_icon == null:
@@ -114,7 +120,10 @@ func _on_locale_change() -> void:
 
 func setup(trigger: TwitchEvent) -> void:
 	_loading = true
+	if _trigger != null:
+		NodeUtil.safe_disconnect(_trigger, &"reward_invalidated", _on_reward_invalidated)
 	_trigger = trigger
+	NodeUtil.connect_once(trigger, &"reward_invalidated", _on_reward_invalidated)
 	if event_option.item_count == 0:
 		_populate_event_options()
 	var event_index := TwitchEvent.event_ids().find(trigger.event_type)

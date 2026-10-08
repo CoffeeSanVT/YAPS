@@ -168,7 +168,7 @@ TWITCH_EVENT_CHANNEL_POINTS,Channel Points,Pontos do Canal
 TRIGGER_TWITCH_EVENT,Twitch Event,Evento da Twitch
 TWITCH_LOGIN_REQUIRED,You are not connected to Twitch. Connect in the Twitch settings to use this trigger.,Você não está conectado à Twitch. Conecte-se nas configurações da Twitch para usar este ativador.
 TWITCH_REWARD,Reward,Recompensa
-TWITCH_REWARD_NONE,None (any reward),Nenhum (qualquer recompensa)
+TWITCH_REWARD_NONE,None (no reaction),Nenhum (sem reação)
 TWITCH_REFRESH_REWARDS,Refresh Rewards,Atualizar Recompensas
 TWITCH_REWARDS_COUNT,Channel points rewards: %d,Recompensas de pontos do canal: %d
 TWITCH_MIN_BITS,Minimum bits,Bits mínimos

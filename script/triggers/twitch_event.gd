@@ -3,6 +3,8 @@ extends BaseTrigger
 
 const TAG := "[TwitchEvent] "
 
+signal reward_invalidated(trigger: TwitchEvent)
+
 const EVENT_TYPES: Dictionary = {
 	&"follow": "channel.follow",
 	&"subscribe": "channel.subscribe",
@@ -63,6 +65,8 @@ func refresh_subscription() -> void:
 	_sync_subscription()
 
 func _sync_subscription() -> void:
+	if _last_subscribed_type == &"channel_points" and _last_subscribed_reward.is_empty():
+		return
 	TwitchClient.subscribe_event(_last_subscribed_type, _last_subscribed_reward)
 
 func _release_subscription() -> void:
@@ -78,11 +82,16 @@ func _current_reward() -> String:
 func _on_twitch_event(type: StringName, data: Dictionary) -> void:
 	if type != event_type:
 		return
-	if event_type == &"channel_points" and not reward_id.is_empty():
+	if event_type == &"channel_points":
+		if reward_id.is_empty():
+			return
 		var event_reward: Dictionary = data.get("reward", {})
 		var event_reward_id := String(event_reward.get("id", ""))
 		if event_reward_id != reward_id:
 			push_warning(TAG + "event ignored: reward mismatch (trigger reward: %s, event reward: %s)" % [reward_id, event_reward_id])
+			reward_id = ""
+			refresh_subscription()
+			reward_invalidated.emit(self)
 			return
 	if event_type == &"bits" and min_bits > 0:
 		if int(data.get("bits", 0)) < min_bits:
