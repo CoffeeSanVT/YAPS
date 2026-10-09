@@ -5,7 +5,6 @@ const DEFAULT_PORT := 19190
 const DEFAULT_BIND_ADDRESS := "127.0.0.1"
 
 var port: int = DEFAULT_PORT
-var bind_address: String = DEFAULT_BIND_ADDRESS
 
 var _peer: WebSocketMultiplayerPeer
 var _actions: Dictionary = {}
@@ -33,14 +32,14 @@ func _process(_delta: float) -> void:
 func start() -> void:
 	stop()
 	_peer = WebSocketMultiplayerPeer.new()
-	var err: int = _peer.create_server(port, bind_address)
+	var err: int = _peer.create_server(port, DEFAULT_BIND_ADDRESS)
 	if err != OK:
 		push_error(TAG + "failed to start on port %d: %s" % [port, error_string(err)])
 		_peer = null
 		return
 	_peer.peer_connected.connect(_on_peer_connected)
 	_peer.peer_disconnected.connect(_on_peer_disconnected)
-	print(TAG + "server started: ws://%s:%d" % [bind_address, port])
+	print(TAG + "server started: ws://%s:%d" % [DEFAULT_BIND_ADDRESS, port])
 
 func stop() -> void:
 	if _peer == null:

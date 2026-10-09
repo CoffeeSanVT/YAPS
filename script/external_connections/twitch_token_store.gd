@@ -6,11 +6,16 @@ const KEY_SALT := "yaps/twitch-token/v1"
 const KEY_ACCESS := "access_token"
 const KEY_REFRESH := "refresh_token"
 
+# NOTE: this is obfuscation, not protection - anyone with the source and the
+# user profile can recover the tokens. It only prevents casual snooping.
+static func _passphrase() -> String:
+	return "%s:%s" % [KEY_SALT, OS.get_unique_id()]
+
 static func load_tokens() -> Dictionary:
 	var path := token_path()
 	if not FileAccess.file_exists(path):
 		return {}
-	var file := FileAccess.open_encrypted_with_pass(path, FileAccess.READ, KEY_SALT)
+	var file := FileAccess.open_encrypted_with_pass(path, FileAccess.READ, _passphrase())
 	if file == null:
 		push_warning(TAG + "could not open token file (%s); re-authentication required" % error_string(FileAccess.get_open_error()))
 		return {}
@@ -19,20 +24,19 @@ static func load_tokens() -> Dictionary:
 	var parsed: Variant = null
 	if raw.begins_with("{"):
 		parsed = JSON.parse_string(raw)
-	if parsed is Dictionary:
+	if parsed is Dictionary and not String(parsed.get(KEY_ACCESS, "")).is_empty():
 		return {
 			KEY_ACCESS: String(parsed.get(KEY_ACCESS, "")),
 			KEY_REFRESH: String(parsed.get(KEY_REFRESH, "")),
 		}
-	if not raw.is_empty():
-		return {KEY_ACCESS: raw, KEY_REFRESH: ""}
+	push_warning(TAG + "invalid token file contents; re-authentication required")
 	return {}
 
 static func save_tokens(access_token: String, refresh_token: String) -> bool:
 	if access_token.is_empty():
 		clear_token()
 		return true
-	var file := FileAccess.open_encrypted_with_pass(token_path(), FileAccess.WRITE, KEY_SALT)
+	var file := FileAccess.open_encrypted_with_pass(token_path(), FileAccess.WRITE, _passphrase())
 	if file == null:
 		push_error(TAG + "could not save tokens: %s" % error_string(FileAccess.get_open_error()))
 		return false

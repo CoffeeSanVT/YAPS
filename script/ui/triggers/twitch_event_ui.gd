@@ -50,7 +50,7 @@ func _on_connection_changed(_username: String = "") -> void:
 func _on_rewards_fetched(_rewards: Array) -> void:
 	_reload_rewards()
 
-func _on_reward_invalidated(_trigger: TwitchEvent) -> void:
+func _on_reward_invalidated(_event: TwitchEvent) -> void:
 	reward_option.select(0)
 	ModelLoader.save_model()
 
