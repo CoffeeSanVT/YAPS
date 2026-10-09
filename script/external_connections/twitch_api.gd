@@ -5,12 +5,19 @@ signal token_expired
 
 const TAG := "[TwitchApi] "
 const HELIX_API_URL := "https://api.twitch.tv/helix"
+const OAUTH_TOKEN_URL := "https://id.twitch.tv/oauth2/token"
 const ONESHOT_TIMEOUT_SEC := 10
+const MAX_ATTEMPTS := 2
+const RETRY_MIN_DELAY_SEC := 1.0
+const RETRY_MAX_DELAY_SEC := 120.0
+const DEFAULT_RETRY_DELAY_SEC := 2.0
 
 var _auth_headers: Callable
+var _client_id := ""
 
-func setup(auth_headers: Callable) -> void:
+func setup(auth_headers: Callable, client_id: String = "") -> void:
 	_auth_headers = auth_headers
+	_client_id = client_id
 
 func validate_token(on_done: Callable) -> void:
 	_oneshot_request(HELIX_API_URL + "/users", _auth_headers.call(), HTTPClient.METHOD_GET, "", func(result: int, response_code: int, response_body: PackedByteArray) -> void:
@@ -25,6 +32,50 @@ func validate_token(on_done: Callable) -> void:
 			else:
 				push_error(TAG + "invalid response from /helix/users")
 		on_done.call(user_id, login)
+	)
+
+func exchange_authorization_code(code: String, redirect_uri: String, code_verifier: String, on_done: Callable) -> void:
+	var body := "grant_type=authorization_code&client_id=%s&code=%s&redirect_uri=%s&code_verifier=%s" % [
+		_client_id.uri_encode(),
+		code.uri_encode(),
+		redirect_uri.uri_encode(),
+		code_verifier.uri_encode(),
+	]
+	_oneshot_request(OAUTH_TOKEN_URL, PackedStringArray(["Content-Type: application/x-www-form-urlencoded"]), HTTPClient.METHOD_POST, body, func(result: int, response_code: int, response_body: PackedByteArray) -> void:
+		var access_token := ""
+		var refresh_token := ""
+		var error_message := ""
+		if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+			error_message = _request_error_message(result, response_code, response_body)
+		else:
+			var json: Variant = _parse_json(response_body)
+			if json is Dictionary:
+				access_token = String(json.get("access_token", ""))
+				refresh_token = String(json.get("refresh_token", ""))
+			if access_token.is_empty():
+				error_message = "invalid response from token endpoint"
+		on_done.call(access_token, refresh_token, error_message)
+	)
+
+func refresh_access_token(refresh_token: String, on_done: Callable) -> void:
+	var body := "grant_type=refresh_token&refresh_token=%s&client_id=%s" % [
+		refresh_token.uri_encode(),
+		_client_id.uri_encode(),
+	]
+	_oneshot_request(OAUTH_TOKEN_URL, PackedStringArray(["Content-Type: application/x-www-form-urlencoded"]), HTTPClient.METHOD_POST, body, func(result: int, response_code: int, response_body: PackedByteArray) -> void:
+		var access_token := ""
+		var new_refresh := ""
+		var error_message := ""
+		if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
+			error_message = _request_error_message(result, response_code, response_body)
+		else:
+			var json: Variant = _parse_json(response_body)
+			if json is Dictionary:
+				access_token = String(json.get("access_token", ""))
+				new_refresh = String(json.get("refresh_token", ""))
+			if access_token.is_empty():
+				error_message = "invalid response from token endpoint"
+		on_done.call(access_token, new_refresh, error_message)
 	)
 
 func fetch_channel_redeems(user_id: String, on_done: Callable) -> void:
@@ -45,6 +96,18 @@ func fetch_channel_redeems(user_id: String, on_done: Callable) -> void:
 		on_done.call(rewards)
 	)
 
+func fetch_eventsub_subscriptions(on_done: Callable) -> void:
+	_oneshot_request(HELIX_API_URL + "/eventsub/subscriptions", _auth_headers.call(), HTTPClient.METHOD_GET, "", func(result: int, response_code: int, response_body: PackedByteArray) -> void:
+		var subs: Array = []
+		if not _request_failed(result, response_code, "fetch eventsub subscriptions"):
+			var json: Variant = _parse_json(response_body)
+			if json is Dictionary and json.has("data"):
+				subs = json.data
+			else:
+				push_error(TAG + "invalid response from /eventsub/subscriptions")
+		on_done.call(subs)
+	)
+
 func create_eventsub_subscription(body: Dictionary, sub_type: String, on_done: Callable) -> void:
 	var headers: PackedStringArray = _auth_headers.call()
 	headers.append("Content-Type: application/json")
@@ -58,7 +121,9 @@ func create_eventsub_subscription(body: Dictionary, sub_type: String, on_done: C
 		elif response_code != 202:
 			error_message = _response_error_message(response_body)
 			var stale_session := response_code == 400 and error_message.contains("session does not exist")
-			if response_code != 409 and not stale_session:
+			if response_code == 409:
+				sub_id = _existing_subscription_id(response_body, error_message)
+			elif not stale_session:
 				push_error(TAG + "EventSub subscription failed for %s: %d - %s" % [sub_type, response_code, error_message])
 		else:
 			sub_id = _extract_subscription_id(response_body)
@@ -81,11 +146,19 @@ func delete_eventsub_subscription(sub_id: String, on_done: Callable = Callable()
 	)
 
 func _oneshot_request(url: String, headers: PackedStringArray, method: int, body: String, on_done: Callable) -> void:
+	_send_request(url, headers, method, body, on_done, MAX_ATTEMPTS)
+
+func _send_request(url: String, headers: PackedStringArray, method: int, body: String, on_done: Callable, attempts_left: int) -> void:
 	var http := HTTPRequest.new()
 	http.timeout = ONESHOT_TIMEOUT_SEC
 	add_child(http)
-	http.request_completed.connect(func(result: int, response_code: int, _headers: PackedStringArray, response_body: PackedByteArray) -> void:
+	http.request_completed.connect(func(result: int, response_code: int, response_headers: PackedStringArray, response_body: PackedByteArray) -> void:
 		http.queue_free()
+		if attempts_left > 1 and _is_retryable(result, response_code):
+			var delay := _retry_delay_sec(response_headers)
+			push_warning(TAG + "request to %s hit %s; retrying in %.0fs" % [url, _attempt_outcome(result, response_code), delay])
+			get_tree().create_timer(delay).timeout.connect(_send_request.bind(url, headers, method, body, on_done, attempts_left - 1))
+			return
 		on_done.call(result, response_code, response_body)
 	)
 	var err := http.request(url, headers, method, body)
@@ -93,6 +166,27 @@ func _oneshot_request(url: String, headers: PackedStringArray, method: int, body
 		push_error(TAG + "failed to send request to %s: %s" % [url, error_string(err)])
 		http.queue_free()
 		on_done.call(HTTPRequest.RESULT_REQUEST_FAILED, 0, PackedByteArray())
+
+func _is_retryable(result: int, response_code: int) -> bool:
+	if result != HTTPRequest.RESULT_SUCCESS:
+		return true
+	return response_code == 429 or (response_code >= 500 and response_code <= 599)
+
+func _retry_delay_sec(response_headers: PackedStringArray) -> float:
+	for header in response_headers:
+		var colon := header.find(":")
+		if colon <= 0:
+			continue
+		if header.substr(0, colon).strip_edges().to_lower() == "retry-after":
+			var seconds := float(header.substr(colon + 1).strip_edges())
+			if seconds > 0.0:
+				return clampf(seconds, RETRY_MIN_DELAY_SEC, RETRY_MAX_DELAY_SEC)
+	return DEFAULT_RETRY_DELAY_SEC
+
+func _attempt_outcome(result: int, response_code: int) -> String:
+	if result != HTTPRequest.RESULT_SUCCESS:
+		return "result %d" % result
+	return "http %d" % response_code
 
 func _request_failed(result: int, response_code: int, context: String) -> bool:
 	if result != HTTPRequest.RESULT_SUCCESS:
@@ -119,8 +213,29 @@ func _response_error_message(response_body: PackedByteArray) -> String:
 		return String(json.message)
 	return ""
 
+func _request_error_message(result: int, response_code: int, response_body: PackedByteArray) -> String:
+	if result != HTTPRequest.RESULT_SUCCESS:
+		return "request failed (result %d)" % result
+	var message := _response_error_message(response_body)
+	return message if not message.is_empty() else "http %d" % response_code
+
 func _extract_subscription_id(response_body: PackedByteArray) -> String:
 	var json: Variant = _parse_json(response_body)
 	if json is Dictionary and json.has("data") and (json.data as Array).size() > 0:
 		return String((json.data as Array)[0].get("id", ""))
+	return ""
+
+func _existing_subscription_id(response_body: PackedByteArray, error_message: String) -> String:
+	var json: Variant = _parse_json(response_body)
+	if json is Dictionary:
+		if json.has("id"):
+			return String(json.id)
+		var data: Variant = json.get("data")
+		if data is Array and not (data as Array).is_empty() and (data as Array)[0] is Dictionary:
+			var existing: Dictionary = (data as Array)[0]
+			if existing.has("id"):
+				return String(existing.id)
+	var idx := error_message.rfind("id=")
+	if idx >= 0:
+		return error_message.substr(idx + 3).strip_edges()
 	return ""

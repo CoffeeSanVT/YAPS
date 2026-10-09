@@ -45,10 +45,7 @@ static func apply_preset_command(preset_name: String) -> String:
 	return "%s:%s" % [CMD_APPLY_PRESET, preset_name]
 
 func _respond(payload: Dictionary) -> void:
-	_respond_raw(JSON.stringify(payload))
-
-func _respond_raw(payload: String) -> void:
-	WebSocketServer.send_to_all(payload)
+	WebSocketServer.send_to_all(JSON.stringify(payload))
 
 func _get_model() -> ModelProfile:
 	return _loader.model_loaded

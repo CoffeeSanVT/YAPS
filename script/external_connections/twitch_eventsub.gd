@@ -27,10 +27,10 @@ var _reconnect_attempts: int = 0
 
 var _subs: Dictionary = {}
 var _deleting_ids: Dictionary = {}
-var _create_retry_scheduled := false
+var _reconcile_in_flight := false
 
 var _reconnect_timer: Timer
-var _retry_timer: Timer
+var _retry_timers: Dictionary = {}
 
 func _ready() -> void:
 	for key: StringName in TwitchEvent.EVENT_TYPES:
@@ -47,8 +47,8 @@ func _process(_delta: float) -> void:
 
 func _exit_tree() -> void:
 	_shutdown_ws()
-	_retry_timer = NodeUtil.free_timer(_retry_timer)
 	_reconnect_timer = NodeUtil.free_timer(_reconnect_timer)
+	_clear_retry_timers()
 
 func start_session() -> void:
 	_shutdown_ws()
@@ -66,6 +66,8 @@ func stop_session() -> void:
 	_shutdown_ws()
 	_subs.clear()
 	_deleting_ids.clear()
+	_reconcile_in_flight = false
+	_clear_retry_timers()
 	_reconnect_attempts = 0
 
 func subscribe_event(event_type: StringName, reward_id: String = "") -> void:
@@ -87,6 +89,7 @@ func unsubscribe_event(event_type: StringName, reward_id: String = "") -> void:
 		sub["refs"] = refs
 		return
 	_subs.erase(key)
+	_free_retry_timer(key)
 	var sub_id := String(sub.get("id", ""))
 	if not sub_id.is_empty():
 		_deleting_ids[sub_id] = true
@@ -209,7 +212,57 @@ func _handle_session_welcome(payload: Dictionary) -> void:
 	for key: String in _subs:
 		_subs[key]["id"] = ""
 		_subs[key]["attempts"] = 0
+	_reconcile_subscriptions()
+
+func _reconcile_subscriptions() -> void:
+	if _reconcile_in_flight:
+		return
+	if _session_id.is_empty() or _subs.is_empty():
+		_sync_subscriptions()
+		return
+	_reconcile_in_flight = true
+	_api.fetch_eventsub_subscriptions(_on_subscriptions_fetched)
+
+func _on_subscriptions_fetched(remote_subs: Array) -> void:
+	_reconcile_in_flight = false
+	if _session_id.is_empty():
+		return
+	for key: String in _subs:
+		var sub: Dictionary = _subs[key]
+		if not String(sub.get("id", "")).is_empty():
+			continue
+		var remote_id := _matching_remote_id(sub, remote_subs)
+		if remote_id.is_empty():
+			continue
+		sub["id"] = remote_id
+		print(TAG + "adopted existing subscription for %s (%s)" % [TwitchEvent.EVENT_TYPES.get(sub.get("event_type", &""), sub.get("event_type", &"")), remote_id])
 	_sync_subscriptions()
+
+func _matching_remote_id(sub: Dictionary, remote_subs: Array) -> String:
+	var event_type: StringName = sub.get("event_type", &"")
+	var sub_type := String(TwitchEvent.EVENT_TYPES.get(event_type, ""))
+	if sub_type.is_empty():
+		return ""
+	var reward_id := String(sub.get("reward_id", ""))
+	var broadcaster_id := String(_user_id.call())
+	for remote: Variant in remote_subs:
+		if not (remote is Dictionary):
+			continue
+		var remote_dict: Dictionary = remote
+		if String(remote_dict.get("type", "")) != sub_type:
+			continue
+		if String(remote_dict.get("status", "")) != "enabled":
+			continue
+		var transport: Dictionary = remote_dict.get("transport", {})
+		if String(transport.get("method", "")) != "websocket":
+			continue
+		var condition: Dictionary = remote_dict.get("condition", {})
+		if String(condition.get("broadcaster_user_id", "")) != broadcaster_id:
+			continue
+		if event_type == &"channel_points" and String(condition.get("reward_id", "")) != reward_id:
+			continue
+		return String(remote_dict.get("id", ""))
+	return ""
 
 func _handle_notification(payload: Dictionary) -> void:
 	var subscription: Dictionary = payload.get("subscription", {})
@@ -236,18 +289,14 @@ func _handle_revocation(payload: Dictionary) -> void:
 	for key: String in _subs.keys():
 		if String(_subs[key].get("id", "")) == sub_id:
 			_subs.erase(key)
+			_free_retry_timer(key)
 	if _event_keys.get(sub_type, &"") == &"channel_points" and not revoked_reward.is_empty():
 		SignalBus.twitch_reward_revoked.emit(revoked_reward)
 
 static func _sub_key(event_type: StringName, reward_id: String) -> String:
 	return String(event_type) if reward_id.is_empty() else "%s|%s" % [event_type, reward_id]
 
-static func _existing_id_from_conflict(message: String) -> String:
-	var idx := message.rfind("id=")
-	return "" if idx < 0 else message.substr(idx + 3).strip_edges()
-
 func _sync_subscriptions() -> void:
-	_create_retry_scheduled = false
 	if not _is_connected.call():
 		return
 	if _session_id.is_empty():
@@ -271,7 +320,7 @@ func _create_eventsub_subscription(key: String) -> void:
 	sub["session"] = _session_id
 	var sub_type := String(TwitchEvent.EVENT_TYPES[event_type])
 	var reward_id := String(sub.get("reward_id", ""))
-	_api.create_eventsub_subscription(_subscription_body(event_type, reward_id), sub_type, func(sub_id: String, response_code: int, error_message: String) -> void:
+	_api.create_eventsub_subscription(_subscription_body(event_type, reward_id), sub_type, func(sub_id: String, response_code: int, _error_message: String) -> void:
 		if not _subs.has(key):
 			return
 		var current: Dictionary = _subs[key]
@@ -280,19 +329,18 @@ func _create_eventsub_subscription(key: String) -> void:
 			print(TAG + "discarding stale session response for %s; resyncing" % sub_type)
 			_sync_subscriptions()
 			return
-		if response_code == 409:
-			var existing := _existing_id_from_conflict(error_message)
-			if existing.is_empty() or _deleting_ids.has(existing):
-				_on_create_failed(key, sub_type)
-			else:
-				current["id"] = existing
-				print(TAG + "subscription already exists for %s; reusing %s" % [sub_type, existing])
-			return
 		if sub_id.is_empty():
 			_on_create_failed(key, sub_type)
 			return
+		if response_code == 409 and _deleting_ids.has(sub_id):
+			print(TAG + "subscription for %s is being deleted; retrying later" % sub_type)
+			_on_create_failed(key, sub_type)
+			return
 		current["id"] = sub_id
-		print(TAG + "subscribed to %s (reward: %s)" % [sub_type, reward_id if not reward_id.is_empty() else "any"])
+		if response_code == 409:
+			print(TAG + "subscription already exists for %s; reusing %s" % [sub_type, sub_id])
+		else:
+			print(TAG + "subscribed to %s (reward: %s)" % [sub_type, reward_id if not reward_id.is_empty() else "any"])
 	)
 
 func _on_create_failed(key: String, sub_type: String) -> void:
@@ -301,13 +349,27 @@ func _on_create_failed(key: String, sub_type: String) -> void:
 		return
 	var attempts := int(sub.get("attempts", 0))
 	if attempts >= CREATE_MAX_ATTEMPTS:
-		push_error(TAG + "gave up creating subscription for %s after %d attempts; re-enable the trigger to retry" % [sub_type, CREATE_MAX_ATTEMPTS])
+		push_error(TAG + "gave up creating subscription for %s after %d attempts; re-enable the trigger to retry" % [sub_type, attempts])
+		_free_retry_timer(key)
 		return
-	if not _create_retry_scheduled:
-		_create_retry_scheduled = true
-		print(TAG + "retrying failed subscription in %.0fs (%d/%d)" % [CREATE_RETRY_DELAY_SEC, attempts, CREATE_MAX_ATTEMPTS])
-		_retry_timer = NodeUtil.ensure_timer(self, _retry_timer, _sync_subscriptions, true)
-		_retry_timer.start(CREATE_RETRY_DELAY_SEC)
+	var delay := minf(RECONNECT_MAX_DELAY, CREATE_RETRY_DELAY_SEC * pow(2.0, attempts - 1))
+	var timer: Timer = _retry_timers.get(key)
+	_retry_timers[key] = NodeUtil.ensure_timer(self, timer, _sync_subscriptions, true)
+	_retry_timers[key].start(delay)
+	print(TAG + "retrying failed subscription for %s in %.1fs (%d/%d)" % [sub_type, delay, attempts, CREATE_MAX_ATTEMPTS])
+
+func _free_retry_timer(key: String) -> void:
+	var timer: Timer = _retry_timers.get(key)
+	if timer != null:
+		NodeUtil.free_timer(timer)
+	_retry_timers.erase(key)
+
+func _clear_retry_timers() -> void:
+	for key: String in _retry_timers.keys():
+		var timer: Timer = _retry_timers[key]
+		if timer != null:
+			NodeUtil.free_timer(timer)
+	_retry_timers.clear()
 
 func _subscription_body(event_type: StringName, reward_id: String) -> Dictionary:
 	var broadcaster_id: String = _user_id.call()
