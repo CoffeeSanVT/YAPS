@@ -25,6 +25,16 @@ func _ready() -> void:
 	WebSocketServer.register_action(CMD_GET_PRESETS, _get_presets)
 	WebSocketServer.register_action(CMD_APPLY_PRESET, _apply_preset)
 
+func _exit_tree() -> void:
+	WebSocketServer.unregister_action(CMD_GET_STATES)
+	WebSocketServer.unregister_action(CMD_SET_STATE)
+	WebSocketServer.unregister_action(CMD_GET_ITEMS)
+	WebSocketServer.unregister_action(CMD_SET_ITEM)
+	WebSocketServer.unregister_action(CMD_GET_EMOTIONS)
+	WebSocketServer.unregister_action(CMD_SET_EMOTION)
+	WebSocketServer.unregister_action(CMD_GET_PRESETS)
+	WebSocketServer.unregister_action(CMD_APPLY_PRESET)
+
 static func set_emotion_command(emotion_name: String) -> String:
 	return "%s:%s" % [CMD_SET_EMOTION, emotion_name]
 
@@ -46,6 +56,7 @@ func _get_model() -> ModelProfile:
 func _get_states(_arg: String) -> void:
 	var model := _get_model()
 	if model == null:
+		_respond({"status": "error", "message": "no model loaded"})
 		return
 	var paths: Array[String] = []
 	for branch in model.branches:
@@ -53,11 +64,12 @@ func _get_states(_arg: String) -> void:
 			paths.append(branch.default_entry.state_name)
 		for entry in branch.emotion_entries:
 			paths.append("%s/%s" % [branch.state_name, entry.state_name])
-	_respond_raw(JSON.stringify(paths))
+	_respond({"status": "ok", "states": paths})
 
 func _get_items(_arg: String) -> void:
 	var model := _get_model()
 	if model == null:
+		_respond({"status": "error", "message": "no model loaded"})
 		return
 	var items_data: Array[Dictionary] = []
 	for item in model.items:
@@ -65,7 +77,7 @@ func _get_items(_arg: String) -> void:
 			"name": item.state_name,
 			"enabled": item.enabled
 		})
-	_respond_raw(JSON.stringify(items_data))
+	_respond({"status": "ok", "items": items_data})
 
 func _set_state(arg: String) -> void:
 	var last_error := ""
@@ -130,9 +142,9 @@ func _set_emotion(arg: String) -> void:
 func _get_presets(_arg: String) -> void:
 	var model := _get_model()
 	if model == null:
-		_respond_raw(JSON.stringify([]))
+		_respond({"status": "error", "message": "no model loaded"})
 		return
-	_respond_raw(JSON.stringify(_name_list(model.transform_presets, &"preset_name")))
+	_respond({"status": "ok", "presets": _name_list(model.transform_presets, &"preset_name")})
 
 func _apply_preset(arg: String) -> void:
 	var model := _get_model()

@@ -64,6 +64,7 @@ func disconnect_twitch() -> void:
 	_access_token = ""
 	_auth.reset()
 	_eventsub.stop_session()
+	TwitchTokenStore.clear_token()
 	SignalBus.twitch_disconnected.emit()
 	print(TAG + "disconnected")
 
@@ -97,7 +98,6 @@ func _is_connected() -> bool:
 
 func _on_token_received(token: String) -> void:
 	_access_token = token
-	TwitchTokenStore.save_token(token)
 	_auth.finish_with_page("Authentication success", "You can now return to YAPS.", "#81c784")
 	_api.validate_token(_on_token_validated)
 
@@ -111,6 +111,7 @@ func _on_token_validated(validated_user_id: String, validated_username: String) 
 	if validated_user_id.is_empty():
 		state = ConnectionState.DISCONNECTED
 		push_warning(TAG + "token validation returned no user id")
+		TwitchTokenStore.clear_token()
 		SignalBus.twitch_auth_failed.emit("token validation returned no user id")
 		return
 	user_id = validated_user_id
@@ -118,6 +119,8 @@ func _on_token_validated(validated_user_id: String, validated_username: String) 
 	state = ConnectionState.CONNECTED
 	Settings.settings.twitch_user_id = user_id
 	Settings.settings.twitch_username = username
+	if not TwitchTokenStore.save_token(_access_token):
+		push_warning(TAG + "could not persist access token")
 	print(TAG + "authenticated as %s" % username)
 	_eventsub.start_session()
 	SignalBus.twitch_connected.emit(username)

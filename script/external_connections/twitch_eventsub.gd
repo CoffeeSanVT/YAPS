@@ -29,6 +29,9 @@ var _subs: Dictionary = {}
 var _deleting_ids: Dictionary = {}
 var _create_retry_scheduled := false
 
+var _reconnect_timer: Timer
+var _retry_timer: Timer
+
 func _ready() -> void:
 	for key: StringName in TwitchEvent.EVENT_TYPES:
 		_event_keys[TwitchEvent.EVENT_TYPES[key]] = key
@@ -44,6 +47,8 @@ func _process(_delta: float) -> void:
 
 func _exit_tree() -> void:
 	_shutdown_ws()
+	_retry_timer = NodeUtil.free_timer(_retry_timer)
+	_reconnect_timer = NodeUtil.free_timer(_reconnect_timer)
 
 func start_session() -> void:
 	_shutdown_ws()
@@ -152,7 +157,8 @@ func _reconnect() -> void:
 	_reconnect_attempts += 1
 	state = ConnectionState.RECONNECT_PENDING
 	print(TAG + "scheduling EventSub reconnect in %.1fs (attempt %d)" % [delay, _reconnect_attempts])
-	get_tree().create_timer(delay).timeout.connect(_attempt_reconnect)
+	_reconnect_timer = NodeUtil.ensure_timer(self, _reconnect_timer, _attempt_reconnect, true)
+	_reconnect_timer.start(delay)
 
 func _attempt_reconnect() -> void:
 	if state != ConnectionState.RECONNECT_PENDING:
@@ -300,7 +306,8 @@ func _on_create_failed(key: String, sub_type: String) -> void:
 	if not _create_retry_scheduled:
 		_create_retry_scheduled = true
 		print(TAG + "retrying failed subscription in %.0fs (%d/%d)" % [CREATE_RETRY_DELAY_SEC, attempts, CREATE_MAX_ATTEMPTS])
-		get_tree().create_timer(CREATE_RETRY_DELAY_SEC).timeout.connect(_sync_subscriptions)
+		_retry_timer = NodeUtil.ensure_timer(self, _retry_timer, _sync_subscriptions, true)
+		_retry_timer.start(CREATE_RETRY_DELAY_SEC)
 
 func _subscription_body(event_type: StringName, reward_id: String) -> Dictionary:
 	var broadcaster_id: String = _user_id.call()

@@ -55,6 +55,11 @@ func register_action(key: StringName, action: Callable) -> void:
 	_actions[key] = action
 	SignalBus.websocket_actions_changed.emit()
 
+func unregister_action(key: StringName) -> void:
+	if not _actions.erase(key):
+		return
+	SignalBus.websocket_actions_changed.emit()
+
 func send_to_all(message: String) -> void:
 	if _peer == null:
 		return
@@ -63,8 +68,8 @@ func send_to_all(message: String) -> void:
 
 func _dispatch(message: String) -> void:
 	var colon := message.find(":")
-	var command := StringName(message.substr(0, colon) if colon > 0 else message)
-	var arg := message.substr(colon + 1) if colon > 0 else ""
+	var command := StringName(message.substr(0, colon) if colon >= 0 else message)
+	var arg := message.substr(colon + 1) if colon >= 0 else ""
 	if _actions.has(command):
 		_actions[command].call(arg)
 		return
