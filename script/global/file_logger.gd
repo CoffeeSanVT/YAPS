@@ -35,20 +35,24 @@ class FileLog extends Logger:
 			_script_backtraces: Array
 	) -> void:
 		var message := rationale.strip_edges()
-		if message.is_empty():
-			message = _code.strip_edges()
+		if _code.strip_edges() != "":
+			message += " " + _code.strip_edges()
 		var location := "%s (%s:%d)" % [function, file.get_file(), line]
 		_write(_format(message, _error_type_label(error_type), location))
 
 	func _format(message: String, level: String, location := "") -> String:
+		var timestamp := _timestamp()
 		var match_result := _tag_regex.search(message)
 		if match_result != null:
 			var tag := match_result.get_string(1)
 			var text := message.substr(match_result.get_end()).strip_edges()
-			return "[%s: %s] %s" % [level, tag, text]
+			return "[%s] [%s: %s] %s" % [timestamp, level, tag, text]
 		if location.is_empty():
-			return "[%s] %s" % [level, message]
-		return "[%s] %s: %s" % [level, location, message]
+			return "[%s] [%s] %s" % [timestamp, level, message]
+		return "[%s] [%s: %s] %s" % [timestamp, level, location, message]
+
+	func _timestamp() -> String:
+		return Time.get_time_string_from_system()
 
 	func _write(line: String) -> void:
 		_mutex.lock()
