@@ -83,9 +83,8 @@ metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 [node name="GlobalFrameRateValue" type="SpinBox" parent="PanelContainer/VBoxContainer/Frame Rate" unique_id=846244006]
 layout_mode = 2
 size_flags_horizontal = 3
-min_value = 12.0
+min_value = 1.0
 max_value = 480.0
-step = 0.1
 value = 12.0
 alignment = 1
 script = ExtResource("8_gfr")

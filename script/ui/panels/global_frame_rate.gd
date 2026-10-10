@@ -11,3 +11,4 @@ func _on_value_changed(_value: float) -> void:
 	ModelLoader.model_loaded.global_frame_rate = value
 	ModelLoader.save_model()
 	SignalBus.states_changed.emit()
+	SignalBus.state_frames_changed.emit()

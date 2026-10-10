@@ -223,11 +223,10 @@ func _start_frame_animation(state: ModelStateEntry) -> void:
 func _on_frames_buffered(state: ModelStateEntry, _ready: int) -> void:
 	if _track.entry != state or _track.frames.is_empty():
 		return
+	if not _is_looping():
+		_track.index = 0
 	_show_track_frame()
-	if _is_looping():
-		_start_burst_timer()
-	else:
-		_start_cycle_timer()
+	_start_burst_timer()
 
 func _show_track_frame() -> void:
 	var tex := _track.frames[_track.index]
@@ -267,6 +266,7 @@ func _start_burst_timer() -> void:
 		return
 	if not _track.entry.loop_animation:
 		_anim_frames_left = _track.frames.size()
+		_track.index = 0
 	_track.start(_entry_fps(_track.entry))
 
 func _entry_fps(entry: ModelStateEntry) -> float:

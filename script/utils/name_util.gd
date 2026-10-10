@@ -1,6 +1,10 @@
 class_name NameUtil
 
-const EMOTION_SUFFIXES: PackedStringArray = ["_talking", "-talking", " talking", "_silence", "-silence", " silence"]
+const EMOTION_SUFFIX_PATTERN := "(?i)[\\s_-]+(?:talking|silence)$"
+const STATIC_FRAME_SUFFIX_PATTERN := "(?i)(?:[\\s_-]+|^)(?:blink|close[\\s_-]eyes)$"
+
+static var _emotion_suffix_regex := RegEx.create_from_string(EMOTION_SUFFIX_PATTERN)
+static var _static_frame_suffix_regex := RegEx.create_from_string(STATIC_FRAME_SUFFIX_PATTERN)
 
 static func unique_name(base: String, is_taken: Callable) -> String:
 	var candidate := base
@@ -14,11 +18,13 @@ static func emotion_name_for_file(file_name: String) -> String:
 	return strip_emotion_suffix(file_name.get_basename())
 
 static func strip_emotion_suffix(entry_name: String) -> String:
-	var lowered := entry_name.to_lower()
-	for suffix: String in EMOTION_SUFFIXES:
-		if lowered.ends_with(suffix):
-			return entry_name.substr(0, entry_name.length() - suffix.length())
-	return entry_name
+	return _emotion_suffix_regex.sub(entry_name, "", false)
+
+static func strip_frame_suffix(entry_name: String) -> String:
+	return _static_frame_suffix_regex.sub(entry_name, "", false)
+
+static func is_frame_file_name(file_name: String) -> bool:
+	return _static_frame_suffix_regex.search(file_name.get_basename()) != null
 
 static func is_neutral_file_name(file_name: String) -> bool:
 	return is_neutral_entry_name(file_name.get_basename())

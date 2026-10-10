@@ -12,6 +12,7 @@ var _generation: int = 0
 var _bounds: Dictionary[Texture2D, Rect2] = {}
 var _bytes: int = 0
 var _thumbs: Dictionary[String, Image] = {}
+var _animated_assets: Dictionary[String, bool] = {}
 
 func load_state_texture(state: ModelStateEntry) -> ImageTexture:
 	var paths := _state_frame_paths(state)
@@ -83,7 +84,18 @@ func _finish_request(path: String, image: Image, used_rect: Rect2i, generation: 
 			cb.call(texture)
 
 func _state_frame_paths(state: ModelStateEntry) -> Array[String]:
-	return state.frames if not state.frames.is_empty() else state.get_frame_paths()
+	if state.frames.is_empty():
+		return state.get_frame_paths()
+	if _asset_is_animated(state.asset_path):
+		return state.frames
+	return state.get_frame_paths()
+
+func _asset_is_animated(asset_path: String) -> bool:
+	if asset_path.is_empty():
+		return false
+	if not _animated_assets.has(asset_path):
+		_animated_assets[asset_path] = ImageUtil.is_animated_file(asset_path)
+	return _animated_assets[asset_path]
 
 func state_frame_array(state: ModelStateEntry) -> Array[ImageTexture]:
 	var frames: Array[ImageTexture] = []
@@ -230,6 +242,7 @@ func clear() -> void:
 	_order.clear()
 	_bounds.clear()
 	_thumbs.clear()
+	_animated_assets.clear()
 	_bytes = 0
 
 func pending_count() -> int:

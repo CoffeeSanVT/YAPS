@@ -65,6 +65,7 @@ func _prewarm_textures() -> void:
 				seen[entry.asset_path] = true
 				if _is_static_image(entry.asset_path):
 					ModelLoader.textures.request_texture(entry.asset_path, Callable())
+					ModelLoader.textures.request_thumb(entry.asset_path)
 			if entry.frames.is_empty():
 				continue
 			ModelLoader.textures.request_texture(entry.frames[0], Callable())
