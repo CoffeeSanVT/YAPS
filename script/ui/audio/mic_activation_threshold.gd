@@ -1,6 +1,6 @@
 extends SpinBox
 
-const DB_SAMPLE_LIMIT := 7200
+const DB_SAMPLE_LIMIT := 3600
 
 @export_category("Threshold")
 @export var button: Button

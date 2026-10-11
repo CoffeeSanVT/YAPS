@@ -5,6 +5,7 @@ const SMOOTHING_ATTACK := 0.5
 const SMOOTHING_RELEASE := 0.05
 const TALK_HYSTERESIS_DB := 4.0
 const TALK_HOLD_MS := 600
+const SMOOTH_EMIT_INTERVAL := 1.0 / 30.0
 
 var threshold_db: float
 var record_bus_index: int
@@ -12,6 +13,7 @@ var _was_exceeded: bool
 var _below_since_ms: int = -1
 var _audio_player: AudioStreamPlayer
 var _smoothed_db: float = -60.0
+var _smooth_emit_accum := 0.0
 
 func _ready() -> void:
 	record_bus_index = AudioServer.get_bus_index("RecordingBus")
@@ -56,13 +58,16 @@ func _get_amplify_effect_index() -> int:
 			return i
 	return -1
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if record_bus_index == -1:
 		return
 	var current_db := clampf(AudioServer.get_bus_peak_volume_left_db(record_bus_index, 0), -60, 0)
 	SignalBus.mic_input_detected.emit(current_db)
 	_smoothed_db = _smooth_db(current_db, _smoothed_db)
-	SignalBus.mic_input_smoothed.emit(_smoothed_db)
+	_smooth_emit_accum += delta
+	if _smooth_emit_accum >= SMOOTH_EMIT_INTERVAL:
+		_smooth_emit_accum = 0.0
+		SignalBus.mic_input_smoothed.emit(_smoothed_db)
 	_update_exceeded(current_db)
 
 func _update_exceeded(current_db: float) -> void:
