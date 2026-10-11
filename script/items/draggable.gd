@@ -102,30 +102,28 @@ func _process(_delta: float) -> void:
 	if state == States.DISABLED or not visible:
 		_unwind_drag()
 		return
-	if not get_window().has_focus():
-		_end_drag()
+	var button := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not DragSession.select_menu_open
+	if state == States.PRESSED or state == States.DRAGGING:
+		if not button or not get_window().has_focus():
+			_end_drag()
+			return
+	elif not button:
 		return
 	var mouse := _viewport_to_ratio(_get_mouse_in_viewport())
-	var button := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and not DragSession.select_menu_open
-
-	if button and state != States.PRESSED and state != States.DRAGGING:
-		state = States.PRESSED
-		_press_pos = mouse
-		_drag_offset = Vector2.ZERO
-	elif button and state == States.PRESSED and mouse.distance_to(_press_pos) > DRAG_THRESHOLD:
-		if _can_start_drag_at(_press_pos):
-			_drag_offset = _viewport_to_ratio(offset_transform_position + pivot_offset) - mouse
-			DragSession.active_draggable = self
-			state = States.DRAGGING
-
 	if state == States.DRAGGING:
 		offset_transform_position = _ratio_to_viewport(mouse + _drag_offset) - pivot_offset
 		if item != null:
 			item.position = mouse + _drag_offset
 			item.transform_changed.emit()
-
-	if not button:
-		_end_drag()
+	elif state == States.PRESSED:
+		if mouse.distance_to(_press_pos) > DRAG_THRESHOLD and _can_start_drag_at(_press_pos):
+			_drag_offset = _viewport_to_ratio(offset_transform_position + pivot_offset) - mouse
+			DragSession.active_draggable = self
+			state = States.DRAGGING
+	else:
+		state = States.PRESSED
+		_press_pos = mouse
+		_drag_offset = Vector2.ZERO
 
 func is_opaque_at_viewport(viewport_pos: Vector2) -> bool:
 	return _hit_tester.is_opaque_at(self, viewport_pos)

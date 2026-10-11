@@ -2,6 +2,8 @@ extends ModelEntityPanel
 
 signal changed(item: Item)
 
+const MIRROR_INTERVAL := 0.066
+
 @export_category("UI References")
 @export var thumbnail: TextureRect
 @export var item_name_label: Label
@@ -24,6 +26,7 @@ signal changed(item: Item)
 @export var twitch_foldable: TwitchEventFoldable
 
 var item: Item
+var _mirror_timer: Timer
 
 func _ready() -> void:
 	_setup_rename_util(rename_button)
@@ -207,7 +210,13 @@ func _apply_transform_to_instance() -> void:
 func _on_item_transform_changed() -> void:
 	if item == null:
 		return
-	_mirror_transform_to_ui()
+	if _mirror_timer == null:
+		_mirror_timer = Timer.new()
+		_mirror_timer.one_shot = true
+		_mirror_timer.wait_time = MIRROR_INTERVAL
+		_mirror_timer.timeout.connect(_mirror_transform_to_ui)
+		add_child(_mirror_timer)
+	_mirror_timer.start()
 
 func _on_position_x_changed(value: float) -> void:
 	_mutate_transform(func() -> void: item.position.x = value)
