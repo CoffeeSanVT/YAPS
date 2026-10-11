@@ -3,6 +3,7 @@ extends Node
 const TAG := "[FileLogger] "
 const LOG_DIR_NAME := "logs"
 const MAX_LOG_FILES := 10
+const FLUSH_THRESHOLD := 32
 
 class FileLog extends Logger:
 	const ERR_TYPE_WARNING := 1
@@ -13,6 +14,7 @@ class FileLog extends Logger:
 	var _mutex := Mutex.new()
 	var _file: FileAccess
 	var _tag_regex := RegEx.new()
+	var _pending_lines := 0
 
 	func _init(log_path: String) -> void:
 		_tag_regex.compile(TAG_PATTERN)
@@ -22,7 +24,7 @@ class FileLog extends Logger:
 			push_error(TAG + "Failed to open log file: " + log_path)
 
 	func _log_message(message: String, error: bool) -> void:
-		_write(_format(message.strip_edges(), "ERROR" if error else "INFO"))
+		_write(_format(message.strip_edges(), "ERROR" if error else "INFO"), error)
 
 	func _log_error(
 			function: String,
@@ -38,7 +40,7 @@ class FileLog extends Logger:
 		if _code.strip_edges() != "":
 			message += " " + _code.strip_edges()
 		var location := "%s (%s:%d)" % [function, file.get_file(), line]
-		_write(_format(message, _error_type_label(error_type), location))
+		_write(_format(message, _error_type_label(error_type), location), true)
 
 	func _format(message: String, level: String, location := "") -> String:
 		var timestamp := _timestamp()
@@ -54,11 +56,14 @@ class FileLog extends Logger:
 	func _timestamp() -> String:
 		return Time.get_time_string_from_system()
 
-	func _write(line: String) -> void:
+	func _write(line: String, flush_now: bool) -> void:
 		_mutex.lock()
 		if _file != null:
 			_file.store_line(line)
-			_file.flush()
+			_pending_lines += 1
+			if flush_now or _pending_lines >= FLUSH_THRESHOLD:
+				_file.flush()
+				_pending_lines = 0
 		_mutex.unlock()
 
 	func _error_type_label(error_type: int) -> String:
