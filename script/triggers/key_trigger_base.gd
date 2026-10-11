@@ -12,6 +12,7 @@ static var _action_refs: Dictionary[StringName, int] = {}
 
 var _action_acquired := false
 var _acquired_action: StringName
+var _combo_predicate := Callable()
 
 func activate() -> void:
 	_register_shortcut_action()
@@ -83,8 +84,10 @@ static func registered_actions() -> Array[StringName]:
 	return result
 
 func _combo_keys_pressed() -> bool:
-	return combo_keys.all(func(key_code: int) -> bool: 
-		return Input.is_physical_key_pressed(key_code))
+	if not _combo_predicate.is_valid():
+		_combo_predicate = func(key_code: int) -> bool:
+			return Input.is_physical_key_pressed(key_code)
+	return combo_keys.all(_combo_predicate)
 
 func _is_single_key() -> bool:
 	return combo_keys.size() <= 1

@@ -7,11 +7,13 @@ extends Panel
 @export var config_panel: Control
 
 const ASSETS_TAB := 2
+const FOCUS_CHECK_INTERVAL := 0.2
 
 var _index: int = -1
 var _panels: Array[Control]
 var _option_was_open: OptionButton = null
 var _panel_tweens: Dictionary = {}
+var _focus_check_accum := 0.0
 
 func _ready() -> void:
 	_panels = [model_panel, expression_panel, assets_panel, config_panel]
@@ -28,7 +30,11 @@ func _on_item_selected(item: Item) -> void:
 		return
 	_on_tab_pressed(ASSETS_TAB)
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
+	_focus_check_accum += delta
+	if _focus_check_accum < FOCUS_CHECK_INTERVAL:
+		return
+	_focus_check_accum = 0.0
 	var focus := get_viewport().gui_get_focus_owner()
 	if focus is not OptionButton:
 		_option_was_open = null

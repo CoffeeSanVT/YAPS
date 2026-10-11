@@ -126,9 +126,11 @@ func _process_eventsub_ws() -> void:
 			_process_ws_closed()
 
 func _process_ws_open() -> void:
-	if _ws_peer.get_available_packet_count() > 0:
-		while _ws_peer.get_available_packet_count() > 0:
-			_handle_ws_message(_ws_peer.get_packet().get_string_from_utf8())
+	var received := false
+	while _ws_peer.get_available_packet_count() > 0:
+		_handle_ws_message(_ws_peer.get_packet().get_string_from_utf8())
+		received = true
+	if received:
 		_last_keepalive_time = _now_sec()
 	if state != ConnectionState.CONNECTED:
 		state = ConnectionState.CONNECTED
