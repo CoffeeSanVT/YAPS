@@ -148,6 +148,23 @@ static func create_gpu_texture(image: Image) -> ImageTexture:
 	compress_for_gpu(image)
 	return ImageTexture.create_from_image(image)
 
+static func estimate_vram_bytes(image: Image) -> int:
+	if image == null or image.is_empty():
+		return -1
+	var block_bytes: int = VRAM_CACHE_FORMATS.get(image.get_format(), 0)
+	if block_bytes > 0:
+		return _vram_data_size(image.get_width(), image.get_height(), image.has_mipmaps(), block_bytes)
+	var bytes := image.get_width() * image.get_height() * 4
+	if image.has_mipmaps():
+		bytes += int(bytes / 3.0)
+	return bytes
+
+static func estimate_vram_bytes_heuristic(size: Vector2i, compressed: bool) -> int:
+	if compressed:
+		return _vram_data_size(size.x, size.y, true, 16)
+	var bytes := size.x * size.y * 4
+	return bytes + int(bytes / 3.0)
+
 
 
 static func load_image(path: String) -> Image:
@@ -164,18 +181,20 @@ static func load_texture_with_rect(path: String) -> TextureLoadResult:
 		return TextureLoadResult.new()
 	var cached := load_vram_cache(path)
 	if not cached.is_empty():
-		return TextureLoadResult.new(ImageTexture.create_from_image(cached.image), cached.used_rect)
+		return TextureLoadResult.new(ImageTexture.create_from_image(cached.image), cached.used_rect, estimate_vram_bytes(cached.image))
 	if is_animated_file(full_path):
 		var decoded: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(full_path, model_compress_enabled())
 		if decoded != null and decoded[&"texture"] != null:
-			return TextureLoadResult.new(decoded[&"texture"], decoded[&"used_rect"])
+			var decoded_tex: Texture2D = decoded[&"texture"]
+			var decoded_size := Vector2i(decoded_tex.get_width(), decoded_tex.get_height())
+			return TextureLoadResult.new(decoded_tex, decoded[&"used_rect"], estimate_vram_bytes_heuristic(decoded_size, model_compress_enabled()))
 	var image := load_image(path)
 	if image == null:
 		return TextureLoadResult.new()
 	var used_rect := image.get_used_rect()
 	ensure_mipmaps(image)
 	compress_for_gpu(image, path, used_rect)
-	return TextureLoadResult.new(ImageTexture.create_from_image(image), used_rect)
+	return TextureLoadResult.new(ImageTexture.create_from_image(image), used_rect, estimate_vram_bytes(image))
 
 
 

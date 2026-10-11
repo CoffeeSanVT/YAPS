@@ -1,7 +1,7 @@
 class_name TextureCache
 extends RefCounted
 
-const CACHE_BUDGET_BYTES := 256 * 1024 * 1024
+const CACHE_BUDGET_BYTES := 512 * 1024 * 1024
 const SNAP_SAMPLE_SIZE := 24
 const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
 
@@ -11,7 +11,9 @@ var _pending_requests: Dictionary = {}
 var _generation: int = 0
 var _bounds: Dictionary[Texture2D, Rect2] = {}
 var _bytes: int = 0
+var _path_bytes: Dictionary[String, int] = {}
 var _thumbs: Dictionary[String, Image] = {}
+var _thumbs_complete: Dictionary[ModelStateEntry, bool] = {}
 var _animated_assets: Dictionary[String, bool] = {}
 
 func load_state_texture(state: ModelStateEntry) -> ImageTexture:
@@ -30,7 +32,7 @@ func load_texture(path: String) -> ImageTexture:
 	var decoded := ImageUtil.load_texture_with_rect(path)
 	var texture := decoded.texture as ImageTexture
 	if texture != null:
-		_store(path, texture, decoded.used_rect)
+		_store(path, texture, decoded.used_rect, decoded.vram_bytes)
 	return texture
 
 func bounds_of(tex: Texture2D) -> Rect2:
@@ -78,7 +80,7 @@ func _finish_request(path: String, image: Image, used_rect: Rect2i, generation: 
 	var texture: ImageTexture = _cache.get(path)
 	if texture == null and image != null:
 		texture = ImageUtil.create_gpu_texture(image)
-		_store(path, texture, used_rect)
+		_store(path, texture, used_rect, ImageUtil.estimate_vram_bytes(image))
 	for cb: Callable in callbacks:
 		if cb.is_valid():
 			cb.call(texture)
@@ -170,9 +172,13 @@ func request_thumb(path: String) -> void:
 	)
 
 func has_all_thumbs(state: ModelStateEntry) -> bool:
-	for path in _state_frame_paths(state):
+	if _thumbs_complete.get(state, false):
+		return true
+	var paths := _state_frame_paths(state)
+	for path in paths:
 		if not path.is_empty() and not _thumbs.has(path):
 			return false
+	_thumbs_complete[state] = true
 	return true
 
 func snap_start_index(state: ModelStateEntry, reference_tex: Texture2D) -> int:
@@ -230,10 +236,15 @@ func release_texture(path: String) -> void:
 	var texture: ImageTexture = _cache.get(path)
 	if texture == null:
 		return
-	_bytes -= _texture_bytes(texture)
+	_bytes -= _path_bytes.get(path, _texture_bytes(texture))
+	_path_bytes.erase(path)
 	_cache.erase(path)
 	_order.erase(path)
 	_bounds.erase(texture)
+
+func drop_texture(path: String) -> void:
+	if _cache.has(path):
+		_touch(path)
 
 func clear() -> void:
 	_generation += 1
@@ -242,7 +253,9 @@ func clear() -> void:
 	_order.clear()
 	_bounds.clear()
 	_thumbs.clear()
+	_thumbs_complete.clear()
 	_animated_assets.clear()
+	_path_bytes.clear()
 	_bytes = 0
 
 func pending_count() -> int:
@@ -252,25 +265,29 @@ func _touch(path: String) -> void:
 	_order.erase(path)
 	_order.append(path)
 
-func _store(path: String, texture: ImageTexture, used_rect: Rect2i) -> void:
+func _store(path: String, texture: ImageTexture, used_rect: Rect2i, vram_bytes := -1) -> void:
+	var entry_bytes := vram_bytes if vram_bytes >= 0 else _texture_bytes(texture)
 	if _cache.has(path):
-		_bytes -= _texture_bytes(_cache[path])
+		_bytes -= _path_bytes.get(path, _texture_bytes(_cache[path]))
 		_bounds.erase(_cache[path])
 		_cache[path] = texture
 		_touch(path)
 		_bounds[texture] = normalized_bounds(texture, used_rect)
-		_bytes += _texture_bytes(texture)
+		_path_bytes[path] = entry_bytes
+		_bytes += entry_bytes
 		return
 	_cache[path] = texture
 	_order.append(path)
 	_bounds[texture] = normalized_bounds(texture, used_rect)
-	_bytes += _texture_bytes(texture)
+	_path_bytes[path] = entry_bytes
+	_bytes += entry_bytes
 	while _bytes > CACHE_BUDGET_BYTES and _order.size() > 1:
 		var oldest: String = _order.pop_front()
 		var oldest_tex: ImageTexture = _cache[oldest]
-		_bytes -= _texture_bytes(oldest_tex)
+		_bytes -= _path_bytes.get(oldest, _texture_bytes(oldest_tex))
 		_bounds.erase(oldest_tex)
 		_cache.erase(oldest)
+		_path_bytes.erase(oldest)
 
 static func normalized_bounds(texture: Texture2D, used_rect: Rect2i) -> Rect2:
 	var size := texture.get_size()

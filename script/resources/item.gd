@@ -200,7 +200,7 @@ func _release_frames(window: Array[int]) -> void:
 		if window.has(i) or data.Frames[i] == null:
 			continue
 		data.SetFrameTexture(i, null)
-		ModelLoader.textures.release_texture(data.FramePaths[i])
+		ModelLoader.textures.drop_texture(data.FramePaths[i])
 
 func _request_frame(index: int) -> void:
 	if _requested_frames.has(index) or _failed_frames.has(index):
