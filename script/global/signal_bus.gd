@@ -32,6 +32,8 @@ signal twitch_disconnected
 signal twitch_event_received(event_type: StringName, event_data: Dictionary, subscription_reward_id: String)
 signal twitch_reward_revoked(subscription_reward_id: String)
 signal twitch_auth_failed(reason: String)
+signal twitch_token_expired(context: String)
+signal twitch_token_refreshed(success: bool)
 signal twitch_rewards_fetched(rewards: Array)
 
 signal background_type_changed(value: int)

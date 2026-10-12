@@ -1,0 +1,60 @@
+[gd_scene format=3 uid="uid://ccylxyyp567d1"]
+
+[ext_resource type="Script" uid="uid://bpike1hh1gwnt" path="res://script/ui/utils/toast_panel.gd" id="1_toast"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0.1764, 0.1728, 0.18, 0.9647059)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.73, 0.94, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="ToastPanel" type="Control" unique_id=190083450 node_paths=PackedStringArray("stack", "toast_template", "toast_label")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_toast")
+stack = NodePath("Stack")
+toast_template = NodePath("Stack/Template")
+toast_label = NodePath("Stack/Template/Label")
+
+[node name="Stack" type="VBoxContainer" parent="." unique_id=1963541123]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Template" type="PanelContainer" parent="Stack" unique_id=1963541124]
+visible = false
+layout_mode = 2
+size_flags_vertical = 4
+offset_transform_enabled = true
+offset_transform_position = Vector2(0, -80)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
+
+[node name="Label" type="Label" parent="Stack/Template" unique_id=1963541125]
+custom_minimum_size = Vector2(340, 0)
+layout_mode = 2
+text = "Toast"
+horizontal_alignment = 1
+autowrap_mode = 3

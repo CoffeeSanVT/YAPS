@@ -8,7 +8,8 @@
 [ext_resource type="Script" uid="uid://cv2micvi2togb" path="res://script/ui/audio/mic_visualizer.gd" id="5_micviz"]
 [ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="5_tefeu"]
 [ext_resource type="Texture2D" uid="uid://3wo4ud0lgnsh" path="res://assets/icons/runtime/mic/mic_disabled.svg" id="8_tipki"]
-[ext_resource type="PackedScene" uid="uid://bpfovscn7m5t" path="res://prefabs/ui/performance_overlay.tscn" id="9_perfov"]
+[ext_resource type="PackedScene" uid="uid://bpfovscn7m5t" path="res://prefabs/performance_overlay.tscn" id="9_perfov"]
+
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
 content_margin_left = 0.0

@@ -175,6 +175,9 @@ TWITCH_MIN_BITS,Minimum bits,Bits mínimos
 TWITCH_PULSE,Pulse (auto revert),Pulso (voltar sozinho)
 TWITCH_PULSE_DURATION,Duration,Duração
 TWITCH_AUTH_ERROR,Twitch connection failed: %s,Falha na conexão com a Twitch: %s
+TOAST_TOKEN_EXPIRED,Twitch token expired. Attempting to renew...,Token da Twitch expirado. Tentando renovar...
+TOAST_TOKEN_RENEWED,Twitch token renewed successfully.,Token da Twitch renovado com sucesso.
+TOAST_TOKEN_RENEW_FAILED,Twitch token renewal failed. Please log in again.,Falha ao renovar o token da Twitch. Faça login novamente.
 LOADING_CREATING,Creating model,Criando modelo
 LOADING_COPYING_FILES,Copying files,Copiando arquivos
 LOADING_EXTRACTING_FRAMES,Extracting frames,Extraindo quadros

@@ -5,6 +5,7 @@ const TOKEN_FILE_NAME := "twitch_token.dat"
 const KEY_SALT := "yaps/twitch-token/v1"
 const KEY_ACCESS := "access_token"
 const KEY_REFRESH := "refresh_token"
+const KEY_EXPIRES_AT := "expires_at"
 
 # NOTE: this is obfuscation, not protection - anyone with the source and the
 # user profile can recover the tokens. It only prevents casual snooping.
@@ -28,11 +29,12 @@ static func load_tokens() -> Dictionary:
 		return {
 			KEY_ACCESS: String(parsed.get(KEY_ACCESS, "")),
 			KEY_REFRESH: String(parsed.get(KEY_REFRESH, "")),
+			KEY_EXPIRES_AT: float(parsed.get(KEY_EXPIRES_AT, 0.0)),
 		}
 	push_warning(TAG + "invalid token file contents; re-authentication required")
 	return {}
 
-static func save_tokens(access_token: String, refresh_token: String) -> bool:
+static func save_tokens(access_token: String, refresh_token: String, expires_at: float = 0.0) -> bool:
 	if access_token.is_empty():
 		clear_token()
 		return true
@@ -40,7 +42,7 @@ static func save_tokens(access_token: String, refresh_token: String) -> bool:
 	if file == null:
 		push_error(TAG + "could not save tokens: %s" % error_string(FileAccess.get_open_error()))
 		return false
-	file.store_string(JSON.stringify({KEY_ACCESS: access_token, KEY_REFRESH: refresh_token}))
+	file.store_string(JSON.stringify({KEY_ACCESS: access_token, KEY_REFRESH: refresh_token, KEY_EXPIRES_AT: expires_at}))
 	file.close()
 	return true
 

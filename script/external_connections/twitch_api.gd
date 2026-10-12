@@ -1,7 +1,7 @@
 class_name TwitchApi
 extends Node
 
-signal token_expired
+signal token_expired(context: String)
 
 const TAG := "[TwitchApi] "
 const HELIX_API_URL := "https://api.twitch.tv/helix"
@@ -44,6 +44,7 @@ func exchange_authorization_code(code: String, redirect_uri: String, code_verifi
 	_oneshot_request(OAUTH_TOKEN_URL, PackedStringArray(["Content-Type: application/x-www-form-urlencoded"]), HTTPClient.METHOD_POST, body, func(result: int, response_code: int, response_body: PackedByteArray) -> void:
 		var access_token := ""
 		var refresh_token := ""
+		var expires_in := 0.0
 		var error_message := ""
 		if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 			error_message = _request_error_message(result, response_code, response_body)
@@ -52,9 +53,10 @@ func exchange_authorization_code(code: String, redirect_uri: String, code_verifi
 			if json is Dictionary:
 				access_token = String(json.get("access_token", ""))
 				refresh_token = String(json.get("refresh_token", ""))
+				expires_in = float(json.get("expires_in", 0.0))
 			if access_token.is_empty():
 				error_message = "invalid response from token endpoint"
-		on_done.call(access_token, refresh_token, error_message)
+		on_done.call(access_token, refresh_token, expires_in, error_message)
 	)
 
 func refresh_access_token(refresh_token: String, on_done: Callable) -> void:
@@ -65,6 +67,7 @@ func refresh_access_token(refresh_token: String, on_done: Callable) -> void:
 	_oneshot_request(OAUTH_TOKEN_URL, PackedStringArray(["Content-Type: application/x-www-form-urlencoded"]), HTTPClient.METHOD_POST, body, func(result: int, response_code: int, response_body: PackedByteArray) -> void:
 		var access_token := ""
 		var new_refresh := ""
+		var expires_in := 0.0
 		var error_message := ""
 		if result != HTTPRequest.RESULT_SUCCESS or response_code != 200:
 			error_message = _request_error_message(result, response_code, response_body)
@@ -73,9 +76,10 @@ func refresh_access_token(refresh_token: String, on_done: Callable) -> void:
 			if json is Dictionary:
 				access_token = String(json.get("access_token", ""))
 				new_refresh = String(json.get("refresh_token", ""))
+				expires_in = float(json.get("expires_in", 0.0))
 			if access_token.is_empty():
 				error_message = "invalid response from token endpoint"
-		on_done.call(access_token, new_refresh, error_message)
+		on_done.call(access_token, new_refresh, expires_in, error_message)
 	)
 
 func fetch_channel_redeems(user_id: String, on_done: Callable) -> void:
@@ -202,7 +206,7 @@ func _request_failed(result: int, response_code: int, context: String) -> bool:
 
 func _token_expired(context: String) -> void:
 	push_warning(TAG + "access token expired during %s" % context)
-	token_expired.emit()
+	token_expired.emit(context)
 
 func _parse_json(body: PackedByteArray) -> Variant:
 	return JSON.parse_string(body.get_string_from_utf8())

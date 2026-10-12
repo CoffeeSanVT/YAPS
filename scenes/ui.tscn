@@ -22,10 +22,11 @@
 [ext_resource type="Texture2D" uid="uid://dj8725qkcv8r3" path="res://assets/icons/runtime/cog/cog_disabled.svg" id="20_j7qfw"]
 [ext_resource type="Texture2D" uid="uid://cwaefupol4pps" path="res://assets/icons/runtime/cog/cog_focused.svg" id="21_n71uf"]
 [ext_resource type="Script" uid="uid://cd3oo2nwhiff8" path="res://script/ui/tab_switcher.gd" id="22_tabsw"]
-[ext_resource type="PackedScene" uid="uid://3vw0qnsmd224" path="res://prefabs/ui/tabs/assets_tab.tscn" id="TAB_ASSETS"]
-[ext_resource type="PackedScene" uid="uid://bopm7senhpsaj" path="res://prefabs/ui/tabs/settings_tab.tscn" id="TAB_CFG"]
-[ext_resource type="PackedScene" uid="uid://clvm68t5kh57j" path="res://prefabs/ui/tabs/expressions_tab.tscn" id="TAB_EXPR"]
-[ext_resource type="PackedScene" uid="uid://1bybgvhide5i" path="res://prefabs/ui/tabs/model_tab.tscn" id="TAB_MODEL"]
+[ext_resource type="PackedScene" uid="uid://3vw0qnsmd224" path="res://prefabs/tabs/assets_tab.tscn" id="TAB_ASSETS"]
+[ext_resource type="PackedScene" uid="uid://bopm7senhpsaj" path="res://prefabs/tabs/settings_tab.tscn" id="TAB_CFG"]
+[ext_resource type="PackedScene" uid="uid://clvm68t5kh57j" path="res://prefabs/tabs/expressions_tab.tscn" id="TAB_EXPR"]
+[ext_resource type="PackedScene" uid="uid://1bybgvhide5i" path="res://prefabs/tabs/model_tab.tscn" id="TAB_MODEL"]
+[ext_resource type="PackedScene" uid="uid://ccylxyyp567d1" path="res://prefabs/toast_panel.tscn" id="TOAST"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_nt86m"]
 content_margin_left = 12.0
@@ -98,6 +99,9 @@ model_panel = NodePath("../Panels/Model")
 expression_panel = NodePath("../Panels/Expressions")
 assets_panel = NodePath("../Panels/Assets")
 config_panel = NodePath("../Panels/Settings")
+
+[node name="ToastPanel" parent="CanvasLayer" unique_id=2073145628 instance=ExtResource("TOAST")]
+theme = ExtResource("1_ro3t7")
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HTabContainer" unique_id=1418791301]
 layout_mode = 1
