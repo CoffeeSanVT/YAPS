@@ -21,12 +21,23 @@ var _selected_was_dragging := false
 func _ready() -> void:
 	NodeUtil.connect_once(SignalBus, &"model_container_changed", _on_model_container_changed)
 	get_window().files_dropped.connect(_on_files_dropped)
+	NodeUtil.connect_once(get_viewport(), &"size_changed", _on_viewport_resized)
 	_deselect_timer = NodeUtil.ensure_timer(self, _deselect_timer, _on_deselect_timeout, true)
 	_deselect_timer.wait_time = DESELECT_DELAY
 	call_deferred(&"_restore_items")
 
+func _on_viewport_resized() -> void:
+	call_deferred(&"_reapply_item_transforms")
+
+func _reapply_item_transforms() -> void:
+	if ModelLoader.model_loaded == null:
+		return
+	for item in ModelLoader.model_loaded.items:
+		item.apply_transform_to_instance()
+
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"model_container_changed", _on_model_container_changed)
+	NodeUtil.safe_disconnect(get_viewport(), &"size_changed", _on_viewport_resized)
 	DragSession.reset()
 	if ModelLoader.model_loaded == null:
 		return
