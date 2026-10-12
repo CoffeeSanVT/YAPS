@@ -24,8 +24,9 @@
 [ext_resource type="Texture2D" uid="uid://cjqhovjowu24q" path="res://assets/icons/runtime/pause/pause_pressed.svg" id="18_pause_p"]
 [ext_resource type="Texture2D" uid="uid://ctblrynfoj3ag" path="res://assets/icons/runtime/pause/pause_disabled.svg" id="19_pause_d"]
 [ext_resource type="Texture2D" uid="uid://bwsuh60uy3dot" path="res://assets/icons/runtime/pause/pause_focused.svg" id="20_pause_f"]
-[ext_resource type="PackedScene" uid="uid://d1q6ma2vw4h7n" path="res://prefabs/ui/triggers/twitch_event_foldable.tscn" id="21_twitch_foldable"]
+[ext_resource type="PackedScene" uid="uid://d1q6ma2vw4h7n" path="res://prefabs/triggers/twitch_event_foldable.tscn" id="21_twitch_foldable"]
 [ext_resource type="Script" uid="uid://b762yq6ybokpk" path="res://script/ui/panels/item_anim_controls.gd" id="22_anim"]
+
 
 [node name="PanelContainer" type="PanelContainer" unique_id=700000100 node_paths=PackedStringArray("thumbnail", "item_name_label", "enable_toggle", "fixed_toggle", "trigger_option", "trigger_ui", "rename_button", "position_x", "position_y", "scale_value", "rotation_value", "z_value", "anim_controls", "fade_spin", "hide_spin", "twitch_foldable")]
 custom_minimum_size = Vector2(270, 0)

@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cgt1kypress00"]
 
-[ext_resource type="PackedScene" uid="uid://u003cqgfqn24" path="res://prefabs/ui/key_binding_panel.tscn" id="1_kbind"]
+[ext_resource type="PackedScene" uid="uid://u003cqgfqn24" path="res://prefabs/key_binding_panel.tscn" id="1_kbind"]
+
 
 [node name="KeyPressedUI" instance=ExtResource("1_kbind")]
 action_prefix = "state"

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://3vw0qnsmd224"]
 
 [ext_resource type="Script" uid="uid://bh3faxjiydwp2" path="res://script/ui/panels/assets_panel.gd" id="29_mm3ey"]
-[ext_resource type="PackedScene" uid="uid://bdiqeabc2dbms" path="res://prefabs/ui/item_panel.tscn" id="30_k36ej"]
+[ext_resource type="PackedScene" uid="uid://bdiqeabc2dbms" path="res://prefabs/item_panel.tscn" id="30_k36ej"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ajps"]
 content_margin_left = 12.0
@@ -14,7 +14,6 @@ corner_radius_bottom_right = 8
 
 [node name="Assets" type="Panel" unique_id=1830843601 node_paths=PackedStringArray("items_container", "scroll_container")]
 custom_minimum_size = Vector2(360, 0)
-anchors_preset = 9
 anchor_bottom = 1.0
 grow_vertical = 2
 offset_transform_enabled = true

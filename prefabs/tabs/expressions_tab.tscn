@@ -3,11 +3,11 @@
 [ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_pncft"]
 [ext_resource type="Script" uid="uid://cd5iw0vt46vdj" path="res://script/ui/panels/expressions_list.gd" id="2_5en4g"]
 [ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="2_hu0pd"]
-[ext_resource type="PackedScene" uid="uid://vl8c40gjmn12" path="res://prefabs/ui/expression_panel.tscn" id="3_exp"]
+[ext_resource type="PackedScene" uid="uid://vl8c40gjmn12" path="res://prefabs/expression_panel.tscn" id="3_exp"]
 [ext_resource type="Script" uid="uid://q8kwnib4wr1w" path="res://script/ui/panels/state_transition.gd" id="6_sttrn"]
 [ext_resource type="Script" uid="uid://v6ly6ggmv4yd" path="res://script/ui/panels/global_frame_rate.gd" id="8_gfr"]
 [ext_resource type="Script" uid="uid://cp3kvjyxewva3" path="res://script/ui/panels/global_animation_chance.gd" id="9_gac"]
-[ext_resource type="PackedScene" uid="uid://cc7xjj8k2abdq" path="res://prefabs/ui/expressions/branch_container.tscn" id="37_brch"]
+[ext_resource type="PackedScene" uid="uid://cc7xjj8k2abdq" path="res://prefabs/expressions/branch_container.tscn" id="37_brch"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ajps"]
 content_margin_left = 12.0
@@ -20,7 +20,6 @@ corner_radius_bottom_right = 8
 
 [node name="Expressions" type="Panel" unique_id=1333407965 node_paths=PackedStringArray("hflow_container")]
 custom_minimum_size = Vector2(360, 0)
-anchors_preset = 9
 anchor_bottom = 1.0
 grow_vertical = 2
 offset_transform_enabled = true

@@ -3,8 +3,8 @@
 [ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_kmpii"]
 [ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="2_hu0pd"]
 [ext_resource type="Script" uid="uid://cg55oait77i4v" path="res://script/ui/model/position_panel.gd" id="2_ilk7v"]
-[ext_resource type="PackedScene" uid="uid://twgitjdha3g2" path="res://prefabs/ui/add_emotion_dialog.tscn" id="3_addemo"]
-[ext_resource type="PackedScene" uid="uid://br7lir8qldm5a" path="res://prefabs/ui/emotion_panel.tscn" id="3_emo"]
+[ext_resource type="PackedScene" uid="uid://twgitjdha3g2" path="res://prefabs/add_emotion_dialog.tscn" id="3_addemo"]
+[ext_resource type="PackedScene" uid="uid://br7lir8qldm5a" path="res://prefabs/emotion_panel.tscn" id="3_emo"]
 [ext_resource type="Script" uid="uid://bmixt2wle4041" path="res://script/ui/model/scale_panel.gd" id="3_flkkw"]
 [ext_resource type="Script" uid="uid://0yxvn3sw765j" path="res://script/ui/model/rotation_panel.gd" id="4_mhjpf"]
 [ext_resource type="Script" uid="uid://dfall0gjj6r0n" path="res://script/ui/panels/effects_panel.gd" id="12_effpanel"]
@@ -49,7 +49,6 @@ corner_radius_bottom_left = 8
 [node name="Model" type="Panel" unique_id=988982424]
 custom_minimum_size = Vector2(360, 0)
 clip_contents = true
-anchors_preset = 9
 anchor_bottom = 1.0
 grow_vertical = 2
 offset_transform_enabled = true
