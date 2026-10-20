@@ -259,7 +259,8 @@ func _matching_remote_id(sub: Dictionary, remote_subs: Array) -> String:
 		if String(transport.get("method", "")) != "websocket":
 			continue
 		var condition: Dictionary = remote_dict.get("condition", {})
-		if String(condition.get("broadcaster_user_id", "")) != broadcaster_id:
+		var condition_key := &"to_broadcaster_user_id" if event_type == &"raid" else &"broadcaster_user_id"
+		if String(condition.get(condition_key, "")) != broadcaster_id:
 			continue
 		if event_type == &"channel_points" and String(condition.get("reward_id", "")) != reward_id:
 			continue
@@ -380,6 +381,8 @@ func _subscription_body(event_type: StringName, reward_id: String) -> Dictionary
 	if event_type == &"follow":
 		version = "2"
 		condition["moderator_user_id"] = broadcaster_id
+	elif event_type == &"raid":
+		condition = {"to_broadcaster_user_id": broadcaster_id}
 	elif event_type == &"channel_points" and not reward_id.is_empty():
 		condition["reward_id"] = reward_id
 	return {
