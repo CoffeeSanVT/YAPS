@@ -59,7 +59,10 @@ class DeferredSaver:
 		if resource == null:
 			push_error(TAG + "cannot save null resource to " + path)
 			return
+		var original_path: String = resource.resource_path
+		resource.resource_path = ""
 		var snapshot: Resource = resource.duplicate(true)
+		resource.resource_path = original_path
 		schedule(func() -> Error:
 			if not ensure_dir.is_empty():
 				var dir_err := PathUtil.ensure_dir(ensure_dir)
