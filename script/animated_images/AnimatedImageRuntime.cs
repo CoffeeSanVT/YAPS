@@ -44,22 +44,10 @@ public partial class AnimatedImageRuntime : RefCounted
 		return string.Empty;
 	}
 
-	public static AnimatedImageData LoadFrames(string filePath, bool compressTextures = false)
-	{
-		EnsureInitialized();
-		return ToAnimatedImageData(DecodeGuarded(filePath, () => FfmpegDecoder.DecodeFile(filePath, MaxFrames)), compressTextures);
-	}
-
 	public static Godot.Collections.Dictionary LoadFirstFrameData(string filePath, bool compressTextures = false)
 	{
 		EnsureInitialized();
 		return ToFirstFrameData(DecodeGuarded(filePath, () => FfmpegDecoder.DecodeFirstFrame(filePath)), compressTextures);
-	}
-
-	public static ExtractedFramesData ExtractFrameImages(string filePath)
-	{
-		EnsureInitialized();
-		return ToExtractedFrames(DecodeGuarded(filePath, () => FfmpegDecoder.DecodeFile(filePath, MaxFrames)));
 	}
 
 	public static ExtractedFrameFilesData ExtractFrameFiles(string filePath, string destFolder, string fileBase)
@@ -87,30 +75,6 @@ public partial class AnimatedImageRuntime : RefCounted
 			GD.PushError($"{Tag}exception decoding '{filePath}': {err.Message}\n{err.StackTrace}");
 			return null;
 		}
-	}
-
-	private static AnimatedImageData ToAnimatedImageData(FrameBatch batch, bool compressTextures)
-	{
-		if (batch == null || batch.Count <= 1)
-			return null;
-
-		var textures = new Texture2D[batch.Count];
-		Rect2I union = UnionOfUsedRects(batch.Frames);
-
-		for (int i = 0; i < batch.Count; i++)
-		{
-			Image image = batch.Frames[i];
-			if (compressTextures)
-				CompressTexture(image);
-			textures[i] = ImageTexture.CreateFromImage(image);
-		}
-
-		return new AnimatedImageData
-		{
-			Frames = textures,
-			Durations = batch.Durations.ToArray(),
-			UnionRect = union
-		};
 	}
 
 	public static bool EncodeBc(Image image)
@@ -309,36 +273,6 @@ public partial class AnimatedImageRuntime : RefCounted
 			["texture"] = ImageTexture.CreateFromImage(image),
 			["used_rect"] = usedRect
 		};
-	}
-
-	private static ExtractedFramesData ToExtractedFrames(FrameBatch batch)
-	{
-		if (batch == null || batch.Count <= 1)
-			return null;
-
-		return new ExtractedFramesData
-		{
-			Images = batch.Frames.ToArray(),
-			Durations = batch.Durations.ToArray(),
-			UnionRect = UnionOfUsedRects(batch.Frames)
-		};
-	}
-
-	private static Rect2I UnionOfUsedRects(System.Collections.Generic.IReadOnlyList<Image> images)
-	{
-		Rect2I union = new();
-		bool any = false;
-
-		foreach (Image image in images)
-		{
-			Rect2I rect = image.GetUsedRect();
-			if (rect.Size.X <= 0 || rect.Size.Y <= 0)
-				continue;
-			union = any ? union.Merge(rect) : rect;
-			any = true;
-		}
-
-		return any ? union : new Rect2I();
 	}
 
 	public static AnimatedImagePlayer AttachPlayer(AnimatedImageData data, TextureRect target)

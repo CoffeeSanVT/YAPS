@@ -4,6 +4,7 @@ extends RefCounted
 const TAG := "[ItemAnimationDecoder] "
 const FRAMES_DIR_SUFFIX := "_frames"
 const META_FILE := "meta.json"
+const DECODER_VERSION := 3
 
 var _scheduled := false
 var _on_decoded: Callable
@@ -61,6 +62,7 @@ func _extract_sync(asset_path: String, source_override: String) -> Dictionary:
 	if source_file != null:
 		source_file.close()
 	var meta := {
+		"version": DECODER_VERSION,
 		"files": files,
 		"durations": durations,
 		"union": [union.position.x, union.position.y, union.size.x, union.size.y],
@@ -85,6 +87,8 @@ func _load_meta(folder_res: String, folder_fs: String, source_path: String) -> D
 	var durations: Array = parsed.get("durations", [])
 	var union_values: Array = parsed.get("union", [])
 	var source_size: int = int(parsed.get("source_size", -1))
+	if int(parsed.get("version", 1)) != DECODER_VERSION:
+		return {}
 	var source_file := FileAccess.open(source_path, FileAccess.READ)
 	var current_size := source_file.get_length() if source_file != null else -2
 	if source_file != null:

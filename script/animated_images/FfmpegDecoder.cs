@@ -11,6 +11,7 @@ using System.Text.RegularExpressions;
 internal static class FfmpegDecoder
 {
 	private const string FrameFilePattern = "frame_%05d.webp";
+	private const string CodecArgs = "-lossless 1 -pix_fmt yuva420p";
 	private const float MaxFrameDuration = 5.0f;
 	private const float FallbackFrameDuration = 0.1f;
 
@@ -18,27 +19,27 @@ internal static class FfmpegDecoder
 		@"n:\s*\d+\s+pts:\s*\d+\s+pts_time:\S+(?:\s+duration:\s*\d+\s+duration_time:(\S+))?",
 		RegexOptions.Compiled);
 
-	internal static FrameBatch DecodeFile(string filePath, int maxFrames)
+	internal static Image DecodeFirstFrame(string filePath)
 	{
 		string tempDir = CreateTempDirectory();
 		try
 		{
-			List<float> durations = new();
-			if (!DumpFrames(filePath, Path.Combine(tempDir, FrameFilePattern), maxFrames, durations))
+			if (!DumpFrames(filePath, Path.Combine(tempDir, FrameFilePattern), 1, null))
 			{
 				GD.PushError($"{AnimatedImageRuntime.Tag}ffmpeg decoding failed: {filePath}");
 				return null;
 			}
-			return LoadFrameBatch(tempDir, durations);
+
+			string frame = Directory.EnumerateFiles(tempDir, "frame_*.webp")
+				.OrderBy(f => f, StringComparer.Ordinal)
+				.FirstOrDefault();
+			return frame == null ? null : Image.LoadFromFile(frame);
 		}
 		finally
 		{
 			TryDeleteDirectory(tempDir);
 		}
 	}
-
-	internal static Image DecodeFirstFrame(string filePath)
-		=> DecodeFile(filePath, 1)?.Frames.FirstOrDefault();
 
 	internal static ExtractedFrameFilesData ExtractFramesToFolder(string filePath, string destFolder, string fileBase, int maxFrames)
 	{
@@ -67,40 +68,63 @@ internal static class FfmpegDecoder
 
 	private static bool DumpFrames(string filePath, string outputPattern, int maxFrames, List<float> durations)
 	{
+		string decoderArgs = ResolveInputDecoderArgs(filePath);
+		string frameArgs = durations == null
+			? CodecArgs
+			: $"{CodecArgs} -vf showinfo -fps_mode passthrough";
 		return FFMpegArguments
-			.FromFileInput(filePath)
+			.FromFileInput(filePath, false, options =>
+			{
+				if (decoderArgs.Length > 0)
+					options.WithCustomArgument(decoderArgs);
+			})
 			.OutputToFile(outputPattern, true, options => options
 				.DisableChannel(Channel.Audio)
 				.WithFrameOutputCount(maxFrames)
 				.WithVideoCodec("libwebp")
-				.WithCustomArgument($"-vf showinfo -fps_mode passthrough"))
+				.WithCustomArgument(frameArgs))
 			.WithLogLevel(FFMpegLogLevel.Info)
 			.NotifyOnError(line => CollectFrameDuration(line, durations))
 			.ProcessSynchronously(false);
 	}
 
-	private static FrameBatch LoadFrameBatch(string tempDir, List<float> durations)
+	private static string ResolveInputDecoderArgs(string filePath)
 	{
-		FrameBatch batch = new();
-		foreach (string file in Directory.EnumerateFiles(tempDir, "frame_*.webp").OrderBy(f => f, StringComparer.Ordinal))
+		if (!filePath.EndsWith(".webm", StringComparison.OrdinalIgnoreCase))
+			return string.Empty;
+		return FindWebmCodecId(filePath) switch
 		{
-			Image image = Image.LoadFromFile(file);
+			"V_VP9" => "-c:v libvpx-vp9",
+			"V_VP8" => "-c:v libvpx",
+			_ => string.Empty
+		};
+	}
 
-			if (image == null)
-			{
-				GD.PushWarning($"{AnimatedImageRuntime.Tag}failed to load frame image: {file}");
-				continue;
-			}
-
-			batch.Frames.Add(image);
-			batch.Durations.Add(GetDuration(batch.Count - 1, durations));
+	private static string FindWebmCodecId(string filePath)
+	{
+		try
+		{
+			using FileStream stream = File.OpenRead(filePath);
+			Span<byte> buffer = new byte[1 << 18];
+			int read = stream.Read(buffer);
+			string head = System.Text.Encoding.ASCII.GetString(buffer[..read]);
+			if (head.Contains("V_VP9", StringComparison.Ordinal))
+				return "V_VP9";
+			if (head.Contains("V_VP8", StringComparison.Ordinal))
+				return "V_VP8";
 		}
-
-		return batch;
+		catch (Exception err)
+		{
+			GD.PushWarning($"{AnimatedImageRuntime.Tag}could not inspect webm codec id: {err.Message}");
+		}
+		return string.Empty;
 	}
 
 	private static void CollectFrameDuration(string line, List<float> durations)
 	{
+		if (durations == null)
+			return;
+
 		Match match = ShowInfoRegex.Match(line);
 
 		if (!match.Success)
@@ -115,9 +139,6 @@ internal static class FfmpegDecoder
 
 		durations.Add(duration);
 	}
-
-	private static float GetDuration(int index, List<float> durations)
-		=> index < durations.Count ? durations[index] : FallbackFrameDuration;
 
 	private static string CreateTempDirectory()
 	{
