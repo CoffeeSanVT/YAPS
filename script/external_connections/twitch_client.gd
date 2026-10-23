@@ -51,7 +51,13 @@ func _ready() -> void:
 		user_id = Settings.settings.twitch_user_id
 		state = ConnectionState.AUTHENTICATING
 		var remaining := _token_expires_at - Time.get_unix_time_from_system()
-		if remaining > 0.0:
+		var has_refresh := not _refresh_token.is_empty()
+		if has_refresh and remaining <= REFRESH_MARGIN_SEC:
+			_refreshing = true
+			print(TAG + "saved access token expired or expiring soon; refreshing at startup")
+			_api.refresh_access_token(_refresh_token, _on_token_refreshed)
+			return
+		if has_refresh and remaining > 0.0:
 			_schedule_proactive_refresh(remaining - REFRESH_MARGIN_SEC)
 		_api.validate_token(_on_token_validated)
 
@@ -84,6 +90,9 @@ func disconnect_twitch() -> void:
 	TwitchTokenStore.clear_token()
 	SignalBus.twitch_disconnected.emit()
 	print(TAG + "disconnected")
+
+func is_refresh_in_progress() -> bool:
+	return _refreshing
 
 func fetch_channel_redeems() -> void:
 	if state != ConnectionState.CONNECTED or user_id.is_empty():
@@ -143,6 +152,9 @@ func _on_auth_page_failed(reason: String) -> void:
 
 func _on_token_validated(validated_user_id: String, validated_username: String) -> void:
 	if validated_user_id.is_empty():
+		if _refreshing:
+			print(TAG + "token validation failed while a refresh is in progress; waiting for refresh result")
+			return
 		state = ConnectionState.DISCONNECTED
 		push_warning(TAG + "token validation returned no user id")
 		TwitchTokenStore.clear_token()

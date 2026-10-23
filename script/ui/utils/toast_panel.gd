@@ -25,6 +25,8 @@ func _ready() -> void:
 		toast_template.visible = false
 	SignalBus.twitch_token_expired.connect(_on_twitch_token_expired)
 	SignalBus.twitch_token_refreshed.connect(_on_twitch_token_refreshed)
+	if TwitchClient.is_refresh_in_progress():
+		show_toast(tr(&"TOAST_TOKEN_EXPIRED"), Kind.WARNING)
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"twitch_token_expired", _on_twitch_token_expired)
