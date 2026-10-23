@@ -172,8 +172,6 @@ TWITCH_REWARD_NONE,None (no reaction),Nenhum (sem reação)
 TWITCH_REFRESH_REWARDS,Refresh Rewards,Atualizar Recompensas
 TWITCH_REWARDS_COUNT,Channel points rewards: %d,Recompensas de pontos do canal: %d
 TWITCH_MIN_BITS,Minimum bits,Bits mínimos
-TWITCH_PULSE,Pulse (auto revert),Pulso (voltar sozinho)
-TWITCH_PULSE_DURATION,Duration,Duração
 TWITCH_AUTH_ERROR,Twitch connection failed: %s,Falha na conexão com a Twitch: %s
 TOAST_TOKEN_EXPIRED,Twitch token expired. Attempting to renew...,Token da Twitch expirado. Tentando renovar...
 TOAST_TOKEN_RENEWED,Twitch token renewed successfully.,Token da Twitch renovado com sucesso.

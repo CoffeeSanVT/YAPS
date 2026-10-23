@@ -27,12 +27,8 @@ static func event_ids() -> Array[StringName]:
 @export var reward_id: String = ""
 @export var reward_name: String = ""
 @export var min_bits: int = 0
-@export_group("Pulse")
-@export var pulse_mode: bool = false
-@export var pulse_duration: float = 3.0
 
 var _active: bool = false
-var _pulse_end_msec: int = 0
 var _last_subscribed_type: StringName = &""
 var _last_subscribed_reward: String = ""
 
@@ -109,9 +105,6 @@ func _on_twitch_event(type: StringName, data: Dictionary, sub_reward_id: String)
 	if event_type == &"bits" and min_bits > 0:
 		if int(data.get("bits", 0)) < min_bits:
 			return
-	if pulse_mode:
-		_trigger_pulse()
-		return
 	set_enabled(not enabled)
 
 func _on_twitch_connected(_username: String) -> void:
@@ -130,23 +123,6 @@ func _on_reward_revoked(sub_reward_id: String) -> void:
 	reward_name = ""
 	refresh_subscription()
 	reward_invalidated.emit(self)
-
-func tick(_delta: float, _current_state: ModelStateEntry) -> void:
-	if not pulse_mode or not enabled:
-		return
-	if Time.get_ticks_msec() < _pulse_end_msec:
-		return
-	_pulse_end_msec = 0
-	set_enabled(false)
-
-func _trigger_pulse() -> void:
-	_pulse_end_msec = int(Time.get_ticks_msec()) + int(maxf(pulse_duration, 0.05) * 1000.0)
-	set_enabled(true)
-
-func cancel_pulse() -> void:
-	_pulse_end_msec = 0
-	if enabled:
-		set_enabled(false)
 
 static func localize_event_type(id: StringName) -> String:
 	var key := "TWITCH_EVENT_" + String(id).to_upper()

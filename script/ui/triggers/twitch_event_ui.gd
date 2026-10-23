@@ -9,9 +9,6 @@ const TAG := "[TwitchEventUI] "
 @export var reward_option: OptionButton
 @export var bits_row: HBoxContainer
 @export var bits_spinbox: SpinBox
-@export var pulse_check: CheckButton
-@export var pulse_duration_row: HBoxContainer
-@export var pulse_duration_spinbox: SpinBox
 
 var _trigger: TwitchEvent
 var _loading: bool = false
@@ -21,8 +18,6 @@ func _ready() -> void:
 	event_option.item_selected.connect(_on_event_selected)
 	reward_option.item_selected.connect(_on_reward_selected)
 	bits_spinbox.value_changed.connect(_on_bits_changed)
-	pulse_check.toggled.connect(_on_pulse_toggled)
-	pulse_duration_spinbox.value_changed.connect(_on_pulse_duration_changed)
 	NodeUtil.attach_locale(self, _on_locale_change)
 	SignalBus.twitch_connected.connect(_on_connection_changed)
 	SignalBus.twitch_disconnected.connect(_on_connection_changed)
@@ -110,21 +105,6 @@ func _on_bits_changed(value: float) -> void:
 	_trigger.min_bits = int(value)
 	ModelLoader.save_model()
 
-func _on_pulse_toggled(pressed: bool) -> void:
-	if _loading or _trigger == null:
-		return
-	_trigger.pulse_mode = pressed
-	if not pressed:
-		_trigger.cancel_pulse()
-	_update_pulse_duration_row_visible()
-	ModelLoader.save_model()
-
-func _on_pulse_duration_changed(value: float) -> void:
-	if _loading or _trigger == null:
-		return
-	_trigger.pulse_duration = value
-	ModelLoader.save_model()
-
 func _on_locale_change() -> void:
 	var event_index := event_option.selected
 	_populate_event_options()
@@ -144,12 +124,9 @@ func setup(trigger: TwitchEvent) -> void:
 	if event_index >= 0:
 		event_option.select(event_index)
 	bits_spinbox.value = trigger.min_bits
-	pulse_check.set_pressed_no_signal(trigger.pulse_mode)
-	pulse_duration_spinbox.set_value_no_signal(trigger.pulse_duration)
 	_reload_rewards()
 	_update_reward_row_visible()
 	_update_bits_row_visible()
-	_update_pulse_duration_row_visible()
 	_loading = false
 
 func _on_event_selected(index: int) -> void:
@@ -170,8 +147,3 @@ func _update_bits_row_visible() -> void:
 	if bits_row == null:
 		return
 	bits_row.visible = _trigger != null and _trigger.event_type == &"bits"
-
-func _update_pulse_duration_row_visible() -> void:
-	if pulse_duration_row == null:
-		return
-	pulse_duration_row.visible = _trigger != null and _trigger.pulse_mode
