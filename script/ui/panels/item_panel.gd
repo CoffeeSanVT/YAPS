@@ -96,7 +96,9 @@ func _refresh_fade_and_hide_options() -> void:
 func _settings_trigger() -> BaseTrigger:
 	if item == null:
 		return null
-	return item.state_trigger if item.state_trigger != null else item.twitch_event
+	if item.state_trigger != null and item.state_trigger.trigger_name != &"":
+		return item.state_trigger
+	return item.twitch_event
 
 func _on_fade_duration_changed(value: float) -> void:
 	var trigger := _settings_trigger()
@@ -160,6 +162,7 @@ func _on_twitch_event_changed(twitch_event: TwitchEvent) -> void:
 	if item == null:
 		return
 	item.set_twitch_event(twitch_event)
+	_refresh_fade_and_hide_options()
 	commit()
 	changed.emit(item)
 

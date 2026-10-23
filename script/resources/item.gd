@@ -263,6 +263,7 @@ func get_animation_player() -> AnimatedImagePlayer:
 func set_enabled(value: bool) -> void:
 	if value:
 		if enabled and not _fading_out:
+			_restart_auto_hide_timer()
 			return
 		_fading_out = false
 		enabled = true
@@ -304,7 +305,13 @@ func update_auto_hide_timer() -> void:
 	_auto_hide_timer.start()
 
 func _settings_trigger() -> BaseTrigger:
-	return state_trigger if state_trigger != null else twitch_event
+	if state_trigger != null and state_trigger.trigger_name != &"":
+		return state_trigger
+	return twitch_event
+
+func _restart_auto_hide_timer() -> void:
+	if _auto_hide_timer != null:
+		_auto_hide_timer.start()
 
 func _clear_auto_hide_timer() -> void:
 	_auto_hide_timer = NodeUtil.free_timer(_auto_hide_timer)
@@ -382,8 +389,17 @@ func destroy() -> void:
 	instance = null
 
 func _on_trigger_enabled_changed(trigger: BaseTrigger) -> void:
+	if _should_defer_twitch_hide(trigger):
+		return
 	set_enabled(trigger.enabled)
 	schedule_save()
+
+func _should_defer_twitch_hide(trigger: BaseTrigger) -> bool:
+	var twitch := trigger as TwitchEvent
+	if twitch == null or twitch != twitch_event or twitch.enabled:
+		return false
+	var settings := _settings_trigger()
+	return settings != null and settings.auto_hide_after > 0.0 and enabled and not _fading_out
 
 func schedule_save() -> void:
 	ModelLoader.save_model()
