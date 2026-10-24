@@ -1,6 +1,7 @@
 using Godot;
 using FFMpegCore;
 using System;
+using System.Threading;
 
 [GlobalClass]
 public partial class AnimatedImageRuntime : RefCounted
@@ -44,19 +45,36 @@ public partial class AnimatedImageRuntime : RefCounted
 		return string.Empty;
 	}
 
-	public static Godot.Collections.Dictionary LoadFirstFrameData(string filePath, bool compressTextures = false)
+	// NOTE: optional C# parameters are not optional when called from GDScript
+	// (all arguments become required there), so every caller must pass maxWidth.
+	public static Godot.Collections.Dictionary LoadFirstFrameData(string filePath, bool compressTextures, int maxWidth)
 	{
 		EnsureInitialized();
-		return ToFirstFrameData(DecodeGuarded(filePath, () => FfmpegDecoder.DecodeFirstFrame(filePath)), compressTextures);
+		return ToFirstFrameData(DecodeGuarded(filePath, token => FfmpegDecoder.DecodeFirstFrame(filePath, token, maxWidth)), compressTextures);
 	}
 
-	public static ExtractedFrameFilesData ExtractFrameFiles(string filePath, string destFolder, string fileBase)
+	public static ExtractedFrameFilesData ExtractFrameFiles(string filePath, string destFolder, string fileBase, int maxWidth)
 	{
 		EnsureInitialized();
-		return DecodeGuarded(filePath, () => FfmpegDecoder.ExtractFramesToFolder(filePath, destFolder, fileBase, MaxFrames));
+		return DecodeGuarded(filePath, token => FfmpegDecoder.ExtractFramesToFolder(filePath, destFolder, fileBase, MaxFrames, token, maxWidth));
 	}
 
-	private static T DecodeGuarded<T>(string filePath, Func<T> decode) where T : class
+	/// <summary>
+	/// Kills any running ffmpeg decode whose source file path matches.
+	/// The path must match the one previously handed to ExtractFrameFiles.
+	/// </summary>
+	public static void CancelExtraction(string filePath)
+	{
+		FfmpegDecoder.CancelScope(filePath);
+	}
+
+	/// <summary>Used on app shutdown so no ffmpeg decode can block exiting.</summary>
+	public static void CancelAllExtractions()
+	{
+		FfmpegDecoder.CancelAllScopes();
+	}
+
+	private static T DecodeGuarded<T>(string filePath, Func<CancellationToken, T> decode) where T : class
 	{
 		if (string.IsNullOrEmpty(filePath))
 			return null;
@@ -66,14 +84,24 @@ public partial class AnimatedImageRuntime : RefCounted
 			GD.PushError($"{Tag}file not found: '{filePath}'");
 			return null;
 		}
+		var cts = FfmpegDecoder.BeginCancelScope(filePath);
 		try
 		{
-			return decode();
+			return decode(cts.Token);
 		}
 		catch (Exception err)
 		{
+			if (cts.IsCancellationRequested)
+			{
+				GD.PushWarning($"{Tag}decoding cancelled: '{filePath}'");
+				return null;
+			}
 			GD.PushError($"{Tag}exception decoding '{filePath}': {err.Message}\n{err.StackTrace}");
 			return null;
+		}
+		finally
+		{
+			FfmpegDecoder.EndCancelScope(filePath, cts);
 		}
 	}
 

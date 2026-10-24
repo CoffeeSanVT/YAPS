@@ -7,24 +7,31 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 internal static class FfmpegDecoder
 {
 	private const string FrameFilePattern = "frame_%05d.webp";
-	private const string CodecArgs = "-lossless 1 -pix_fmt yuva420p";
+	// Lossy VP8 at high quality: visually indistinguishable for sticker-sized
+	// playback but orders of magnitude faster to encode than lossless VP8L
+	// (which cost ~10min on 256 full-res frames).
+	private const string CodecArgs = "-lossless 0 -q:v 90 -pix_fmt yuva420p";
 	private const float MaxFrameDuration = 5.0f;
 	private const float FallbackFrameDuration = 0.1f;
+
+	private static readonly object _cancelLock = new();
+	private static readonly Dictionary<string, List<CancellationTokenSource>> _cancelScopes = new();
 
 	private static readonly Regex ShowInfoRegex = new(
 		@"n:\s*\d+\s+pts:\s*\d+\s+pts_time:\S+(?:\s+duration:\s*\d+\s+duration_time:(\S+))?",
 		RegexOptions.Compiled);
 
-	internal static Image DecodeFirstFrame(string filePath)
+	internal static Image DecodeFirstFrame(string filePath, CancellationToken token, int maxWidth = 0)
 	{
 		string tempDir = CreateTempDirectory();
 		try
 		{
-			if (!DumpFrames(filePath, Path.Combine(tempDir, FrameFilePattern), 1, null))
+			if (!DumpFrames(filePath, Path.Combine(tempDir, FrameFilePattern), 1, null, token, maxWidth))
 			{
 				GD.PushError($"{AnimatedImageRuntime.Tag}ffmpeg decoding failed: {filePath}");
 				return null;
@@ -41,12 +48,13 @@ internal static class FfmpegDecoder
 		}
 	}
 
-	internal static ExtractedFrameFilesData ExtractFramesToFolder(string filePath, string destFolder, string fileBase, int maxFrames)
+	internal static ExtractedFrameFilesData ExtractFramesToFolder(string filePath, string destFolder, string fileBase, int maxFrames, CancellationToken token, int maxWidth = 0)
 	{
 		List<float> durations = new();
-		if (!DumpFrames(filePath, Path.Combine(destFolder, $"{fileBase}_%03d.webp"), maxFrames, durations))
+		if (!DumpFrames(filePath, Path.Combine(destFolder, $"{fileBase}_%03d.webp"), maxFrames, durations, token, maxWidth))
 		{
-			GD.PushError($"{AnimatedImageRuntime.Tag}ffmpeg frame extraction failed: {filePath}");
+			if (!token.IsCancellationRequested)
+				GD.PushError($"{AnimatedImageRuntime.Tag}ffmpeg frame extraction failed: {filePath}");
 			return null;
 		}
 
@@ -66,12 +74,20 @@ internal static class FfmpegDecoder
 		};
 	}
 
-	private static bool DumpFrames(string filePath, string outputPattern, int maxFrames, List<float> durations)
+	private static bool DumpFrames(string filePath, string outputPattern, int maxFrames, List<float> durations, CancellationToken token, int maxWidth)
 	{
 		string decoderArgs = ResolveInputDecoderArgs(filePath);
-		string frameArgs = durations == null
-			? CodecArgs
-			: $"{CodecArgs} -vf showinfo -fps_mode passthrough";
+		// maxWidth > 0 caps output resolution (item frames are never displayed
+		// larger than Item.MAX_IMAGE_SIZE); 0 keeps the source resolution.
+		string scaleFilter = maxWidth > 0 ? $"scale='min({maxWidth},iw)':-2" : string.Empty;
+		string frameArgs;
+		if (durations == null)
+			frameArgs = scaleFilter.Length > 0 ? $"{CodecArgs} -vf {scaleFilter}" : CodecArgs;
+		else
+		{
+			string filters = scaleFilter.Length > 0 ? $"{scaleFilter},showinfo" : "showinfo";
+			frameArgs = $"{CodecArgs} -vf {filters} -fps_mode passthrough";
+		}
 		return FFMpegArguments
 			.FromFileInput(filePath, false, options =>
 			{
@@ -85,6 +101,7 @@ internal static class FfmpegDecoder
 				.WithCustomArgument(frameArgs))
 			.WithLogLevel(FFMpegLogLevel.Info)
 			.NotifyOnError(line => CollectFrameDuration(line, durations))
+			.CancellableThrough(token)
 			.ProcessSynchronously(false);
 	}
 
@@ -157,6 +174,53 @@ internal static class FfmpegDecoder
 		catch (Exception err)
 		{
 			GD.PushError($"{AnimatedImageRuntime.Tag}{err}");
+		}
+	}
+
+	internal static CancellationTokenSource BeginCancelScope(string filePath)
+	{
+		var cts = new CancellationTokenSource();
+		lock (_cancelLock)
+		{
+			if (!_cancelScopes.TryGetValue(filePath, out var scopes))
+				_cancelScopes[filePath] = scopes = new List<CancellationTokenSource>();
+			scopes.Add(cts);
+		}
+		return cts;
+	}
+
+	internal static void EndCancelScope(string filePath, CancellationTokenSource cts)
+	{
+		lock (_cancelLock)
+		{
+			if (!_cancelScopes.TryGetValue(filePath, out var scopes))
+				return;
+			scopes.Remove(cts);
+			if (scopes.Count == 0)
+				_cancelScopes.Remove(filePath);
+		}
+	}
+
+	internal static void CancelScope(string filePath)
+	{
+		if (string.IsNullOrEmpty(filePath))
+			return;
+		lock (_cancelLock)
+		{
+			if (!_cancelScopes.TryGetValue(filePath, out var scopes))
+				return;
+			foreach (CancellationTokenSource cts in scopes)
+				cts.Cancel();
+		}
+	}
+
+	internal static void CancelAllScopes()
+	{
+		lock (_cancelLock)
+		{
+			foreach (List<CancellationTokenSource> scopes in _cancelScopes.Values)
+				foreach (CancellationTokenSource cts in scopes)
+					cts.Cancel();
 		}
 	}
 }

@@ -63,11 +63,13 @@ func _prewarm_textures() -> void:
 		for entry in branch.all_entries():
 			if not entry.asset_path.is_empty() and not seen.has(entry.asset_path):
 				seen[entry.asset_path] = true
+				ModelLoader.textures.pin_path(entry.asset_path)
 				if _is_static_image(entry.asset_path):
 					ModelLoader.textures.request_texture(entry.asset_path, Callable())
 					ModelLoader.textures.request_thumb(entry.asset_path)
 			if entry.frames.is_empty():
 				continue
+			ModelLoader.textures.pin_path(entry.frames[0])
 			ModelLoader.textures.request_texture(entry.frames[0], Callable())
 			for frame_path in entry.frames:
 				if frame_path.is_empty() or seen.has(frame_path):
@@ -78,7 +80,7 @@ func _prewarm_textures() -> void:
 static func _is_static_image(path: String) -> bool:
 	return path.get_extension().to_lower() in STATIC_EXTENSIONS
 
-func _on_state_changed(previous: ModelStateEntry, current: ModelStateEntry) -> void:
+func _on_state_changed(_previous: ModelStateEntry, current: ModelStateEntry) -> void:
 	if current == null:
 		push_warning(TAG + "State changed to null; ignoring.")
 		return
@@ -86,21 +88,17 @@ func _on_state_changed(previous: ModelStateEntry, current: ModelStateEntry) -> v
 	if next_tex == null:
 		push_warning(TAG + "Failed to load texture for state: " + current.state_name)
 		return
-	if previous != null:
-		_deactivate_all_effects()
 	_view.show_state(next_tex, current, ModelLoader.model_loaded.state_transition_duration)
 	_refresh_effects()
 
-func _deactivate_all_effects() -> void:
+func _activate_effects(effects: Array[BaseEffect], restart := false) -> void:
 	for effect: BaseEffect in _active_effects:
-		effect.deactivate()
-	_active_effects = []
-
-func _activate_effects(effects: Array[BaseEffect]) -> void:
-	_deactivate_all_effects()
+		if restart or not effects.has(effect):
+			effect.deactivate()
+	for effect: BaseEffect in effects:
+		if restart or not _active_effects.has(effect):
+			effect.activate(_view.model_render)
 	_active_effects = effects.duplicate()
-	for effect: BaseEffect in _active_effects:
-		effect.activate(_view.model_render)
 
 func _refresh_effects(force := false) -> void:
 	if _machine == null or _machine.current_entry == null:
@@ -108,7 +106,7 @@ func _refresh_effects(force := false) -> void:
 	var effects := EffectLayerResolver.resolve(_machine)
 	if not force and _same_effects(effects):
 		return
-	_activate_effects(effects)
+	_activate_effects(effects, force)
 
 func _on_effects_changed() -> void:
 	_refresh_effects(true)

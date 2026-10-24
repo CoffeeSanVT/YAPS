@@ -32,6 +32,7 @@ func _ready() -> void:
 	add_child(ModelWsApi.new(self))
 
 func _exit_tree() -> void:
+	AnimatedImageRuntime.CancelAllExtractions()
 	IoService.wait_for_io()
 
 func reload_textures() -> void:

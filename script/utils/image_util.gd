@@ -35,6 +35,22 @@ static func ensure_mipmaps(image: Image) -> void:
 		return
 	image.generate_mipmaps()
 
+## Downscales image in place so it never exceeds max_size on either axis
+## (keeping aspect ratio). max_size == Vector2.ZERO means no cap.
+static func fit_image(image: Image, max_size: Vector2) -> void:
+	if image == null or image.is_empty() or max_size.x <= 0.0 or max_size.y <= 0.0:
+		return
+	var size := Vector2(image.get_width(), image.get_height())
+	if size.x <= max_size.x and size.y <= max_size.y:
+		return
+	var ratio := minf(max_size.x / size.x, max_size.y / size.y)
+	image.resize(maxi(1, int(size.x * ratio)), maxi(1, int(size.y * ratio)), Image.INTERPOLATE_BILINEAR)
+
+static func image_fits(image: Image, max_size: Vector2) -> bool:
+	if max_size.x <= 0.0 or max_size.y <= 0.0 or image == null or image.is_empty():
+		return true
+	return image.get_width() <= max_size.x and image.get_height() <= max_size.y
+
 static func compress_for_gpu(image: Image, path := "", used_rect := Rect2i()) -> void:
 	if not model_compress_enabled():
 		return
@@ -183,7 +199,7 @@ static func load_texture_with_rect(path: String) -> TextureLoadResult:
 	if not cached.is_empty():
 		return TextureLoadResult.new(ImageTexture.create_from_image(cached.image), cached.used_rect, estimate_vram_bytes(cached.image))
 	if is_animated_file(full_path):
-		var decoded: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(full_path, model_compress_enabled())
+		var decoded: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(full_path, model_compress_enabled(), 0)
 		if decoded != null and decoded[&"texture"] != null:
 			var decoded_tex: Texture2D = decoded[&"texture"]
 			var decoded_size := Vector2i(decoded_tex.get_width(), decoded_tex.get_height())
@@ -256,7 +272,7 @@ static func _extract_sync(source_path: String, dest_folder: String, file_base: S
 	if dir_err != OK:
 		push_error(TAG_EXTRACT + "failed to create folder '%s': %s" % [dest_folder, error_string(dir_err)])
 		return {}
-	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(PathUtil.get_real_path(source_path), dest_folder, file_base)
+	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(PathUtil.get_real_path(source_path), dest_folder, file_base, 0)
 	if data == null or data.Durations.is_empty():
 		push_warning(TAG_EXTRACT + "no frames extracted from: " + source_path)
 		return {}

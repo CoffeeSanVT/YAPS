@@ -6,6 +6,7 @@ extends Panel
 
 var _model_position: Vector2 = Vector2.ZERO
 var _has_position := false
+var _fade_target: float = 1.0
 var _fade_tween: Tween
 
 func _ready() -> void:
@@ -31,8 +32,9 @@ func _position_in_fade_range() -> bool:
 
 func _update_fade(overlaps: bool) -> void:
 	var target := faded_alpha if overlaps else 1.0
-	if is_equal_approx(modulate.a, target):
+	if is_equal_approx(target, _fade_target):
 		return
+	_fade_target = target
 	_fade_tween = NodeUtil.stop_tween(_fade_tween)
 	_fade_tween = create_tween()
 	_fade_tween.set_trans(Tween.TRANS_SINE)

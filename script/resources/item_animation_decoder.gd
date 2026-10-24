@@ -4,9 +4,12 @@ extends RefCounted
 const TAG := "[ItemAnimationDecoder] "
 const FRAMES_DIR_SUFFIX := "_frames"
 const META_FILE := "meta.json"
-const DECODER_VERSION := 3
+const DECODER_VERSION := 4
+const FRAME_MAX_WIDTH := 800
 
 var _scheduled := false
+var _cancelled := false
+var _pending_source := ""
 var _on_decoded: Callable
 
 func is_busy() -> bool:
@@ -16,11 +19,18 @@ func request(asset_path: String, on_decoded: Callable, owner: Object, source_pat
 	if _scheduled:
 		return
 	_scheduled = true
+	_cancelled = false
+	var source := _resolve_source_path(asset_path, source_path)
+	_pending_source = source
 	_on_decoded = on_decoded
 	IoService.run_io(func() -> Dictionary:
-		return _extract_sync(asset_path, source_path)
+		return _extract_sync(asset_path, source)
 	, func(result: Dictionary) -> void:
 		_scheduled = false
+		_pending_source = ""
+		if _cancelled:
+			_cancelled = false
+			return
 		if result.is_empty():
 			push_warning(TAG + "no frames extracted for: " + asset_path)
 			return
@@ -29,13 +39,23 @@ func request(asset_path: String, on_decoded: Callable, owner: Object, source_pat
 		_on_decoded = Callable()
 	, owner)
 
+## Aborts the running ffmpeg extraction (kills the process) without spamming
+## errors; the next request re-extracts from scratch.
+func cancel() -> void:
+	if not _scheduled or _cancelled:
+		return
+	_cancelled = true
+	AnimatedImageRuntime.CancelExtraction(_pending_source)
+
+static func _resolve_source_path(asset_path: String, source_override: String) -> String:
+	return PathUtil.get_real_path(source_override) if not source_override.is_empty() else PathUtil.get_real_path(asset_path)
+
 static func frames_res_folder(asset_path: String) -> String:
 	return asset_path.get_base_dir().path_join(asset_path.get_file() + FRAMES_DIR_SUFFIX)
 
-func _extract_sync(asset_path: String, source_override: String) -> Dictionary:
+func _extract_sync(asset_path: String, source_path: String) -> Dictionary:
 	var folder_res := frames_res_folder(asset_path)
 	var folder_fs := PathUtil.get_real_path(folder_res)
-	var source_path := PathUtil.get_real_path(source_override) if not source_override.is_empty() else PathUtil.get_real_path(asset_path)
 	if not FileAccess.file_exists(source_path):
 		push_warning(TAG + "asset not found: " + source_path)
 		return {}
@@ -48,7 +68,7 @@ func _extract_sync(asset_path: String, source_override: String) -> Dictionary:
 	if dir_err != OK:
 		push_error(TAG + "failed to create folder '%s': %s" % [folder_fs, error_string(dir_err)])
 		return {}
-	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(source_path, folder_fs, asset_path.get_file().get_basename())
+	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(source_path, folder_fs, asset_path.get_file().get_basename(), FRAME_MAX_WIDTH)
 	if data == null or data.FileNames.is_empty():
 		push_warning(TAG + "no frames extracted from: " + asset_path)
 		return {}

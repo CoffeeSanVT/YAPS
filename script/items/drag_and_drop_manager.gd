@@ -92,7 +92,7 @@ func _process_dropped_file(file_path: String) -> void:
 		_process_static_drop(file_path)
 
 func _process_animated_drop(file_path: String) -> void:
-	var first: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(file_path, ImageUtil.model_compress_enabled())
+	var first: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(file_path, ImageUtil.model_compress_enabled(), int(Item.MAX_IMAGE_SIZE.x))
 	if first == null or first[&"texture"] == null:
 		_process_static_drop(file_path)
 		return

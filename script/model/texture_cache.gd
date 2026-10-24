@@ -7,6 +7,7 @@ const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
 
 var _cache: Dictionary[String, ImageTexture] = {}
 var _order: Array[String] = []
+var _pinned: Dictionary[String, bool] = {}
 var _pending_requests: Dictionary = {}
 var _generation: int = 0
 var _bounds: Dictionary[Texture2D, Rect2] = {}
@@ -38,7 +39,7 @@ func load_texture(path: String) -> ImageTexture:
 func bounds_of(tex: Texture2D) -> Rect2:
 	return _bounds.get(tex, FULL_BOUNDS)
 
-func request_texture(path: String, done: Callable, owner: Object = null) -> void:
+func request_texture(path: String, done: Callable, owner: Object = null, max_size: Vector2 = Vector2.ZERO) -> void:
 	if owner != null:
 		var ref: WeakRef = weakref(owner)
 		var delivered := done
@@ -60,10 +61,13 @@ func request_texture(path: String, done: Callable, owner: Object = null) -> void
 	IoService.run_io(func() -> Array:
 		var cached := ImageUtil.load_vram_cache(path)
 		if not cached.is_empty():
-			return [cached.image, cached.used_rect]
+			var cached_image: Image = cached.image
+			if ImageUtil.image_fits(cached_image, max_size):
+				return [cached_image, cached.used_rect]
 		var image := ImageUtil.load_image(path)
 		if image == null:
 			return [null, Rect2i()]
+		ImageUtil.fit_image(image, max_size)
 		var used_rect := image.get_used_rect()
 		ImageUtil.ensure_mipmaps(image)
 		ImageUtil.compress_for_gpu(image, path, used_rect)
@@ -232,6 +236,11 @@ static func _texture_bytes(tex: Texture2D) -> int:
 	var size := tex.get_size()
 	return int(float(size.x) * float(size.y) * 4.0 * 4.0 / 3.0)
 
+## Frees the texture from the cache so its VRAM is actually reclaimed.
+## Used for item animation frames outside the playback window.
+func drop_texture(path: String) -> void:
+	release_texture(path)
+
 func release_texture(path: String) -> void:
 	var texture: ImageTexture = _cache.get(path)
 	if texture == null:
@@ -242,15 +251,22 @@ func release_texture(path: String) -> void:
 	_order.erase(path)
 	_bounds.erase(texture)
 
-func drop_texture(path: String) -> void:
-	if _cache.has(path):
-		_touch(path)
+## Model-owned textures (expression assets, first frame of each state) must
+## survive item-frame flooding, so eviction never picks them.
+func pin_path(path: String) -> void:
+	if path.is_empty():
+		return
+	_pinned[path] = true
+
+func unpin_path(path: String) -> void:
+	_pinned.erase(path)
 
 func clear() -> void:
 	_generation += 1
 	_pending_requests.clear()
 	_cache.clear()
 	_order.clear()
+	_pinned.clear()
 	_bounds.clear()
 	_thumbs.clear()
 	_thumbs_complete.clear()
@@ -282,12 +298,21 @@ func _store(path: String, texture: ImageTexture, used_rect: Rect2i, vram_bytes :
 	_path_bytes[path] = entry_bytes
 	_bytes += entry_bytes
 	while _bytes > CACHE_BUDGET_BYTES and _order.size() > 1:
-		var oldest: String = _order.pop_front()
+		var oldest: String = _find_evictable()
+		if oldest.is_empty():
+			return
+		_order.erase(oldest)
 		var oldest_tex: ImageTexture = _cache[oldest]
 		_bytes -= _path_bytes.get(oldest, _texture_bytes(oldest_tex))
 		_bounds.erase(oldest_tex)
 		_cache.erase(oldest)
 		_path_bytes.erase(oldest)
+
+func _find_evictable() -> String:
+	for path in _order:
+		if not _pinned.has(path):
+			return path
+	return ""
 
 static func normalized_bounds(texture: Texture2D, used_rect: Rect2i) -> Rect2:
 	var size := texture.get_size()

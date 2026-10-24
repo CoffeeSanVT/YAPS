@@ -88,6 +88,9 @@ func outline_bounds() -> Rect2:
 func is_decoding() -> bool:
 	return _decoder.is_busy()
 
+func cancel_animation() -> void:
+	_decoder.cancel()
+
 func _apply_outline_bounds(used_rect: Rect2i, texture: Texture2D) -> void:
 	if texture == null or used_rect.size.x <= 0 or used_rect.size.y <= 0:
 		return
@@ -225,7 +228,7 @@ func _request_frame(index: int) -> void:
 			_apply_outline_bounds(data.UnionRect, tex)
 			if _live_instance() != null:
 				instance.set_texture_bounds(_outline_bounds)
-	, self)
+	, self, MAX_IMAGE_SIZE)
 
 func reparent_for_fixed(free_parent: Node, fixed_parent: Node) -> void:
 	if _live_instance() == null:
@@ -382,6 +385,7 @@ func deactivate_triggers() -> void:
 		trigger.enabled = false
 
 func destroy() -> void:
+	cancel_animation()
 	deactivate_triggers()
 	_clear_auto_hide_timer()
 	if _live_instance() != null:
