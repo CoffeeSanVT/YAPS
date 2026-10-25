@@ -5,6 +5,7 @@ signal model_loaded_changed
 const TAG := "[ModelLoader] "
 const TEXTURE_WORK_TIMEOUT_MS := 30000
 const BLINK_FRAME_RATE := 1.0
+const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
 
 var model_loaded: ModelProfile = null:
 	set(value):
@@ -87,6 +88,7 @@ func save_model_profile(model: ModelProfile) -> void:
 		save_path = PathUtil.get_model_folder_path(model.model_name).path_join(ModelProfileStore.MODEL_FILE_NAME)
 	model.resource_path = save_path
 	_saver.save_resource(model, save_path)
+	AtlasStoreScript.update_model_atlases(model)
 
 func create_and_save_static_model(model_name: String, paths_to_images: PackedStringArray, done: Callable = Callable(), classifications: Dictionary = {}, on_progress: Callable = Callable(), owner_object: Object = null) -> void:
 	if model_name.strip_edges().is_empty():

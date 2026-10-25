@@ -18,6 +18,7 @@ var _snap_start_cache: Dictionary[ModelStateEntry, int] = {}
 var _anim_frames_left: int = 0
 var _transitioning: bool = false
 var _next_tex_current: Texture2D
+var _static_token := 0
 
 static var _linear_shader: Shader
 static var _nearest_shader: Shader
@@ -85,14 +86,19 @@ func show_state_frames(state: ModelStateEntry) -> void:
 	_start_frame_animation(state)
 
 func show_static(state: ModelStateEntry) -> void:
-	var tex := ModelLoader.textures.load_state_texture(state)
-	if tex == null:
-		push_warning(TAG + "Failed to load static texture for state: " + state.state_name)
-		return
-	if _transitioning:
-		_set_next_tex(tex)
-	else:
-		_commit_texture(tex)
+	_static_token += 1
+	var token := _static_token
+	ModelLoader.textures.request_state_texture(state, func(tex: Texture2D) -> void:
+		if token != _static_token:
+			return
+		if tex == null:
+			push_warning(TAG + "Failed to load static texture for state: " + state.state_name)
+			return
+		if _transitioning:
+			_set_next_tex(tex)
+		else:
+			_commit_texture(tex)
+	, self)
 
 func interrupt() -> void:
 	_abort_transition()

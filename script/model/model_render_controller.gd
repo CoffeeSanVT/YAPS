@@ -9,6 +9,7 @@ const STATIC_EXTENSIONS: Array[String] = ["png", "jpg", "jpeg", "webp"]
 var _machine: ModelStateMachine
 var _view: ModelView
 var _active_effects: Array[BaseEffect] = []
+var _state_request_id := 0
 
 func _ready() -> void:
 	if ModelLoader.model_loaded == null:
@@ -84,12 +85,17 @@ func _on_state_changed(_previous: ModelStateEntry, current: ModelStateEntry) -> 
 	if current == null:
 		push_warning(TAG + "State changed to null; ignoring.")
 		return
-	var next_tex := ModelLoader.textures.load_state_texture(current)
-	if next_tex == null:
-		push_warning(TAG + "Failed to load texture for state: " + current.state_name)
-		return
-	_view.show_state(next_tex, current, ModelLoader.model_loaded.state_transition_duration)
-	_refresh_effects()
+	_state_request_id += 1
+	var request_id := _state_request_id
+	ModelLoader.textures.request_state_texture(current, func(next_tex: Texture2D) -> void:
+		if request_id != _state_request_id:
+			return
+		if next_tex == null:
+			push_warning(TAG + "Failed to load texture for state: " + current.state_name)
+			return
+		_view.show_state(next_tex, current, ModelLoader.model_loaded.state_transition_duration)
+		_refresh_effects()
+	, self)
 
 func _activate_effects(effects: Array[BaseEffect], restart := false) -> void:
 	for effect: BaseEffect in _active_effects:

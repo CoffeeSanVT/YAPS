@@ -4,6 +4,9 @@ extends RefCounted
 const CACHE_BUDGET_BYTES := 512 * 1024 * 1024
 const SNAP_SAMPLE_SIZE := 24
 const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
+const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
+const PAGE_CACHE_LIMIT := 4
+const PAGE_CACHE_BUDGET_BYTES := 256 * 1024 * 1024
 
 var _cache: Dictionary[String, ImageTexture] = {}
 var _order: Array[String] = []
@@ -17,6 +20,12 @@ var _thumbs: Dictionary[String, Image] = {}
 var _thumbs_complete: Dictionary[ModelStateEntry, bool] = {}
 var _animated_assets: Dictionary[String, bool] = {}
 
+static var _page_images: Dictionary[String, Image] = {}
+static var _page_mtimes: Dictionary[String, int] = {}
+static var _page_order: Array[String] = []
+static var _page_total := 0
+static var _page_lock := Mutex.new()
+
 func load_state_texture(state: ModelStateEntry) -> ImageTexture:
 	var paths := _state_frame_paths(state)
 	if paths.is_empty():
@@ -26,15 +35,44 @@ func load_state_texture(state: ModelStateEntry) -> ImageTexture:
 		tex = load_texture(state.asset_path)
 	return tex
 
+func request_state_texture(state: ModelStateEntry, done: Callable, owner: Object = null) -> void:
+	var paths := _state_frame_paths(state)
+	var path := state.asset_path
+	if not paths.is_empty():
+		path = paths[0]
+	if path.is_empty():
+		if done.is_valid():
+			done.call_deferred(null)
+		return
+	var fallback := state.asset_path if state.asset_path != path and not state.asset_path.is_empty() else ""
+	request_texture(path, func(tex: Texture2D) -> void:
+		if tex != null or fallback.is_empty():
+			if done.is_valid():
+				done.call(tex)
+			return
+		request_texture(fallback, func(fallback_tex: Texture2D) -> void:
+			if done.is_valid():
+				done.call(fallback_tex)
+		, owner)
+	, owner)
+
 func load_texture(path: String) -> ImageTexture:
 	if _cache.has(path):
 		_touch(path)
 		return _cache[path]
-	var decoded := ImageUtil.load_texture_with_rect(path)
-	var texture := decoded.texture as ImageTexture
-	if texture != null:
-		_store(path, texture, decoded.used_rect, decoded.vram_bytes)
-	return texture
+	var meta: Dictionary = AtlasStoreScript.frame_meta(path)
+	if not meta.is_empty():
+		var decoded := _decode_atlas_frame(path, meta, Vector2.ZERO)
+		var image: Image = decoded[0]
+		if image != null:
+			var texture := ImageUtil.create_gpu_texture(image)
+			_store(path, texture, decoded[1], ImageUtil.estimate_vram_bytes(image))
+			return texture
+	var decoded_file := ImageUtil.load_texture_with_rect(path)
+	var texture_file := decoded_file.texture as ImageTexture
+	if texture_file != null:
+		_store(path, texture_file, decoded_file.used_rect, decoded_file.vram_bytes)
+	return texture_file
 
 func bounds_of(tex: Texture2D) -> Rect2:
 	return _bounds.get(tex, FULL_BOUNDS)
@@ -58,20 +96,27 @@ func request_texture(path: String, done: Callable, owner: Object = null, max_siz
 			_pending_requests[path].append(done)
 		return
 	_pending_requests[path] = [done] if done.is_valid() else []
-	IoService.run_io(func() -> Array:
-		var cached := ImageUtil.load_vram_cache(path)
-		if not cached.is_empty():
-			var cached_image: Image = cached.image
-			if ImageUtil.image_fits(cached_image, max_size):
-				return [cached_image, cached.used_rect]
-		var image := ImageUtil.load_image(path)
-		if image == null:
-			return [null, Rect2i()]
-		ImageUtil.fit_image(image, max_size)
-		var used_rect := image.get_used_rect()
-		ImageUtil.ensure_mipmaps(image)
-		ImageUtil.compress_for_gpu(image, path, used_rect)
-		return [image, used_rect],
+	var meta: Dictionary = AtlasStoreScript.frame_meta(path)
+	var task: Callable
+	if meta.is_empty():
+		task = func() -> Array:
+			var cached := ImageUtil.load_vram_cache(path)
+			if not cached.is_empty():
+				var cached_image: Image = cached.image
+				if ImageUtil.image_fits(cached_image, max_size):
+					return [cached_image, cached.used_rect]
+			var image := ImageUtil.load_image(path)
+			if image == null:
+				return [null, Rect2i()]
+			ImageUtil.fit_image(image, max_size)
+			var used_rect := image.get_used_rect()
+			ImageUtil.ensure_mipmaps(image)
+			ImageUtil.compress_for_gpu(image, path, used_rect)
+			return [image, used_rect]
+	else:
+		task = func() -> Array:
+			return _decode_atlas_frame(path, meta, max_size)
+	IoService.run_io(task,
 	func(result: Array) -> void:
 		_finish_request(path, result[0], result[1], generation)
 	)
@@ -163,6 +208,24 @@ func request_state_frame(state: ModelStateEntry, index: int, frames: Array[Image
 func request_thumb(path: String) -> void:
 	if path.is_empty() or _thumbs.has(path):
 		return
+	var deliver := func(img: Image) -> void:
+		if img != null and img.get_width() == SNAP_SAMPLE_SIZE and img.get_height() == SNAP_SAMPLE_SIZE:
+			_thumbs[path] = img
+	var meta: Dictionary = AtlasStoreScript.frame_meta(path)
+	if not meta.is_empty():
+		IoService.run_io(func() -> Image:
+			var page := _page_image(meta.page_path)
+			if page == null:
+				return null
+			var region: Rect2i = meta.rect
+			if region.end.x > page.get_width() or region.end.y > page.get_height() or region.position.x < 0 or region.position.y < 0:
+				return null
+			var image := page.get_region(region)
+			image.convert(Image.FORMAT_RGBA8)
+			image.resize(SNAP_SAMPLE_SIZE, SNAP_SAMPLE_SIZE, Image.INTERPOLATE_BILINEAR)
+			return image
+		, deliver)
+		return
 	IoService.run_io(func() -> Image:
 		var image := ImageUtil.load_image(path)
 		if image == null:
@@ -170,10 +233,7 @@ func request_thumb(path: String) -> void:
 		image.convert(Image.FORMAT_RGBA8)
 		image.resize(SNAP_SAMPLE_SIZE, SNAP_SAMPLE_SIZE, Image.INTERPOLATE_BILINEAR)
 		return image
-	, func(img: Image) -> void:
-		if img != null and img.get_width() == SNAP_SAMPLE_SIZE and img.get_height() == SNAP_SAMPLE_SIZE:
-			_thumbs[path] = img
-	)
+	, deliver)
 
 func has_all_thumbs(state: ModelStateEntry) -> bool:
 	if _thumbs_complete.get(state, false):
@@ -236,8 +296,6 @@ static func _texture_bytes(tex: Texture2D) -> int:
 	var size := tex.get_size()
 	return int(float(size.x) * float(size.y) * 4.0 * 4.0 / 3.0)
 
-## Frees the texture from the cache so its VRAM is actually reclaimed.
-## Used for item animation frames outside the playback window.
 func drop_texture(path: String) -> void:
 	release_texture(path)
 
@@ -251,15 +309,10 @@ func release_texture(path: String) -> void:
 	_order.erase(path)
 	_bounds.erase(texture)
 
-## Model-owned textures (expression assets, first frame of each state) must
-## survive item-frame flooding, so eviction never picks them.
 func pin_path(path: String) -> void:
 	if path.is_empty():
 		return
 	_pinned[path] = true
-
-func unpin_path(path: String) -> void:
-	_pinned.erase(path)
 
 func clear() -> void:
 	_generation += 1
@@ -273,9 +326,68 @@ func clear() -> void:
 	_animated_assets.clear()
 	_path_bytes.clear()
 	_bytes = 0
+	_page_images.clear()
+	_page_mtimes.clear()
+	_page_order.clear()
+	_page_total = 0
 
 func pending_count() -> int:
 	return _pending_requests.size()
+
+static func _decode_atlas_frame(path: String, meta: Dictionary, max_size: Vector2) -> Array:
+	var cached := ImageUtil.load_vram_cache(path)
+	if not cached.is_empty() and ImageUtil.image_fits(cached.image, max_size):
+		return [cached.image, cached.used_rect]
+	var page := _page_image(meta.page_path)
+	if page == null:
+		return [null, Rect2i()]
+	var region: Rect2i = meta.rect
+	if region.position.x < 0 or region.position.y < 0 or region.end.x > page.get_width() or region.end.y > page.get_height():
+		return [null, Rect2i()]
+	var canvas_size: Vector2i = meta.canvas_size
+	var canvas := Image.create_empty(canvas_size.x, canvas_size.y, false, Image.FORMAT_RGBA8)
+	canvas.blit_rect(page, region, meta.offset)
+	var used_rect := Rect2i(meta.offset, region.size)
+	ImageUtil.ensure_mipmaps(canvas)
+	ImageUtil.compress_for_gpu(canvas, path, used_rect)
+	return [canvas, used_rect]
+
+static func _page_image(page_path: String) -> Image:
+	_page_lock.lock()
+	var image := _page_image_locked(page_path)
+	_page_lock.unlock()
+	return image
+
+static func _page_image_locked(page_path: String) -> Image:
+	var real_path := PathUtil.get_real_path(page_path)
+	var mtime := FileAccess.get_modified_time(real_path)
+	var cached: Image = _page_images.get(page_path)
+	if cached != null and int(_page_mtimes.get(page_path, -1)) == mtime:
+		_page_order.erase(page_path)
+		_page_order.append(page_path)
+		return cached
+	var image := Image.load_from_file(real_path)
+	if image == null:
+		return null
+	if image.is_compressed() and image.decompress() != OK:
+		return null
+	var old: Image = _page_images.get(page_path)
+	if old != null:
+		_page_total -= old.get_width() * old.get_height() * 4
+	_page_images[page_path] = image
+	_page_mtimes[page_path] = mtime
+	_page_total += image.get_width() * image.get_height() * 4
+	_page_order.erase(page_path)
+	_page_order.append(page_path)
+	while _page_order.size() > 1 and (_page_order.size() > PAGE_CACHE_LIMIT or _page_total > PAGE_CACHE_BUDGET_BYTES):
+		var oldest: String = _page_order[0]
+		var oldest_image: Image = _page_images.get(oldest)
+		if oldest_image != null:
+			_page_total -= oldest_image.get_width() * oldest_image.get_height() * 4
+		_page_order.remove_at(0)
+		_page_images.erase(oldest)
+		_page_mtimes.erase(oldest)
+	return image
 
 func _touch(path: String) -> void:
 	_order.erase(path)
