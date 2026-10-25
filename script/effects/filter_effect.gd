@@ -1,5 +1,5 @@
 class_name FilterEffect
-extends TweenEffect
+extends BaseEffect
 
 const MODE_PARAM: StringName = &"_Filter"
 const AMOUNT_PARAM: StringName = &"_FilterAmount"

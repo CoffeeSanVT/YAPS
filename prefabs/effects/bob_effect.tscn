@@ -21,7 +21,7 @@ metadata/localization_key = &"DURATION"
 script = ExtResource("1_mc6ia")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="BobDuration" type="SpinBox" parent="DurationRow" unique_id=304175699]
+[node name="Duration" type="SpinBox" parent="DurationRow" unique_id=304175699]
 layout_mode = 2
 min_value = 0.1
 max_value = 5.0
@@ -43,7 +43,7 @@ metadata/localization_key = &"AMPLITUDE"
 script = ExtResource("1_mc6ia")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="BobAmplitude" type="SpinBox" parent="AmplitudeRow" unique_id=1541185025]
+[node name="Amplitude" type="SpinBox" parent="AmplitudeRow" unique_id=1541185025]
 layout_mode = 2
 min_value = 1.0
 max_value = 50.0

@@ -1,5 +1,5 @@
 class_name BobEffect
-extends MovementEffect
+extends BaseEffect
 
 const RETURN_DURATION := 0.25
 
@@ -11,9 +11,9 @@ func _init() -> void:
 	effect_name = &"bob"
 	ui_prefab = preload("uid://dwky1prn6cbhx")
 
-func _on_activate(target: Node) -> void:
+func activate(target: Node) -> void:
 	_prepare(target, &"position")
-	_start_on(target, _apply_bob, duration, true)
+	_start_on(_apply_bob, duration, true)
 
 func deactivate() -> void:
 	_restore_base(true, RETURN_DURATION)

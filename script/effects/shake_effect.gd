@@ -1,5 +1,5 @@
 class_name ShakeEffect
-extends MovementEffect
+extends BaseEffect
 
 @export_category("Shake Effect")
 @export var duration: float = 0.3
@@ -9,9 +9,12 @@ func _init() -> void:
 	effect_name = &"shake"
 	ui_prefab = preload("uid://bfa8863lnksmh")
 
-func _on_activate(target: Node) -> void:
+func activate(target: Node) -> void:
 	_prepare(target, &"position")
-	_start_on(target, _apply_shake, duration, false)
+	_start_on(_apply_shake, duration, false)
+
+func retrigger_on_talking() -> bool:
+	return true
 
 func deactivate() -> void:
 	_restore_base(false)

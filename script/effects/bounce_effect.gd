@@ -1,5 +1,5 @@
 class_name BounceEffect
-extends MovementEffect
+extends BaseEffect
 
 @export_category("Bounce Effect")
 @export var duration: float = 0.35
@@ -9,9 +9,12 @@ func _init() -> void:
 	effect_name = &"bounce"
 	ui_prefab = preload("uid://bfarhr6jnksmh")
 
-func _on_activate(target: Node) -> void:
+func activate(target: Node) -> void:
 	_prepare(target, &"scale")
-	_start_on(target, _apply_bounce_scale, duration, false)
+	_start_on(_apply_bounce_scale, duration, false)
+
+func retrigger_on_talking() -> bool:
+	return true
 
 func deactivate() -> void:
 	_restore_base(false)

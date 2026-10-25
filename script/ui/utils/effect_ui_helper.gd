@@ -1,18 +1,10 @@
 class_name EffectUIHelper
 extends RefCounted
 
-const _PARAM_NAMES := {
-	&"bounce": ["BounceDuration", "BounceIntensity"],
-	&"shake": ["ShakeDuration", "ShakeAmplitude"],
-	&"bob": ["BobDuration", "BobAmplitude"],
-	&"warp": ["WarpDuration", "WarpIntensity"],
-	&"darken": ["DarkenDuration", "DarkenIntensity"],
-}
-
 const _PARAM_PROPERTIES := {
-	"Duration": &"duration",
-	"Intensity": &"intensity",
-	"Amplitude": &"amplitude",
+	&"Duration": &"duration",
+	&"Intensity": &"intensity",
+	&"Amplitude": &"amplitude",
 }
 
 static func populate_effect_options(option_button: OptionButton, category: int = -1, zero_text: String = "NONE") -> PackedStringArray:
@@ -68,32 +60,20 @@ static func connect_effect_params(ui: Node, callable: Callable) -> void:
 static func load_effect_params(effect: BaseEffect, ui: Node) -> void:
 	if effect == null or ui == null:
 		return
-	for param_name in _param_names(effect.effect_name):
-		var spin := ui.find_child(param_name, true, false) as SpinBox
-		if spin != null:
-			spin.value = get_param_value(effect, param_name)
+	for node in ui.find_children("*", "SpinBox", true, false):
+		var spin := node as SpinBox
+		spin.value = get_param_value(effect, spin.name)
 
-static func get_param_value(effect: BaseEffect, param_name: String) -> float:
+static func get_param_value(effect: BaseEffect, param_name: StringName) -> float:
 	if effect == null:
 		return 0.0
 	var prop := _property_for(param_name)
-	if prop.is_empty():
-		return 0.0
-	return effect.get(prop)
+	return effect.get(prop) if not prop.is_empty() else 0.0
 
-static func set_param_value(effect: BaseEffect, param_name: String, value: float) -> void:
+static func set_param_value(effect: BaseEffect, param_name: StringName, value: float) -> void:
 	var prop := _property_for(param_name)
 	if effect != null and not prop.is_empty():
 		effect.set(prop, value)
 
-static func _property_for(param_name: String) -> StringName:
-	for suffix: String in _PARAM_PROPERTIES:
-		if param_name.ends_with(suffix):
-			return _PARAM_PROPERTIES[suffix]
-	return &""
-
-static func _param_names(effect_name: StringName) -> Array[String]:
-	var names: Array[String] = []
-	for entry: String in _PARAM_NAMES.get(effect_name, []):
-		names.append(entry)
-	return names
+static func _property_for(param_name: StringName) -> StringName:
+	return _PARAM_PROPERTIES.get(param_name, &"")

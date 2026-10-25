@@ -120,8 +120,13 @@ func _on_effects_changed() -> void:
 func _on_emotion_changed(_previous: ModelEmotion, _current: ModelEmotion) -> void:
 	_refresh_effects()
 
-func _on_talking_changed(_exceeded: bool) -> void:
+func _on_talking_changed(exceeded: bool) -> void:
 	_refresh_effects()
+	if not exceeded:
+		return
+	for effect: BaseEffect in _active_effects:
+		if effect.retrigger_on_talking():
+			effect.activate(_view.model_render)
 
 func _same_effects(effects: Array[BaseEffect]) -> bool:
 	if effects.size() != _active_effects.size():

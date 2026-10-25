@@ -14,7 +14,7 @@ func _init() -> void:
 func active_for_talking(is_talking: bool) -> bool:
 	return not is_talking
 
-func _on_activate(target: Node) -> void:
+func activate(target: Node) -> void:
 	_target = target
 	_fade_filter(FILTER_MODE_DARKEN, intensity, duration)
 

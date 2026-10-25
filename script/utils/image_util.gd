@@ -35,8 +35,6 @@ static func ensure_mipmaps(image: Image) -> void:
 		return
 	image.generate_mipmaps()
 
-## Downscales image in place so it never exceeds max_size on either axis
-## (keeping aspect ratio). max_size == Vector2.ZERO means no cap.
 static func fit_image(image: Image, max_size: Vector2) -> void:
 	if image == null or image.is_empty() or max_size.x <= 0.0 or max_size.y <= 0.0:
 		return

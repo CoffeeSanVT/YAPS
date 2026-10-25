@@ -21,7 +21,7 @@ metadata/localization_key = &"DURATION"
 script = ExtResource("1_4ks64")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="WarpDuration" type="SpinBox" parent="DurationRow" unique_id=1281159733]
+[node name="Duration" type="SpinBox" parent="DurationRow" unique_id=1281159733]
 layout_mode = 2
 min_value = 0.1
 max_value = 5.0
@@ -43,7 +43,7 @@ metadata/localization_key = &"INTENSITY"
 script = ExtResource("1_4ks64")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="WarpIntensity" type="SpinBox" parent="IntensityRow" unique_id=874913487]
+[node name="Intensity" type="SpinBox" parent="IntensityRow" unique_id=874913487]
 layout_mode = 2
 max_value = 2.0
 step = 0.05

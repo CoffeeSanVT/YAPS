@@ -11,12 +11,17 @@ func _init() -> void:
 	effect_name = &"warp"
 	ui_prefab = preload("uid://bfbd2o8lokqmh")
 
-func _on_activate(target: Node) -> void:
+func retrigger_on_talking() -> bool:
+	return true
+
+func activate(target: Node) -> void:
 	_target = target
+	if not _target_valid():
+		return
 	_stop_tween()
 	_set_warp(0.0)
 
-	_tween = target.create_tween()
+	_tween = _target.create_tween()
 	_tween.tween_method(_set_warp, 0.0, intensity, duration * 0.5)
 	_tween.tween_method(_set_warp, intensity, 0.0, duration * 0.5)
 

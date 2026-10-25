@@ -11,11 +11,7 @@ enum Category {
 }
 
 static func category_of(effect: BaseEffect) -> int:
-	if effect is MovementEffect:
-		return Category.MOVEMENT
-	if effect is FilterEffect:
-		return Category.FILTER
-	return -1
+	return Category.FILTER if effect is FilterEffect else Category.MOVEMENT
 
 static func find_in(effects: Array[BaseEffect], category: int, id: StringName = &"") -> BaseEffect:
 	for effect: BaseEffect in effects:

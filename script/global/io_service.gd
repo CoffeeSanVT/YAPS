@@ -20,8 +20,6 @@ static func run_io(task: Callable, on_done: Callable = Callable(), owner: Object
 	id_box[0] = task_id
 	_pending_task_ids.append(task_id)
 
-## Waits for every pending task to finish, giving up after timeout_ms so a
-## stuck (or very long) background task can never block app shutdown forever.
 static func wait_for_io(timeout_ms: int = IO_WAIT_TIMEOUT_MS) -> void:
 	var deadline := Time.get_ticks_msec() + timeout_ms
 	var pending: Array[int] = _pending_task_ids.duplicate()
@@ -60,9 +58,6 @@ class DeferredSaver:
 		_busy = true
 		IoService.run_io(func() -> Error: return task.call(), _on_done)
 
-	## Coalesces bursts: while a save is running (or queued), only the latest
-	## state per destination path is kept, so N rapid events cost one snapshot
-	## + one disk write instead of N.
 	func save_resource(resource: Resource, path: String, ensure_dir: String = "") -> void:
 		if resource == null:
 			push_error(TAG + "cannot save null resource to " + path)
