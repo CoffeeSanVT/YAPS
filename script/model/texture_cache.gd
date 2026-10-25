@@ -7,6 +7,8 @@ const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
 const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
 const PAGE_CACHE_LIMIT := 4
 const PAGE_CACHE_BUDGET_BYTES := 256 * 1024 * 1024
+const IDLE_UNLOAD_SECONDS := 60.0
+const PAGE_IDLE_UNLOAD_SECONDS := 60.0
 
 var _cache: Dictionary[String, ImageTexture] = {}
 var _order: Array[String] = []
@@ -19,10 +21,12 @@ var _path_bytes: Dictionary[String, int] = {}
 var _thumbs: Dictionary[String, Image] = {}
 var _thumbs_complete: Dictionary[ModelStateEntry, bool] = {}
 var _animated_assets: Dictionary[String, bool] = {}
+var _last_use: Dictionary[String, int] = {}
 
 static var _page_images: Dictionary[String, Image] = {}
 static var _page_mtimes: Dictionary[String, int] = {}
 static var _page_order: Array[String] = []
+static var _page_last_use: Dictionary[String, int] = {}
 static var _page_total := 0
 static var _page_lock := Mutex.new()
 
@@ -300,6 +304,7 @@ func drop_texture(path: String) -> void:
 	release_texture(path)
 
 func release_texture(path: String) -> void:
+	_last_use.erase(path)
 	var texture: ImageTexture = _cache.get(path)
 	if texture == null:
 		return
@@ -325,10 +330,12 @@ func clear() -> void:
 	_thumbs_complete.clear()
 	_animated_assets.clear()
 	_path_bytes.clear()
+	_last_use.clear()
 	_bytes = 0
 	_page_images.clear()
 	_page_mtimes.clear()
 	_page_order.clear()
+	_page_last_use.clear()
 	_page_total = 0
 
 func pending_count() -> int:
@@ -365,35 +372,67 @@ static func _page_image_locked(page_path: String) -> Image:
 	if cached != null and int(_page_mtimes.get(page_path, -1)) == mtime:
 		_page_order.erase(page_path)
 		_page_order.append(page_path)
+		_page_last_use[page_path] = Time.get_ticks_msec()
 		return cached
 	var image := Image.load_from_file(real_path)
 	if image == null:
 		return null
 	if image.is_compressed() and image.decompress() != OK:
 		return null
-	var old: Image = _page_images.get(page_path)
-	if old != null:
-		_page_total -= old.get_width() * old.get_height() * 4
+	_discard_page_locked(page_path)
 	_page_images[page_path] = image
 	_page_mtimes[page_path] = mtime
 	_page_total += image.get_width() * image.get_height() * 4
-	_page_order.erase(page_path)
 	_page_order.append(page_path)
+	_page_last_use[page_path] = Time.get_ticks_msec()
 	while _page_order.size() > 1 and (_page_order.size() > PAGE_CACHE_LIMIT or _page_total > PAGE_CACHE_BUDGET_BYTES):
-		var oldest: String = _page_order[0]
-		var oldest_image: Image = _page_images.get(oldest)
-		if oldest_image != null:
-			_page_total -= oldest_image.get_width() * oldest_image.get_height() * 4
-		_page_order.remove_at(0)
-		_page_images.erase(oldest)
-		_page_mtimes.erase(oldest)
+		_discard_page_locked(_page_order[0])
 	return image
+
+static func _discard_page_locked(page_path: String) -> void:
+	var image: Image = _page_images.get(page_path)
+	if image != null:
+		_page_total -= image.get_width() * image.get_height() * 4
+	_page_order.erase(page_path)
+	_page_images.erase(page_path)
+	_page_mtimes.erase(page_path)
+	_page_last_use.erase(page_path)
+
+static func unload_idle_pages(idle_seconds: float = PAGE_IDLE_UNLOAD_SECONDS) -> int:
+	var now := Time.get_ticks_msec()
+	var idle_ms := int(idle_seconds * 1000.0)
+	var stale: Array[String] = []
+	_page_lock.lock()
+	for path: String in _page_order:
+		if now - int(_page_last_use.get(path, 0)) >= idle_ms:
+			stale.append(path)
+	for path: String in stale:
+		_discard_page_locked(path)
+	_page_lock.unlock()
+	return stale.size()
 
 func _touch(path: String) -> void:
 	_order.erase(path)
 	_order.append(path)
+	_last_use[path] = Time.get_ticks_msec()
+
+func unload_idle(idle_seconds: float = IDLE_UNLOAD_SECONDS) -> int:
+	var now := Time.get_ticks_msec()
+	var idle_ms := int(idle_seconds * 1000.0)
+	var removed := 0
+	for path: String in _order.duplicate():
+		if _pinned.has(path):
+			continue
+		if not _cache.has(path):
+			continue
+		if now - int(_last_use.get(path, 0)) < idle_ms:
+			continue
+		release_texture(path)
+		removed += 1
+	return removed
 
 func _store(path: String, texture: ImageTexture, used_rect: Rect2i, vram_bytes := -1) -> void:
+	_last_use[path] = Time.get_ticks_msec()
 	var entry_bytes := vram_bytes if vram_bytes >= 0 else _texture_bytes(texture)
 	if _cache.has(path):
 		_bytes -= _path_bytes.get(path, _texture_bytes(_cache[path]))
@@ -419,6 +458,7 @@ func _store(path: String, texture: ImageTexture, used_rect: Rect2i, vram_bytes :
 		_bounds.erase(oldest_tex)
 		_cache.erase(oldest)
 		_path_bytes.erase(oldest)
+		_last_use.erase(oldest)
 
 func _find_evictable() -> String:
 	for path in _order:

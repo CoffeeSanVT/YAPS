@@ -14,13 +14,16 @@ static var _compress_fail_count := 0
 static var _last_compressed_format := ""
 static var _count_lock := Mutex.new()
 
-const FORMAT_NAMES := { Image.FORMAT_DXT1: "BC1/DXT1", Image.FORMAT_DXT5: "BC3/DXT5", Image.FORMAT_BPTC_RGBA: "BC7/BPTC", Image.FORMAT_BPTC_RGBFU: "BC6H/BPTC" }
+const VRAM_FORMATS := {
+	Image.FORMAT_DXT1: { "bytes": 8, "name": "BC1/DXT1" },
+	Image.FORMAT_DXT5: { "bytes": 16, "name": "BC3/DXT5" },
+	Image.FORMAT_BPTC_RGBA: { "bytes": 16, "name": "BC7/BPTC" },
+	Image.FORMAT_BPTC_RGBFU: { "bytes": 16, "name": "BC6H/BPTC" },
+}
 const VRAM_CACHE_SUFFIX := ".bc"
 const VRAM_CACHE_VERSION := 3
-const COMPRESS_SKIPPED := 0
 const COMPRESS_DONE := 1
 const COMPRESS_FAILED := 2
-const VRAM_CACHE_FORMATS := { Image.FORMAT_DXT1: 8, Image.FORMAT_DXT5: 16, Image.FORMAT_BPTC_RGBA: 16, Image.FORMAT_BPTC_RGBFU: 16 }
 
 static func model_compress_enabled() -> bool:
 	var model := ModelLoader.model_loaded
@@ -52,19 +55,15 @@ static func image_fits(image: Image, max_size: Vector2) -> bool:
 static func compress_for_gpu(image: Image, path := "", used_rect := Rect2i()) -> void:
 	if not model_compress_enabled():
 		return
-	match AnimatedImageRuntime.CompressTexture(image):
-		COMPRESS_SKIPPED:
-			return
-		COMPRESS_FAILED:
-			_count_lock.lock()
-			_compress_fail_count += 1
-			_count_lock.unlock()
-			return
+	var result := AnimatedImageRuntime.CompressTexture(image)
 	_count_lock.lock()
-	_compress_ok_count += 1
-	_last_compressed_format = str(FORMAT_NAMES.get(image.get_format(), image.get_format()))
+	if result == COMPRESS_FAILED:
+		_compress_fail_count += 1
+	elif result == COMPRESS_DONE:
+		_compress_ok_count += 1
+		_last_compressed_format = _vram_format_name(image.get_format())
 	_count_lock.unlock()
-	if not path.is_empty():
+	if result == COMPRESS_DONE and not path.is_empty():
 		_write_vram_cache(path, image, used_rect)
 
 static func load_vram_cache(path: String) -> Dictionary:
@@ -92,7 +91,7 @@ static func load_vram_cache(path: String) -> Dictionary:
 	var mipmaps := f.get_32()
 	var rect := Rect2i(f.get_32(), f.get_32(), f.get_32(), f.get_32())
 	var data_size := f.get_32()
-	var bytes_per_block: int = VRAM_CACHE_FORMATS.get(format, 0)
+	var bytes_per_block: int = _vram_block_bytes(format)
 	var expected := _vram_data_size(width, height, mipmaps > 0, bytes_per_block)
 	if width <= 0 or height <= 0 or bytes_per_block == 0 or data_size != expected:
 		f.close()
@@ -106,9 +105,15 @@ static func load_vram_cache(path: String) -> Dictionary:
 		return {}
 	_count_lock.lock()
 	_compress_ok_count += 1
-	_last_compressed_format = str(FORMAT_NAMES.get(format, format))
+	_last_compressed_format = _vram_format_name(format)
 	_count_lock.unlock()
 	return { "image": image, "used_rect": rect }
+
+static func _vram_block_bytes(format: int) -> int:
+	return VRAM_FORMATS.get(format, {}).get("bytes", 0)
+
+static func _vram_format_name(format: int) -> String:
+	return str(VRAM_FORMATS.get(format, {}).get("name", format))
 
 static func _vram_data_size(width: int, height: int, mipmapped: bool, bytes_per_block: int) -> int:
 	var total := 0
@@ -125,7 +130,7 @@ static func _vram_data_size(width: int, height: int, mipmapped: bool, bytes_per_
 
 static func _write_vram_cache(path: String, image: Image, used_rect: Rect2i) -> void:
 	var format := image.get_format()
-	if not VRAM_CACHE_FORMATS.has(format):
+	if not VRAM_FORMATS.has(format):
 		return
 	var f := FileAccess.open(PathUtil.get_real_path(path) + VRAM_CACHE_SUFFIX, FileAccess.WRITE)
 	if f == null:
@@ -165,7 +170,7 @@ static func create_gpu_texture(image: Image) -> ImageTexture:
 static func estimate_vram_bytes(image: Image) -> int:
 	if image == null or image.is_empty():
 		return -1
-	var block_bytes: int = VRAM_CACHE_FORMATS.get(image.get_format(), 0)
+	var block_bytes: int = _vram_block_bytes(image.get_format())
 	if block_bytes > 0:
 		return _vram_data_size(image.get_width(), image.get_height(), image.has_mipmaps(), block_bytes)
 	var bytes := image.get_width() * image.get_height() * 4
@@ -187,6 +192,15 @@ static func load_image(path: String) -> Image:
 		push_error(TAG_LOAD + "file not found: " + full_path)
 		return null
 	return Image.load_from_file(full_path)
+
+static func load_gpu_image(path: String) -> Image:
+	var cached := load_vram_cache(path)
+	if not cached.is_empty():
+		return cached.image
+	var image := load_image(path)
+	if image != null:
+		compress_for_gpu(image, path, image.get_used_rect())
+	return image
 
 static func load_texture_with_rect(path: String) -> TextureLoadResult:
 	var full_path := PathUtil.get_real_path(path)
