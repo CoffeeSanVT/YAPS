@@ -54,13 +54,15 @@ static func _run_for(model: ModelProfile, done: Callable, force: bool) -> void:
 			deleted += _delete_frame_files(result.frames_meta, out_dir)
 		return { "built": built, "deleted": deleted, "aborted": aborted }
 	, func(result: Dictionary) -> void:
+		for job: Dictionary in jobs:
+			_folder_cache.erase(String(job.out_dir))
 		print(TAG + "model '%s': %d atlas(es) saved, %d frame file(s) removed, %d aborted" % [
 			model.model_name, result.built, result.deleted, result.aborted,
 		])
 		_finish_run(model, done, result.built)
 	)
 
-static func _finish_run(model: ModelProfile, done: Callable, built: int) -> void:
+static func _finish_run(_model: ModelProfile, done: Callable, built: int) -> void:
 	_busy = false
 	var next_model := _pending_model
 	_pending_model = null
@@ -124,17 +126,17 @@ static func _folder_docs(folder: String) -> Dictionary:
 					doc["file_name"] = entry
 					docs.append(doc)
 					var pages: Array = doc.get("pages", [])
-					for frame_meta: Dictionary in doc.get("frames", []):
-						var page_index: int = frame_meta.get("page", -1)
+					for frame_entry: Dictionary in doc.get("frames", []):
+						var page_index: int = frame_entry.get("page", -1)
 						if page_index < 0 or page_index >= pages.size():
 							continue
-						var rect_values: Array = frame_meta.get("rect", [])
-						var offset_values: Array = frame_meta.get("offset", [])
-						var size_values: Array = frame_meta.get("size", [])
+						var rect_values: Array = frame_entry.get("rect", [])
+						var offset_values: Array = frame_entry.get("offset", [])
+						var size_values: Array = frame_entry.get("size", [])
 						if rect_values.size() != 4 or offset_values.size() != 2 or size_values.size() != 2:
 							continue
 						var page_size_values: Array = pages[page_index].get("size", [0, 0])
-						by_path[String(frame_meta.get("path", ""))] = {
+						by_path[String(frame_entry.get("path", ""))] = {
 							"page_path": folder.path_join(String(pages[page_index].get("file", ""))),
 							"rect": Rect2i(rect_values[0], rect_values[1], rect_values[2], rect_values[3]),
 							"offset": Vector2i(offset_values[0], offset_values[1]),
@@ -144,7 +146,8 @@ static func _folder_docs(folder: String) -> Dictionary:
 			entry = dir.get_next()
 		dir.list_dir_end()
 	var fresh := { "mtime": folder_mtime, "docs": docs, "by_path": by_path }
-	_folder_cache[folder] = fresh
+	if not docs.is_empty():
+		_folder_cache[folder] = fresh
 	return fresh
 
 static func _docs_unchanged(cached: Dictionary) -> bool:
@@ -264,10 +267,10 @@ static func _delete_orphan_pages(page_prefix: String, out_dir: String, keep: Dic
 static func _sources_complete(state: ModelStateEntry, old_doc: Dictionary, out_dir: String) -> bool:
 	var pages: Array = old_doc.get("pages", [])
 	var old_meta: Dictionary[String, Dictionary] = {}
-	for frame_meta: Dictionary in old_doc.get("frames", []):
-		var page_index: int = frame_meta.get("page", -1)
-		old_meta[String(frame_meta.get("path", ""))] = {
-			"trimmed": frame_meta.get("trimmed", false),
+	for frame_entry: Dictionary in old_doc.get("frames", []):
+		var page_index: int = frame_entry.get("page", -1)
+		old_meta[String(frame_entry.get("path", ""))] = {
+			"trimmed": frame_entry.get("trimmed", false),
 			"page_ok": page_index >= 0 and page_index < pages.size()
 				and FileAccess.file_exists(out_dir.path_join(String(pages[page_index].get("file", "")))),
 		}
@@ -288,12 +291,12 @@ static func _make_resolver(old_doc: Dictionary, out_dir: String) -> Callable:
 		if image != null:
 			return image
 		var pages: Array = old_doc.get("pages", [])
-		for frame_meta: Dictionary in old_doc.get("frames", []):
-			if String(frame_meta.get("path", "")) != path:
+		for frame_entry: Dictionary in old_doc.get("frames", []):
+			if String(frame_entry.get("path", "")) != path:
 				continue
-			if not bool(frame_meta.get("trimmed", false)):
+			if not bool(frame_entry.get("trimmed", false)):
 				return null
-			var page_index: int = frame_meta.get("page", -1)
+			var page_index: int = frame_entry.get("page", -1)
 			if page_index < 0 or page_index >= pages.size():
 				return null
 			var page_path := out_dir.path_join(String(pages[page_index].get("file", "")))
@@ -303,14 +306,14 @@ static func _make_resolver(old_doc: Dictionary, out_dir: String) -> Callable:
 				if page == null:
 					return null
 				page_images[page_path] = page
-			var rect_values: Array = frame_meta.get("rect", [])
+			var rect_values: Array = frame_entry.get("rect", [])
 			if rect_values.size() != 4:
 				return null
 			var region := Rect2i(rect_values[0], rect_values[1], rect_values[2], rect_values[3])
 			if region.position.x < 0 or region.position.y < 0 or region.end.x > page.get_width() or region.end.y > page.get_height():
 				return null
-			var canvas_values: Array = frame_meta.get("size", [])
-			var offset_values: Array = frame_meta.get("offset", [])
+			var canvas_values: Array = frame_entry.get("size", [])
+			var offset_values: Array = frame_entry.get("offset", [])
 			if canvas_values.size() != 2 or offset_values.size() != 2:
 				return page.get_region(region)
 			var canvas := Image.create_empty(canvas_values[0], canvas_values[1], false, Image.FORMAT_RGBA8)
