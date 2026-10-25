@@ -26,7 +26,7 @@ POSITION,Position,Posição
 SCALE,Scale,Escala
 ZOOM,Zoom,Zoom
 ROTATION,Rotation,Rotação
-Z_INDEX,Z Index,Índice Z
+Z_INDEX,Z Index,Posição Z
 DURATION,Duration,Duração
 INTENSITY,Intensity,Intensidade
 AMPLITUDE,Amplitude,Amplitude
@@ -52,6 +52,15 @@ MIC_ACTIVATION_THRESHOLD,Activation Threshold,Volume de ativação
 SHOW_VOLUME_VISUALIZATION,Show Volume Visualizer,Mostrar visualização de volume
 MIC_MONITORING,Mic Monitoring,Retorno do microfone
 MIC_GAIN,Mic Gain,Ganho do microfone
+ADVANCED_OPTIONS,Advanced Options,Opções avançadas
+SMOOTHING_ATTACK,Smoothing Attack,Suavização de subida
+SMOOTHING_RELEASE,Smoothing Release,Suavização de descida
+TALK_HYSTERESIS,Talking Delay,Atraso de fala
+TALK_HOLD,Talk Hold,Manter falando
+SMOOTHING_ATTACK_DESC,How quickly the smoothed volume rises when you start speaking. Higher values react faster to speech.,A rapidez com que o volume suavizado sobe quando você começa a falar. Valores maiores reagem mais rápido à fala.
+SMOOTHING_RELEASE_DESC,How quickly the smoothed volume falls after you stop speaking. Higher values drop faster.,A rapidez com que o volume suavizado cai depois que você para de falar. Valores maiores caem mais rápido.
+TALK_HYSTERESIS_DESC,Extra volume drop (dB) below the activation threshold needed to stop talking. Prevents flickering near the threshold.,Queda extra de volume (dB) abaixo do limite de ativação para parar de falar. Evita oscilação perto do limite.
+TALK_HOLD_DESC,How long the volume must stay below the threshold before talking stops.,Por quanto tempo o volume precisa ficar abaixo do limite antes de parar de falar.
 AVERAGE_DB,Average volume: %.1f dB,Média de volume: %.1f dB
 START_CALC_AVERAGE_DB,Calculate average volume,Calcular média de volume
 CALC_AVERAGE_DB,Average: %.1f dB,Média: %.1f dB

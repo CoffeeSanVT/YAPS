@@ -1,13 +1,19 @@
 extends Node
 
 const TAG := "[AudioSystem] "
-const SMOOTHING_ATTACK := 0.5
-const SMOOTHING_RELEASE := 0.05
-const TALK_HYSTERESIS_DB := 4.0
-const TALK_HOLD_MS := 600
-const SMOOTH_EMIT_INTERVAL := 1.0 / 30.0
+const SMOOTHING_ATTACK_DEFAULT := 0.5
+const SMOOTHING_RELEASE_DEFAULT := 0.05
+const TALK_HYSTERESIS_DB_DEFAULT := 4.0
+const TALK_HOLD_MS_DEFAULT := 600
+const SMOOTH_EMIT_FPS_DEFAULT := 30.0
+const MIN_SMOOTH_EMIT_FPS := 1.0
 
 var threshold_db: float
+var smoothing_attack: float
+var smoothing_release: float
+var talk_hysteresis_db: float
+var talk_hold_ms: int
+var smooth_emit_interval: float
 var record_bus_index: int
 var _was_exceeded: bool
 var _below_since_ms: int = -1
@@ -26,11 +32,26 @@ func _ready() -> void:
 	_apply_mic_gain(Settings.settings.mic_gain_db)
 	SignalBus.mic_monitoring_changed.connect(_on_mic_monitoring_changed)
 	_apply_mic_monitoring(Settings.settings.mic_monitoring)
+	smoothing_attack = Settings.settings.mic_smoothing_attack
+	smoothing_release = Settings.settings.mic_smoothing_release
+	talk_hysteresis_db = Settings.settings.mic_talk_hysteresis
+	talk_hold_ms = Settings.settings.mic_talk_hold
+	_apply_smooth_emit_fps(Settings.settings.mic_smooth_emit_fps)
+	SignalBus.mic_smoothing_attack_changed.connect(_on_mic_smoothing_attack_changed)
+	SignalBus.mic_smoothing_release_changed.connect(_on_mic_smoothing_release_changed)
+	SignalBus.mic_talk_hysteresis_changed.connect(_on_mic_talk_hysteresis_changed)
+	SignalBus.mic_talk_hold_changed.connect(_on_mic_talk_hold_changed)
+	SignalBus.mic_smooth_emit_fps_changed.connect(_on_mic_smooth_emit_fps_changed)
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"mic_threshold_changed", _on_mic_threshold_changed)
 	NodeUtil.safe_disconnect(SignalBus, &"mic_gain_changed", _on_mic_gain_changed)
 	NodeUtil.safe_disconnect(SignalBus, &"mic_monitoring_changed", _on_mic_monitoring_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"mic_smoothing_attack_changed", _on_mic_smoothing_attack_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"mic_smoothing_release_changed", _on_mic_smoothing_release_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"mic_talk_hysteresis_changed", _on_mic_talk_hysteresis_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"mic_talk_hold_changed", _on_mic_talk_hold_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"mic_smooth_emit_fps_changed", _on_mic_smooth_emit_fps_changed)
 	if _audio_player != null:
 		_audio_player.stop()
 		_audio_player.stream = null
@@ -65,7 +86,7 @@ func _process(delta: float) -> void:
 	SignalBus.mic_input_detected.emit(current_db)
 	_smoothed_db = _smooth_db(current_db, _smoothed_db)
 	_smooth_emit_accum += delta
-	if _smooth_emit_accum >= SMOOTH_EMIT_INTERVAL:
+	if _smooth_emit_accum >= smooth_emit_interval:
 		_smooth_emit_accum = 0.0
 		SignalBus.mic_input_smoothed.emit(_smoothed_db)
 	_update_exceeded(current_db)
@@ -75,10 +96,10 @@ func _update_exceeded(current_db: float) -> void:
 		_below_since_ms = -1
 		_set_exceeded(true, current_db)
 		return
-	if _smoothed_db < threshold_db - TALK_HYSTERESIS_DB:
+	if _smoothed_db < threshold_db - talk_hysteresis_db:
 		if _below_since_ms < 0:
 			_below_since_ms = Time.get_ticks_msec()
-		if _was_exceeded and Time.get_ticks_msec() - _below_since_ms >= TALK_HOLD_MS:
+		if _was_exceeded and Time.get_ticks_msec() - _below_since_ms >= talk_hold_ms:
 			_below_since_ms = -1
 			_set_exceeded(false, current_db)
 		return
@@ -90,8 +111,8 @@ func _set_exceeded(value: bool, _current_db: float) -> void:
 	_was_exceeded = value
 	SignalBus.mic_input_exceed_threshold.emit(value)
 
-static func _smooth_db(current: float, previous: float) -> float:
-	var alpha := SMOOTHING_ATTACK if current >= previous else SMOOTHING_RELEASE
+func _smooth_db(current: float, previous: float) -> float:
+	var alpha := smoothing_attack if current >= previous else smoothing_release
 	return lerpf(previous, current, alpha)
 
 func setup_mic_recording() -> void:
@@ -106,6 +127,24 @@ func setup_mic_recording() -> void:
 
 func _on_mic_monitoring_changed(enabled: bool) -> void:
 	_apply_mic_monitoring(enabled)
+
+func _on_mic_smoothing_attack_changed(value: float) -> void:
+	smoothing_attack = value
+
+func _on_mic_smoothing_release_changed(value: float) -> void:
+	smoothing_release = value
+
+func _on_mic_talk_hysteresis_changed(value: float) -> void:
+	talk_hysteresis_db = value
+
+func _on_mic_talk_hold_changed(value_ms: int) -> void:
+	talk_hold_ms = value_ms
+
+func _on_mic_smooth_emit_fps_changed(value: float) -> void:
+	_apply_smooth_emit_fps(value)
+
+func _apply_smooth_emit_fps(value: float) -> void:
+	smooth_emit_interval = 1.0 / maxf(value, MIN_SMOOTH_EMIT_FPS)
 
 func _apply_mic_monitoring(enabled: bool) -> void:
 	var trapped_bus_index := AudioServer.get_bus_index(&"TrappedOutput")
