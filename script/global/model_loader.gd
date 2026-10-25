@@ -5,6 +5,7 @@ signal model_loaded_changed
 const TAG := "[ModelLoader] "
 const TEXTURE_WORK_TIMEOUT_MS := 30000
 const BLINK_FRAME_RATE := 1.0
+const TEXTURE_SWEEP_INTERVAL := 15.0
 const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
 
 var model_loaded: ModelProfile = null:
@@ -31,6 +32,21 @@ var _content := ModelContent.new(self)
 func _ready() -> void:
 	PathUtil.ensure_model_folder()
 	add_child(ModelWsApi.new(self))
+	_start_idle_sweeper()
+
+func _start_idle_sweeper() -> void:
+	var timer := Timer.new()
+	timer.name = &"TextureIdleSweeper"
+	timer.wait_time = TEXTURE_SWEEP_INTERVAL
+	timer.timeout.connect(_sweep_idle_textures)
+	add_child(timer)
+	timer.start()
+
+func _sweep_idle_textures() -> void:
+	var removed := textures.unload_idle()
+	removed += TextureCache.unload_idle_pages()
+	if removed > 0:
+		print(TAG + "idle unload: %d texture(s)/page(s) released" % removed)
 
 func _exit_tree() -> void:
 	AnimatedImageRuntime.CancelAllExtractions()

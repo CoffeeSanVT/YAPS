@@ -34,15 +34,7 @@ static func wait_for_io(timeout_ms: int = IO_WAIT_TIMEOUT_MS) -> void:
 	_pending_task_ids.clear()
 
 static func request_gpu_image(path: String, done: Callable, owner: Object = null) -> void:
-	run_io(func() -> Image:
-		var cached := ImageUtil.load_vram_cache(path)
-		if not cached.is_empty():
-			return cached.image
-		var image := ImageUtil.load_image(path)
-		if image != null:
-			ImageUtil.compress_for_gpu(image, path, image.get_used_rect())
-		return image
-	, done, owner)
+	run_io(func() -> Image: return ImageUtil.load_gpu_image(path), done, owner)
 
 class DeferredSaver:
 	const TAG := "[DeferredSaver] "
