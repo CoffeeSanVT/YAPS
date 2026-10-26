@@ -10,6 +10,7 @@
 [ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/runtime/pencil/pencil_disabled.svg" id="7_pencil_d"]
 [ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/runtime/pencil/pencil_focused.svg" id="8_pencil_f"]
 [ext_resource type="PackedScene" uid="uid://d1q6ma2vw4h7n" path="res://prefabs/triggers/twitch_event_foldable.tscn" id="9_twitch_foldable"]
+[ext_resource type="PackedScene" uid="uid://can0slfbyde8w" path="res://prefabs/triggers/twitch_event_pulse.tscn" id="10_twitch_pulse"]
 
 
 [node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("trigger_foldable", "options_button", "trigger_options", "twitch_foldable", "effects_hint", "movement_option", "movement_options", "filter_option", "filter_options", "tile_text", "rename_button", "default_button")]
@@ -158,6 +159,7 @@ size_flags_vertical = 4
 
 [node name="TwitchEventFoldable" parent="VBoxContainer" unique_id=256149270 instance=ExtResource("9_twitch_foldable")]
 layout_mode = 2
+pulse_prefab = ExtResource("10_twitch_pulse")
 
 [connection signal="pressed" from="VBoxContainer/Title/RenameButton" to="." method="_on_rename_pressed"]
 [connection signal="item_selected" from="VBoxContainer/TriggerContainer/VBoxContainer/OptionButton" to="." method="_on_option_button_item_selected"]

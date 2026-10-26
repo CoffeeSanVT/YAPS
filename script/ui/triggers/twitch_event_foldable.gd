@@ -7,6 +7,8 @@ signal twitch_event_changed(twitch_event: TwitchEvent)
 @export var twitch_toggle: CheckButton
 @export var twitch_foldable: FoldableContainer
 @export var twitch_content: VBoxContainer
+@export_category("Prefab Overrides")
+@export var pulse_prefab: PackedScene
 
 var twitch_event: TwitchEvent
 var _twitch_ui: Node
@@ -44,7 +46,8 @@ func _on_twitch_toggled(pressed: bool) -> void:
 
 func _instantiate_twitch_ui(event: TwitchEvent) -> void:
 	_clear_twitch_ui()
-	var ui := event.ui_prefab.instantiate()
+	var prefab := pulse_prefab if pulse_prefab != null else event.ui_prefab
+	var ui := prefab.instantiate()
 	_twitch_ui = ui
 	twitch_content.add_child(ui)
 	if ui is TwitchEventUi:
