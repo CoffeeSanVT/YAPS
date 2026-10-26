@@ -23,8 +23,10 @@ const TRASH_ICON_DISABLED := "uid://dm5jhnakge0ff"
 const TRASH_ICON_FOCUSED := "uid://menup57lhvdt"
 const OVERRIDE_FOLDED_META := &"override_settings_folded"
 const FRAMES_FOLDED_META := &"frames_folded"
+const THUMB_UNLOAD_SECONDS := 3.0
 
 var state_entry: ModelStateEntry
+var _held_thumb_paths: Array[String] = []
 
 func _ready() -> void:
 	_setup_rename_util(rename_button)
@@ -46,6 +48,9 @@ func _exit_tree() -> void:
 		NodeUtil.safe_disconnect(frames_fold, &"folding_changed", _on_frames_fold_changed)
 	if override_fold != null:
 		NodeUtil.safe_disconnect(override_fold, &"folding_changed", _on_override_fold_changed)
+	if not _held_thumb_paths.is_empty():
+		ModelLoader.textures.release_thumbs(_held_thumb_paths)
+		_held_thumb_paths = []
 
 func set_state_entry(entry: ModelStateEntry) -> void:
 	state_entry = entry
@@ -70,10 +75,34 @@ func _frames_visible() -> bool:
 
 func _populate_frames() -> void:
 	NodeUtil.clear_children(frames_list)
+	_sync_thumb_holds()
 	if state_entry == null or not _frames_visible():
 		return
 	for frame_path in state_entry.frames:
 		_add_frame_row(frame_path)
+
+func _sync_thumb_holds() -> void:
+	var held: Array[String] = []
+	if state_entry != null and _frames_visible():
+		held.assign(state_entry.frames)
+	var acquired: Array[String] = []
+	for path in held:
+		if not _held_thumb_paths.has(path):
+			acquired.append(path)
+	var released: Array[String] = []
+	for path in _held_thumb_paths:
+		if not held.has(path):
+			released.append(path)
+	_held_thumb_paths = held
+	if not acquired.is_empty():
+		ModelLoader.textures.acquire_thumbs(acquired)
+	if not released.is_empty():
+		_release_thumbs_later(released)
+
+func _release_thumbs_later(paths: Array[String]) -> void:
+	get_tree().create_timer(THUMB_UNLOAD_SECONDS).timeout.connect(func() -> void:
+		ModelLoader.textures.release_thumbs(paths)
+	)
 
 func _on_frames_fold_changed(_is_folded: bool) -> void:
 	_store_fold_state()

@@ -2,7 +2,7 @@ class_name TextureCache
 extends RefCounted
 
 const CACHE_BUDGET_BYTES := 512 * 1024 * 1024
-const SNAP_SAMPLE_SIZE := 24
+const SNAP_SAMPLE_SIZE := 32
 const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
 const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
 const PAGE_CACHE_LIMIT := 4
@@ -20,6 +20,7 @@ var _bytes: int = 0
 var _path_bytes: Dictionary[String, int] = {}
 var _thumbs: Dictionary[String, Image] = {}
 var _thumbs_complete: Dictionary[ModelStateEntry, bool] = {}
+var _thumb_refs: Dictionary[String, int] = {}
 var _animated_assets: Dictionary[String, bool] = {}
 var _last_use: Dictionary[String, int] = {}
 
@@ -265,6 +266,33 @@ func has_all_thumbs(state: ModelStateEntry) -> bool:
 	_thumbs_complete[state] = true
 	return true
 
+func acquire_thumbs(paths: Array[String]) -> void:
+	for path in paths:
+		if path.is_empty():
+			continue
+		_thumb_refs[path] = int(_thumb_refs.get(path, 0)) + 1
+
+func release_thumbs(paths: Array[String]) -> void:
+	var evicted := false
+	for path in paths:
+		if path.is_empty():
+			continue
+		var refs := int(_thumb_refs.get(path, 0)) - 1
+		if refs > 0:
+			_thumb_refs[path] = refs
+			continue
+		_thumb_refs.erase(path)
+		if _thumbs.erase(path):
+			evicted = true
+	if evicted:
+		_thumbs_complete.clear()
+	if _thumb_refs.is_empty():
+		_page_lock.lock()
+		_thumb_page_images.clear()
+		_thumb_page_mtimes.clear()
+		_thumb_page_order.clear()
+		_page_lock.unlock()
+
 func snap_start_index(state: ModelStateEntry, reference_tex: Texture2D) -> int:
 	var paths := _state_frame_paths(state)
 	var reference_thumb := _texture_to_thumb(reference_tex)
@@ -338,6 +366,7 @@ func clear() -> void:
 	_bounds.clear()
 	_thumbs.clear()
 	_thumbs_complete.clear()
+	_thumb_refs.clear()
 	_animated_assets.clear()
 	_path_bytes.clear()
 	_last_use.clear()

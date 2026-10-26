@@ -4,7 +4,7 @@ extends RefCounted
 const TAG := "[AtlasBuilder] "
 const AtlasPackerScript := preload("uid://dd1y177itygx0")
 const DEFAULT_ALPHA_THRESHOLD := 0.0
-const THUMB_SIZE := 24
+const THUMB_SIZE := 64
 const THUMB_DIR := "_thumb"
 const DOC_VERSION := 2
 
