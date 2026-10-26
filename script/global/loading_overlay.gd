@@ -18,6 +18,7 @@ var _shown_at_ms: int = -1
 var _bg_tween: Tween
 var _bg_dark_tween: Tween
 var _invert := false
+var _depth := 0
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -25,6 +26,11 @@ func _ready() -> void:
 	_dots_timer.wait_time = LOADING_DOT_INTERVAL
 
 func show_loading(status: StringName, run_bg_loop := true) -> void:
+	_depth += 1
+	if _screen.visible:
+		ApplicationState.set_loading(true)
+		set_status(status)
+		return
 	_dot_count = 0
 	ApplicationState.set_loading(true)
 	set_status(status)
@@ -41,9 +47,10 @@ func set_status(status: StringName) -> void:
 	_refresh_status_label()
 
 func hide_loading() -> void:
-	ApplicationState.set_loading(false)
-	if not _screen.visible:
+	_depth = maxi(_depth - 1, 0)
+	if _depth > 0 or not _screen.visible:
 		return
+	ApplicationState.set_loading(false)
 	if _shown_at_ms >= 0:
 		var remaining_ms := MIN_DISPLAY_MS - (Time.get_ticks_msec() - _shown_at_ms)
 		_shown_at_ms = -1

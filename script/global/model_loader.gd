@@ -5,8 +5,9 @@ signal model_loaded_changed
 const TAG := "[ModelLoader] "
 const TEXTURE_WORK_TIMEOUT_MS := 30000
 const BLINK_FRAME_RATE := 1.0
-const TEXTURE_SWEEP_INTERVAL := 15.0
-const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
+const TEXTURE_SWEEP_INTERVAL := 10.0
+const DISABLE_LAZY_LOADING := false
+const AtlasStoreScript := preload("uid://r2yh4gsi0k0q")
 
 var model_loaded: ModelProfile = null:
 	set(value):
@@ -35,6 +36,8 @@ func _ready() -> void:
 	_start_idle_sweeper()
 
 func _start_idle_sweeper() -> void:
+	if DISABLE_LAZY_LOADING:
+		return
 	var timer := Timer.new()
 	timer.name = &"TextureIdleSweeper"
 	timer.wait_time = TEXTURE_SWEEP_INTERVAL
@@ -104,7 +107,19 @@ func save_model_profile(model: ModelProfile) -> void:
 		save_path = PathUtil.get_model_folder_path(model.model_name).path_join(ModelProfileStore.MODEL_FILE_NAME)
 	model.resource_path = save_path
 	_saver.save_resource(model, save_path)
-	AtlasStoreScript.update_model_atlases(model)
+	_update_model_atlases(model)
+
+func _update_model_atlases(model: ModelProfile) -> void:
+	if not AtlasStoreScript.has_pending_atlas_jobs(model):
+		return
+	await LoadingOverlay.show_loading(&"LOADING_GENERATING")
+	var finished := { "done": false }
+	AtlasStoreScript.update_model_atlases(model, func(_built: int) -> void:
+		finished.done = true
+	)
+	while not finished.done:
+		await get_tree().process_frame
+	LoadingOverlay.hide_loading()
 
 func create_and_save_static_model(model_name: String, paths_to_images: PackedStringArray, done: Callable = Callable(), classifications: Dictionary = {}, on_progress: Callable = Callable(), owner_object: Object = null) -> void:
 	if model_name.strip_edges().is_empty():

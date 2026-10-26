@@ -192,5 +192,6 @@ LOADING_SAVING,Saving model,Salvando modelo
 LOADING_LOADING,Loading model,Carregando modelo
 LOADING_COMPRESSING,Compressing textures,Comprimindo texturas
 LOADING_MENU,Returning to menu,Voltando ao menu
+LOADING_GENERATING,Generating atlases,Gerando atlas
 RENAME_TEXT,Type the new name,Digite o novo nome
 OVERRIDE_SETTINGS,Override Settings,Substituir Configurações
