@@ -85,7 +85,7 @@ static func start_rename(label: Label, current_text: String, on_confirmed: Calla
 	line_edit.custom_maximum_size = label.custom_maximum_size
 	line_edit.set_meta("label_ref", label)
 	line_edit.text_submitted.connect(_on_submitted.bind(line_edit, on_confirmed))
-	line_edit.focus_exited.connect(_on_focus_exited.bind(line_edit, on_canceled))
+	line_edit.focus_exited.connect(_on_focus_exited.bind(line_edit, on_confirmed))
 	line_edit.gui_input.connect(_on_gui_input.bind(line_edit, on_canceled))
 	label.get_parent().add_child(line_edit)
 	label.get_parent().move_child(line_edit, label.get_index())
@@ -109,8 +109,8 @@ static func _on_submitted(new_name: String, line_edit: LineEdit, on_confirmed: C
 	if on_confirmed.is_valid():
 		on_confirmed.call(new_name.strip_edges())
 
-static func _on_focus_exited(line_edit: LineEdit, on_canceled: Callable) -> void:
-	_cancel_rename(line_edit, on_canceled)
+static func _on_focus_exited(line_edit: LineEdit, on_confirmed: Callable) -> void:
+	_on_submitted(line_edit.text, line_edit, on_confirmed)
 
 static func _on_gui_input(event: InputEvent, line_edit: LineEdit, on_canceled: Callable) -> void:
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
