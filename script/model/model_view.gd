@@ -222,6 +222,11 @@ func _start_frame_animation(state: ModelStateEntry) -> void:
 	show_static(state)
 	_track.frames = ModelLoader.textures.state_frame_array(state)
 	_track.index = _snap_start_index(state, ModelLoader.textures.has_all_thumbs(state))
+	if ModelLoader.DISABLE_LAZY_LOADING:
+		ModelLoader.textures.request_frame_window(state, 0, _track.frames.size(), _track.frames, self, func(ready_count: int) -> void:
+			_on_frames_buffered(state, ready_count)
+		)
+		return
 	ModelLoader.textures.request_frame_window(state, _track.index, HOT_WINDOW, _track.frames, self, func(ready_count: int) -> void:
 		_on_frames_buffered(state, ready_count)
 	)
@@ -246,6 +251,8 @@ func _show_track_frame() -> void:
 func _stream_lookahead() -> void:
 	var state := _track.entry
 	if state == null or _track.frames.is_empty():
+		return
+	if ModelLoader.DISABLE_LAZY_LOADING:
 		return
 	var size := _track.frames.size()
 	ModelLoader.textures.request_state_frame(state, (_track.index + HOT_LOOKAHEAD) % size, _track.frames, self)

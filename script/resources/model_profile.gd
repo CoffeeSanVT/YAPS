@@ -5,7 +5,7 @@ extends Resource
 @export var model_name: String = ""
 
 @export_category("Performance")
-@export var vram_texture_compression: bool = false
+@export var vram_texture_compression: bool = true
 
 @export_category("States & Emotions")
 @export var branches: Array[ModelState] = []
