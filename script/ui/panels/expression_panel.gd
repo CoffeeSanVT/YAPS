@@ -104,10 +104,14 @@ func _add_frame_row(frame_path: String) -> void:
 	thumb.custom_minimum_size = Vector2(32, 32)
 	thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	thumb.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	ModelLoader.textures.request_texture(frame_path, func(tex: ImageTexture) -> void:
-		thumb.texture = tex
-	, thumb)
+	thumb.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	var thumb_ref: WeakRef = weakref(thumb)
+	ModelLoader.textures.request_thumb(frame_path, func(img: Image) -> void:
+		var node: TextureRect = thumb_ref.get_ref()
+		if node == null or img == null:
+			return
+		node.texture = ImageTexture.create_from_image(img)
+	)
 	row.add_child(thumb)
 
 	var label := Label.new()

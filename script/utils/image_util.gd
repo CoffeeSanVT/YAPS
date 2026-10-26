@@ -21,22 +21,13 @@ const VRAM_FORMATS := {
 	Image.FORMAT_BPTC_RGBFU: { "bytes": 16, "name": "BC6H/BPTC" },
 }
 const VRAM_CACHE_SUFFIX := ".bc"
-const VRAM_CACHE_VERSION := 3
+const VRAM_CACHE_VERSION := 4
 const COMPRESS_DONE := 1
 const COMPRESS_FAILED := 2
 
 static func model_compress_enabled() -> bool:
 	var model := ModelLoader.model_loaded
 	return model != null and model.vram_texture_compression
-
-static func ensure_mipmaps(image: Image) -> void:
-	if image == null or image.is_empty():
-		return
-	if image.is_compressed() or image.has_mipmaps():
-		return
-	if image.get_width() <= 1 and image.get_height() <= 1:
-		return
-	image.generate_mipmaps()
 
 static func fit_image(image: Image, max_size: Vector2) -> void:
 	if image == null or image.is_empty() or max_size.x <= 0.0 or max_size.y <= 0.0:
@@ -51,6 +42,20 @@ static func image_fits(image: Image, max_size: Vector2) -> bool:
 	if max_size.x <= 0.0 or max_size.y <= 0.0 or image == null or image.is_empty():
 		return true
 	return image.get_width() <= max_size.x and image.get_height() <= max_size.y
+
+static func thumb_canvas(source: Image, size: int) -> Image:
+	if source == null or source.is_empty() or size <= 0:
+		return null
+	var image := source.duplicate()
+	image.convert(Image.FORMAT_RGBA8)
+	var source_size := Vector2(image.get_width(), image.get_height())
+	var ratio := minf(float(size) / source_size.x, float(size) / source_size.y)
+	var w := maxi(1, int(source_size.x * ratio))
+	var h := maxi(1, int(source_size.y * ratio))
+	image.resize(w, h, Image.INTERPOLATE_BILINEAR)
+	var canvas := Image.create_empty(size, size, false, Image.FORMAT_RGBA8)
+	canvas.blit_rect(image, Rect2i(Vector2i.ZERO, Vector2i(w, h)), Vector2i((size - w) >> 1, (size - h) >> 1))
+	return canvas
 
 static func compress_for_gpu(image: Image, path := "", used_rect := Rect2i()) -> void:
 	if not model_compress_enabled():
@@ -88,11 +93,10 @@ static func load_vram_cache(path: String) -> Dictionary:
 	var width := f.get_32()
 	var height := f.get_32()
 	var format := f.get_32()
-	var mipmaps := f.get_32()
 	var rect := Rect2i(f.get_32(), f.get_32(), f.get_32(), f.get_32())
 	var data_size := f.get_32()
 	var bytes_per_block: int = _vram_block_bytes(format)
-	var expected := _vram_data_size(width, height, mipmaps > 0, bytes_per_block)
+	var expected := _vram_data_size(width, height, bytes_per_block)
 	if width <= 0 or height <= 0 or bytes_per_block == 0 or data_size != expected:
 		f.close()
 		return {}
@@ -100,7 +104,7 @@ static func load_vram_cache(path: String) -> Dictionary:
 	f.close()
 	if data.size() != data_size:
 		return {}
-	var image := Image.create_from_data(width, height, mipmaps > 0, format, data)
+	var image := Image.create_from_data(width, height, false, format, data)
 	if image == null:
 		return {}
 	_count_lock.lock()
@@ -115,18 +119,9 @@ static func _vram_block_bytes(format: int) -> int:
 static func _vram_format_name(format: int) -> String:
 	return str(VRAM_FORMATS.get(format, {}).get("name", format))
 
-static func _vram_data_size(width: int, height: int, mipmapped: bool, bytes_per_block: int) -> int:
-	var total := 0
-	var w := width
-	var h := height
-	while true:
-		@warning_ignore("integer_division")
-		total += ((w + 3) / 4) * ((h + 3) / 4) * bytes_per_block
-		if not mipmapped or (w == 1 and h == 1):
-			break
-		w = maxi(1, w >> 1)
-		h = maxi(1, h >> 1)
-	return total
+static func _vram_data_size(width: int, height: int, bytes_per_block: int) -> int:
+	@warning_ignore("integer_division")
+	return ((width + 3) / 4) * ((height + 3) / 4) * bytes_per_block
 
 static func _write_vram_cache(path: String, image: Image, used_rect: Rect2i) -> void:
 	var format := image.get_format()
@@ -141,7 +136,6 @@ static func _write_vram_cache(path: String, image: Image, used_rect: Rect2i) -> 
 	f.store_32(image.get_width())
 	f.store_32(image.get_height())
 	f.store_32(format)
-	f.store_32(1 if image.has_mipmaps() else 0)
 	f.store_32(used_rect.position.x)
 	f.store_32(used_rect.position.y)
 	f.store_32(used_rect.size.x)
@@ -172,17 +166,13 @@ static func estimate_vram_bytes(image: Image) -> int:
 		return -1
 	var block_bytes: int = _vram_block_bytes(image.get_format())
 	if block_bytes > 0:
-		return _vram_data_size(image.get_width(), image.get_height(), image.has_mipmaps(), block_bytes)
-	var bytes := image.get_width() * image.get_height() * 4
-	if image.has_mipmaps():
-		bytes += int(bytes / 3.0)
-	return bytes
+		return _vram_data_size(image.get_width(), image.get_height(), block_bytes)
+	return image.get_width() * image.get_height() * 4
 
 static func estimate_vram_bytes_heuristic(size: Vector2i, compressed: bool) -> int:
 	if compressed:
-		return _vram_data_size(size.x, size.y, true, 16)
-	var bytes := size.x * size.y * 4
-	return bytes + int(bytes / 3.0)
+		return _vram_data_size(size.x, size.y, 16)
+	return size.x * size.y * 4
 
 
 
@@ -220,7 +210,6 @@ static func load_texture_with_rect(path: String) -> TextureLoadResult:
 	if image == null:
 		return TextureLoadResult.new()
 	var used_rect := image.get_used_rect()
-	ensure_mipmaps(image)
 	compress_for_gpu(image, path, used_rect)
 	return TextureLoadResult.new(ImageTexture.create_from_image(image), used_rect, estimate_vram_bytes(image))
 

@@ -7,8 +7,8 @@ const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
 const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
 const PAGE_CACHE_LIMIT := 4
 const PAGE_CACHE_BUDGET_BYTES := 256 * 1024 * 1024
-const IDLE_UNLOAD_SECONDS := 60.0
-const PAGE_IDLE_UNLOAD_SECONDS := 60.0
+const IDLE_UNLOAD_SECONDS := 15.0
+const PAGE_IDLE_UNLOAD_SECONDS := 15.0
 
 var _cache: Dictionary[String, ImageTexture] = {}
 var _order: Array[String] = []
@@ -29,6 +29,10 @@ static var _page_order: Array[String] = []
 static var _page_last_use: Dictionary[String, int] = {}
 static var _page_total := 0
 static var _page_lock := Mutex.new()
+const THUMB_PAGE_CACHE_LIMIT := 8
+static var _thumb_page_images: Dictionary[String, Image] = {}
+static var _thumb_page_mtimes: Dictionary[String, int] = {}
+static var _thumb_page_order: Array[String] = []
 
 func load_state_texture(state: ModelStateEntry) -> ImageTexture:
 	var paths := _state_frame_paths(state)
@@ -114,7 +118,6 @@ func request_texture(path: String, done: Callable, owner: Object = null, max_siz
 				return [null, Rect2i()]
 			ImageUtil.fit_image(image, max_size)
 			var used_rect := image.get_used_rect()
-			ImageUtil.ensure_mipmaps(image)
 			ImageUtil.compress_for_gpu(image, path, used_rect)
 			return [image, used_rect]
 	else:
@@ -209,14 +212,32 @@ func request_state_frame(state: ModelStateEntry, index: int, frames: Array[Image
 		frames[slot] = tex
 	, owner)
 
-func request_thumb(path: String) -> void:
-	if path.is_empty() or _thumbs.has(path):
+func request_thumb(path: String, done: Callable = Callable()) -> void:
+	if path.is_empty():
+		return
+	if _thumbs.has(path):
+		if done.is_valid():
+			done.call_deferred(_thumbs[path])
 		return
 	var deliver := func(img: Image) -> void:
 		if img != null and img.get_width() == SNAP_SAMPLE_SIZE and img.get_height() == SNAP_SAMPLE_SIZE:
 			_thumbs[path] = img
+		if done.is_valid():
+			done.call_deferred(img)
 	var meta: Dictionary = AtlasStoreScript.frame_meta(path)
 	if not meta.is_empty():
+		var thumb_page_path := String(meta.get("thumb_page_path", ""))
+		if not thumb_page_path.is_empty():
+			var thumb_rect: Rect2i = meta.get("thumb_rect", Rect2i())
+			IoService.run_io(func() -> Image:
+				var page := _thumb_page_image(thumb_page_path)
+				if page == null:
+					return null
+				if thumb_rect.position.x < 0 or thumb_rect.position.y < 0 or thumb_rect.end.x > page.get_width() or thumb_rect.end.y > page.get_height():
+					return null
+				return page.get_region(thumb_rect)
+			, deliver)
+			return
 		IoService.run_io(func() -> Image:
 			var page := _page_image(meta.page_path)
 			if page == null:
@@ -224,19 +245,14 @@ func request_thumb(path: String) -> void:
 			var region: Rect2i = meta.rect
 			if region.end.x > page.get_width() or region.end.y > page.get_height() or region.position.x < 0 or region.position.y < 0:
 				return null
-			var image := page.get_region(region)
-			image.convert(Image.FORMAT_RGBA8)
-			image.resize(SNAP_SAMPLE_SIZE, SNAP_SAMPLE_SIZE, Image.INTERPOLATE_BILINEAR)
-			return image
+			return ImageUtil.thumb_canvas(page.get_region(region), SNAP_SAMPLE_SIZE)
 		, deliver)
 		return
 	IoService.run_io(func() -> Image:
 		var image := ImageUtil.load_image(path)
 		if image == null:
 			return null
-		image.convert(Image.FORMAT_RGBA8)
-		image.resize(SNAP_SAMPLE_SIZE, SNAP_SAMPLE_SIZE, Image.INTERPOLATE_BILINEAR)
-		return image
+		return ImageUtil.thumb_canvas(image, SNAP_SAMPLE_SIZE)
 	, deliver)
 
 func has_all_thumbs(state: ModelStateEntry) -> bool:
@@ -275,13 +291,7 @@ func _texture_to_thumb(tex: Texture2D) -> Image:
 		return null
 	if image.is_compressed() and image.decompress() != OK:
 		return null
-	if image.has_mipmaps():
-		image.clear_mipmaps()
-	image.convert(Image.FORMAT_RGBA8)
-	image.resize(SNAP_SAMPLE_SIZE, SNAP_SAMPLE_SIZE, Image.INTERPOLATE_BILINEAR)
-	if image.get_width() != SNAP_SAMPLE_SIZE or image.get_height() != SNAP_SAMPLE_SIZE:
-		return null
-	return image
+	return ImageUtil.thumb_canvas(image, SNAP_SAMPLE_SIZE)
 
 static func _thumb_diff(a: Image, b: Image) -> float:
 	if a == null or b == null:
@@ -337,6 +347,9 @@ func clear() -> void:
 	_page_order.clear()
 	_page_last_use.clear()
 	_page_total = 0
+	_thumb_page_images.clear()
+	_thumb_page_mtimes.clear()
+	_thumb_page_order.clear()
 
 func pending_count() -> int:
 	return _pending_requests.size()
@@ -355,13 +368,40 @@ static func _decode_atlas_frame(path: String, meta: Dictionary, max_size: Vector
 	var canvas := Image.create_empty(canvas_size.x, canvas_size.y, false, Image.FORMAT_RGBA8)
 	canvas.blit_rect(page, region, meta.offset)
 	var used_rect := Rect2i(meta.offset, region.size)
-	ImageUtil.ensure_mipmaps(canvas)
 	ImageUtil.compress_for_gpu(canvas, path, used_rect)
 	return [canvas, used_rect]
 
 static func _page_image(page_path: String) -> Image:
 	_page_lock.lock()
 	var image := _page_image_locked(page_path)
+	_page_lock.unlock()
+	return image
+
+static func _thumb_page_image(page_path: String) -> Image:
+	_page_lock.lock()
+	var mtime := FileAccess.get_modified_time(PathUtil.get_real_path(page_path))
+	var cached: Image = _thumb_page_images.get(page_path)
+	if cached != null and int(_thumb_page_mtimes.get(page_path, -1)) == mtime:
+		_thumb_page_order.erase(page_path)
+		_thumb_page_order.append(page_path)
+		_page_lock.unlock()
+		return cached
+	_page_lock.unlock()
+	var image := Image.load_from_file(PathUtil.get_real_path(page_path))
+	if image == null:
+		return null
+	if image.is_compressed() and image.decompress() != OK:
+		return null
+	_page_lock.lock()
+	_thumb_page_images[page_path] = image
+	_thumb_page_mtimes[page_path] = mtime
+	_thumb_page_order.erase(page_path)
+	_thumb_page_order.append(page_path)
+	while _thumb_page_order.size() > THUMB_PAGE_CACHE_LIMIT:
+		var evict: String = _thumb_page_order[0]
+		_thumb_page_order.remove_at(0)
+		_thumb_page_images.erase(evict)
+		_thumb_page_mtimes.erase(evict)
 	_page_lock.unlock()
 	return image
 

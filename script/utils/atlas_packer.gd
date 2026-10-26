@@ -2,7 +2,7 @@ class_name AtlasPacker
 extends RefCounted
 
 const MIN_PAGE_SIZE := 64
-const MAX_PAGE_SIZE := 4096
+const MAX_PAGE_SIZE := 2048
 const DEFAULT_PADDING := 2
 const MAX_FREE_RECTS := 512
 
@@ -13,8 +13,6 @@ static func trim_sprite(source: Image, alpha_threshold: float = 0.0) -> Dictiona
 	if image.get_format() != Image.FORMAT_RGBA8:
 		image = image.duplicate()
 		image.convert(Image.FORMAT_RGBA8)
-	if image.has_mipmaps():
-		image.clear_mipmaps()
 	var rect := Rect2i()
 	if alpha_threshold <= 0.0:
 		rect = image.get_used_rect()

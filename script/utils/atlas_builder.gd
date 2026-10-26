@@ -2,8 +2,11 @@ class_name AtlasBuilder
 extends RefCounted
 
 const TAG := "[AtlasBuilder] "
-const AtlasPackerScript := preload("res://script/utils/atlas_packer.gd")
+const AtlasPackerScript := preload("uid://dd1y177itygx0")
 const DEFAULT_ALPHA_THRESHOLD := 0.0
+const THUMB_SIZE := 24
+const THUMB_DIR := "_thumb"
+const DOC_VERSION := 2
 
 static func build_state_atlas(state: ModelStateEntry, out_dir: String, options: Dictionary = {}) -> Dictionary:
 	var alpha_threshold: float = options.get("alpha_threshold", DEFAULT_ALPHA_THRESHOLD)
@@ -84,8 +87,13 @@ static func build_state_atlas(state: ModelStateEntry, out_dir: String, options: 
 				pages_meta.append({ "file": file_path.get_file(), "size": [page_size.x, page_size.y] })
 		else:
 			pages_meta.append({ "file": "", "size": [page_size.x, page_size.y] })
+	var thumb_pages_meta := _build_thumb_atlas(state, out_dir, frames_meta, sprites, save)
+	for meta: Dictionary in thumb_pages_meta:
+		var thumb_file := String(meta.get("file", ""))
+		if not thumb_file.is_empty():
+			files.append(out_dir.path_join(THUMB_DIR).path_join(thumb_file))
 	if save:
-		files.append(_save_metadata(state, out_dir, frames_meta, pages_meta, alpha_threshold, padding))
+		files.append(_save_metadata(state, out_dir, frames_meta, pages_meta, thumb_pages_meta, alpha_threshold, padding))
 	return {
 		"state": state.state_name,
 		"frame_count": paths.size(),
@@ -93,6 +101,7 @@ static func build_state_atlas(state: ModelStateEntry, out_dir: String, options: 
 		"empty_count": empty_count,
 		"pages": pages_meta,
 		"page_count": pack_pages.size(),
+		"thumb_pages": thumb_pages_meta,
 		"source_pixels": source_pixels,
 		"trimmed_pixels": trimmed_pixels,
 		"atlas_pixels": atlas_pixels,
@@ -111,7 +120,55 @@ static func _packed_count(frames_meta: Array) -> int:
 			count += 1
 	return count
 
-static func _save_metadata(state: ModelStateEntry, out_dir: String, frames_meta: Array, pages_meta: Array, alpha_threshold: float, padding: int) -> String:
+static func _build_thumb_atlas(state: ModelStateEntry, out_dir: String, frames_meta: Array, sprites: Array[Image], save: bool) -> Array:
+	var thumbs: Array[Image] = []
+	var thumb_frames: Array[int] = []
+	for meta_index: int in frames_meta.size():
+		var meta: Dictionary = frames_meta[meta_index]
+		if int(meta.page) < 0:
+			continue
+		var sprite: Image = sprites[meta_index]
+		if sprite == null:
+			continue
+		var thumb := ImageUtil.thumb_canvas(sprite, THUMB_SIZE)
+		if thumb != null:
+			thumbs.append(thumb)
+			thumb_frames.append(meta_index)
+	var pages_meta: Array = []
+	if thumbs.is_empty():
+		return pages_meta
+	var thumb_sizes: Array[Vector2i] = []
+	thumb_sizes.resize(thumbs.size())
+	for i: int in thumbs.size():
+		thumb_sizes[i] = Vector2i(THUMB_SIZE, THUMB_SIZE)
+	var pack_result: Dictionary = AtlasPackerScript.pack(thumb_sizes, 0, AtlasPackerScript.MIN_PAGE_SIZE, AtlasPackerScript.MAX_PAGE_SIZE, true)
+	var thumb_dir := out_dir.path_join(THUMB_DIR)
+	if save:
+		var dir_err := PathUtil.ensure_dir(thumb_dir)
+		if dir_err != OK:
+			push_error(TAG + "failed to create thumb dir '%s': %s" % [thumb_dir, error_string(dir_err)])
+	for page_index: int in (pack_result.pages as Array).size():
+		var page: Dictionary = pack_result.pages[page_index]
+		var page_size: Vector2i = page.size
+		var atlas := Image.create_empty(page_size.x, page_size.y, false, Image.FORMAT_RGBA8)
+		for placement: Dictionary in page.placements:
+			var rect: Rect2i = placement.rect
+			atlas.blit_rect(thumbs[placement.index], Rect2i(Vector2i.ZERO, Vector2i(THUMB_SIZE, THUMB_SIZE)), rect.position)
+			var meta: Dictionary = frames_meta[thumb_frames[placement.index]]
+			meta.thumb_page = page_index
+			meta.thumb_rect = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+		if save:
+			var file_path := thumb_dir.path_join(thumb_page_file_name(state.state_name, page_index))
+			var err := atlas.save_png(file_path)
+			if err != OK:
+				push_error(TAG + "failed to save '%s': %s" % [file_path, error_string(err)])
+			else:
+				pages_meta.append({ "file": file_path.get_file(), "size": [page_size.x, page_size.y] })
+		else:
+			pages_meta.append({ "file": "", "size": [page_size.x, page_size.y] })
+	return pages_meta
+
+static func _save_metadata(state: ModelStateEntry, out_dir: String, frames_meta: Array, pages_meta: Array, thumb_pages_meta: Array, alpha_threshold: float, padding: int) -> String:
 	var frames_json: Array = []
 	for meta: Dictionary in frames_meta:
 		var rect: Rect2i = meta.rect
@@ -124,15 +181,20 @@ static func _save_metadata(state: ModelStateEntry, out_dir: String, frames_meta:
 			"trimmed_size": [meta.trimmed_size.x, meta.trimmed_size.y] if meta.trimmed else [0, 0],
 			"trimmed": meta.trimmed,
 			"empty": meta.empty,
+			"thumb_page": int(meta.get("thumb_page", -1)),
+			"thumb_rect": meta.get("thumb_rect", []),
 		})
 	var document := {
+		"version": DOC_VERSION,
 		"state": state.state_name,
 		"frame_rate": state.frame_rate,
 		"loop_animation": state.loop_animation,
 		"alpha_threshold": alpha_threshold,
 		"padding": padding,
 		"power_of_two": true,
+		"thumb_size": [THUMB_SIZE, THUMB_SIZE],
 		"pages": pages_meta,
+		"thumb_pages": thumb_pages_meta,
 		"frames": frames_json,
 	}
 	var json_path := out_dir.path_join(metadata_file_name(state.state_name))
@@ -149,6 +211,12 @@ static func metadata_file_name(state_name: String) -> String:
 
 static func page_file_name(state_name: String, page_index: int) -> String:
 	return "%s_atlas_p%d.png" % [_sanitize(state_name), page_index]
+
+static func thumb_page_file_name(state_name: String, page_index: int) -> String:
+	return "%s_thumb_p%d.png" % [_sanitize(state_name), page_index]
+
+static func thumb_page_prefix(state_name: String) -> String:
+	return "%s_thumb_p" % _sanitize(state_name)
 
 static func _sanitize(name: String) -> String:
 	var invalid := "/\\:*?\"<>|%. "

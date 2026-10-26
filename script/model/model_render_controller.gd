@@ -67,16 +67,10 @@ func _prewarm_textures() -> void:
 				ModelLoader.textures.pin_path(entry.asset_path)
 				if _is_static_image(entry.asset_path):
 					ModelLoader.textures.request_texture(entry.asset_path, Callable())
-					ModelLoader.textures.request_thumb(entry.asset_path)
 			if entry.frames.is_empty():
 				continue
 			ModelLoader.textures.pin_path(entry.frames[0])
 			ModelLoader.textures.request_texture(entry.frames[0], Callable())
-			for frame_path in entry.frames:
-				if frame_path.is_empty() or seen.has(frame_path):
-					continue
-				seen[frame_path] = true
-				ModelLoader.textures.request_thumb(frame_path)
 
 static func _is_static_image(path: String) -> bool:
 	return path.get_extension().to_lower() in STATIC_EXTENSIONS
