@@ -307,7 +307,7 @@ static func _rename_atlas_files(state: ModelStateEntry, out_dir: String, doc: Di
 	doc["state"] = state.state_name
 	doc["pages"] = renamed_pages
 	doc["thumb_pages"] = renamed_thumb_pages
-	var file := FileAccess.open(out_dir.path_join(new_json_name), FileAccess.WRITE)
+	var file := FileAccess.open(PathUtil.get_real_path(out_dir.path_join(new_json_name)), FileAccess.WRITE)
 	if file == null:
 		push_error(TAG + "failed to write adopted metadata '%s'" % new_json_name)
 		return false

@@ -79,7 +79,7 @@ static func build_state_atlas(state: ModelStateEntry, out_dir: String, options: 
 			meta.rect = rect
 		if save:
 			var file_path := out_dir.path_join(page_file_name(state.state_name, page_index))
-			var err := atlas.save_png(file_path)
+			var err := atlas.save_png(PathUtil.get_real_path(file_path))
 			if err != OK:
 				push_error(TAG + "failed to save '%s': %s" % [file_path, error_string(err)])
 			else:
@@ -144,24 +144,29 @@ static func _build_thumb_atlas(state: ModelStateEntry, out_dir: String, frames_m
 	var pack_result: Dictionary = AtlasPackerScript.pack(thumb_sizes, 0, AtlasPackerScript.MIN_PAGE_SIZE, AtlasPackerScript.MAX_PAGE_SIZE, true)
 	var thumb_dir := out_dir.path_join(THUMB_DIR)
 	if save:
-		var dir_err := PathUtil.ensure_dir(thumb_dir)
+		var dir_err := PathUtil.ensure_dir(PathUtil.get_real_path(thumb_dir))
 		if dir_err != OK:
 			push_error(TAG + "failed to create thumb dir '%s': %s" % [thumb_dir, error_string(dir_err)])
 	for page_index: int in (pack_result.pages as Array).size():
 		var page: Dictionary = pack_result.pages[page_index]
 		var page_size: Vector2i = page.size
 		var atlas := Image.create_empty(page_size.x, page_size.y, false, Image.FORMAT_RGBA8)
+		var page_metas: Array = []
 		for placement: Dictionary in page.placements:
 			var rect: Rect2i = placement.rect
 			atlas.blit_rect(thumbs[placement.index], Rect2i(Vector2i.ZERO, Vector2i(THUMB_SIZE, THUMB_SIZE)), rect.position)
 			var meta: Dictionary = frames_meta[thumb_frames[placement.index]]
 			meta.thumb_page = page_index
 			meta.thumb_rect = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
+			page_metas.append(meta)
 		if save:
 			var file_path := thumb_dir.path_join(thumb_page_file_name(state.state_name, page_index))
-			var err := atlas.save_png(file_path)
+			var err := atlas.save_png(PathUtil.get_real_path(file_path))
 			if err != OK:
 				push_error(TAG + "failed to save '%s': %s" % [file_path, error_string(err)])
+				for meta: Dictionary in page_metas:
+					meta.thumb_page = -1
+					meta.thumb_rect = []
 			else:
 				pages_meta.append({ "file": file_path.get_file(), "size": [page_size.x, page_size.y] })
 		else:
@@ -198,7 +203,7 @@ static func _save_metadata(state: ModelStateEntry, out_dir: String, frames_meta:
 		"frames": frames_json,
 	}
 	var json_path := out_dir.path_join(metadata_file_name(state.state_name))
-	var file := FileAccess.open(json_path, FileAccess.WRITE)
+	var file := FileAccess.open(PathUtil.get_real_path(json_path), FileAccess.WRITE)
 	if file == null:
 		push_error(TAG + "failed to save metadata '%s': %s" % [json_path, error_string(FileAccess.get_open_error())])
 		return json_path
