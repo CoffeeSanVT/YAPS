@@ -4,6 +4,7 @@ extends Resource
 @warning_ignore("unused_signal")
 signal transform_changed
 signal enabled_changed(value: bool)
+signal animation_ready
 
 const TAG := "[Item] "
 const MAX_IMAGE_SIZE := Vector2(800.0, 800.0)
@@ -42,6 +43,7 @@ var animation_data: Variant
 var _animation_cache_path: String = ""
 var _outline_bounds: Rect2 = TextureCache.FULL_BOUNDS
 var _decoder := ItemAnimationDecoder.new()
+var _frame_leases: Dictionary[int, String] = {}
 var _requested_frames: Dictionary[int, bool] = {}
 var _failed_frames: Dictionary[int, bool] = {}
 var _playback_held: bool = false
@@ -62,14 +64,23 @@ func load_image() -> Texture2D:
 	var full_path := _get_real_path()
 	if _has_animation_cache() and animation_data.Frames[0] != null:
 		return animation_data.Frames[0]
-	var decoded := ImageUtil.load_texture_with_rect(asset_path)
+	var decoded := ImageUtil.load_texture_with_rect(asset_path, MAX_IMAGE_SIZE)
 	var tex: Texture2D = decoded.texture
 	if tex == null:
 		push_error(TAG + "load_image: failed to decode texture: " + full_path)
 		return null
 	_apply_outline_bounds(decoded.used_rect, tex)
-	ensure_animation()
+	if enabled:
+		ensure_animation()
 	return tex
+
+func load_thumbnail(max_size: Vector2 = Vector2(112.0, 112.0)) -> Texture2D:
+	if _has_animation_cache() and animation_data.Frames[0] != null:
+		return animation_data.Frames[0]
+	var live := _live_instance()
+	if live != null and live.texture != null:
+		return live.texture
+	return ImageUtil.load_thumbnail_texture(asset_path, max_size)
 
 func _has_animation_cache() -> bool:
 	return animation_data != null and _animation_cache_path == asset_path
@@ -101,12 +112,12 @@ func _on_frames_decoded(data: AnimatedImageData) -> void:
 	if _live_instance() != null:
 		_attach_animation_player()
 		instance.set_texture_bounds(_outline_bounds)
+	animation_ready.emit()
 
 func set_animation_data(data: Variant) -> void:
+	_release_all_frames()
 	animation_data = data
 	_animation_cache_path = asset_path
-	_requested_frames.clear()
-	_failed_frames.clear()
 	if data != null and data.UnionRect.size.x > 0 and data.UnionRect.size.y > 0:
 		var first: Texture2D = data.Frames[0] if data.Frames.size() > 0 else null
 		if first != null:
@@ -147,7 +158,8 @@ func _attach_animation_player() -> void:
 		NodeUtil.connect_once(player, &"FrameChanged", instance.sync_outline_texture)
 		NodeUtil.connect_once(player, &"FrameChanged", _on_player_frame_changed)
 		NodeUtil.connect_once(player, &"FrameNeeded", _on_player_frame_needed)
-		_prefetch_frames(player, player.CurrentFrame)
+		if enabled and not _playback_held:
+			_prefetch_frames(player, player.CurrentFrame)
 
 func set_playback_held(value: bool) -> void:
 	if _playback_held == value:
@@ -185,6 +197,8 @@ func _on_player_frame_needed(frame: int) -> void:
 		_prefetch_frames(player, frame)
 
 func _prefetch_frames(player: AnimatedImagePlayer, index: int) -> void:
+	if not enabled or _playback_held:
+		return
 	var count: int = player.FrameCount
 	if count <= 0:
 		return
@@ -197,37 +211,73 @@ func _prefetch_frames(player: AnimatedImagePlayer, index: int) -> void:
 
 func _release_frames(window: Array[int]) -> void:
 	var data: AnimatedImageData = animation_data
-	if data == null or data.Frames == null or data.FramePaths == null:
-		return
-	for i in data.Frames.size():
-		if window.has(i) or data.Frames[i] == null:
+	for index: int in _frame_leases.keys():
+		if window.has(index):
 			continue
-		data.SetFrameTexture(i, null)
-		ModelLoader.textures.drop_texture(data.FramePaths[i])
+		var path := _frame_leases[index]
+		_frame_leases.erase(index)
+		_requested_frames.erase(index)
+		_failed_frames.erase(index)
+		if data != null and data.Frames != null and index < data.Frames.size():
+			data.SetFrameTexture(index, null)
+		ModelLoader.textures.release_texture(path, false)
+
+func _release_all_frames() -> void:
+	for path: String in _frame_leases.values():
+		ModelLoader.textures.release_texture(path)
+	_frame_leases.clear()
+	_requested_frames.clear()
+	_failed_frames.clear()
+	var data: AnimatedImageData = animation_data
+	if data == null:
+		return
+	if data.FramePaths != null:
+		for path: String in data.FramePaths:
+			ModelLoader.textures.evict_unleased(path)
+	if data.Frames == null:
+		return
+	for index in data.Frames.size():
+		data.SetFrameTexture(index, null)
+
+func reset_animation_textures() -> void:
+	_frame_leases.clear()
+	_requested_frames.clear()
+	_failed_frames.clear()
+	var data: AnimatedImageData = animation_data
+	if data == null or data.Frames == null:
+		return
+	for index in data.Frames.size():
+		data.SetFrameTexture(index, null)
 
 func _request_frame(index: int) -> void:
-	if _requested_frames.has(index) or _failed_frames.has(index):
-		return
 	var data: AnimatedImageData = animation_data
 	if data == null or data.Frames == null or data.FramePaths == null:
 		return
-	if index < 0 or index >= data.FramePaths.size() or index >= data.Frames.size():
+	if index < 0 or index >= data.FramePaths.size() or index >= data.Frames.size() or _frame_leases.has(index):
 		return
+	var path: String = data.FramePaths[index]
+	if path.is_empty():
+		return
+	_frame_leases[index] = path
+	ModelLoader.textures.acquire_texture(path)
 	if data.Frames[index] != null:
 		return
 	_requested_frames[index] = true
-	ModelLoader.textures.request_texture(data.FramePaths[index], func(tex: ImageTexture) -> void:
+	ModelLoader.textures.request_texture(path, func(tex: ImageTexture) -> void:
 		_requested_frames.erase(index)
+		if animation_data != data or _frame_leases.get(index, "") != path:
+			return
 		if tex == null:
 			_failed_frames[index] = true
-			return
-		if animation_data != data or data.Frames == null or index >= data.Frames.size():
 			return
 		data.SetFrameTexture(index, tex)
 		if index == 0:
 			_apply_outline_bounds(data.UnionRect, tex)
 			if _live_instance() != null:
 				instance.set_texture_bounds(_outline_bounds)
+				var player := get_animation_player()
+				if player == null or player.CurrentFrame == 0:
+					instance.texture = tex
 	, self, MAX_IMAGE_SIZE)
 
 func reparent_for_fixed(free_parent: Node, fixed_parent: Node) -> void:
@@ -273,6 +323,7 @@ func set_enabled(value: bool) -> void:
 		_sync_triggers(true)
 		enabled_changed.emit(true)
 		_fade_instance(true)
+		ensure_animation()
 		play_animation()
 		update_auto_hide_timer()
 		schedule_save()
@@ -289,6 +340,8 @@ func _finalize_disable() -> void:
 	if not enabled:
 		return
 	enabled = false
+	pause_animation()
+	_release_all_frames()
 	enabled_changed.emit(false)
 	schedule_save()
 
@@ -384,13 +437,20 @@ func deactivate_triggers() -> void:
 		trigger.deactivate()
 		trigger.enabled = false
 
-func destroy() -> void:
+func release_runtime() -> void:
 	cancel_animation()
-	deactivate_triggers()
-	_clear_auto_hide_timer()
+	_release_all_frames()
+	animation_data = null
+	_animation_cache_path = ""
+	_outline_bounds = TextureCache.FULL_BOUNDS
 	if _live_instance() != null:
 		instance.queue_free()
 	instance = null
+
+func destroy() -> void:
+	release_runtime()
+	deactivate_triggers()
+	_clear_auto_hide_timer()
 
 func _on_trigger_enabled_changed(trigger: BaseTrigger) -> void:
 	if _should_defer_twitch_hide(trigger):

@@ -26,12 +26,12 @@ internal static class FfmpegDecoder
 		@"n:\s*\d+\s+pts:\s*\d+\s+pts_time:\S+(?:\s+duration:\s*\d+\s+duration_time:(\S+))?",
 		RegexOptions.Compiled);
 
-	internal static Image DecodeFirstFrame(string filePath, CancellationToken token, int maxWidth = 0)
+	internal static Image DecodeFirstFrame(string filePath, CancellationToken token, int maxWidth = 0, int maxHeight = 0)
 	{
 		string tempDir = CreateTempDirectory();
 		try
 		{
-			if (!DumpFrames(filePath, Path.Combine(tempDir, FrameFilePattern), 1, null, token, maxWidth))
+			if (!DumpFrames(filePath, Path.Combine(tempDir, FrameFilePattern), 1, null, token, maxWidth, maxHeight))
 			{
 				GD.PushError($"{AnimatedImageRuntime.Tag}ffmpeg decoding failed: {filePath}");
 				return null;
@@ -48,10 +48,10 @@ internal static class FfmpegDecoder
 		}
 	}
 
-	internal static ExtractedFrameFilesData ExtractFramesToFolder(string filePath, string destFolder, string fileBase, int maxFrames, CancellationToken token, int maxWidth = 0)
+	internal static ExtractedFrameFilesData ExtractFramesToFolder(string filePath, string destFolder, string fileBase, int maxFrames, CancellationToken token, int maxWidth = 0, int maxHeight = 0)
 	{
 		List<float> durations = new();
-		if (!DumpFrames(filePath, Path.Combine(destFolder, $"{fileBase}_%03d.webp"), maxFrames, durations, token, maxWidth))
+		if (!DumpFrames(filePath, Path.Combine(destFolder, $"{fileBase}_%03d.webp"), maxFrames, durations, token, maxWidth, maxHeight))
 		{
 			if (!token.IsCancellationRequested)
 				GD.PushError($"{AnimatedImageRuntime.Tag}ffmpeg frame extraction failed: {filePath}");
@@ -74,12 +74,20 @@ internal static class FfmpegDecoder
 		};
 	}
 
-	private static bool DumpFrames(string filePath, string outputPattern, int maxFrames, List<float> durations, CancellationToken token, int maxWidth)
+	private static bool DumpFrames(string filePath, string outputPattern, int maxFrames, List<float> durations, CancellationToken token, int maxWidth, int maxHeight)
 	{
 		string decoderArgs = ResolveInputDecoderArgs(filePath);
-		// maxWidth > 0 caps output resolution (item frames are never displayed
-		// larger than Item.MAX_IMAGE_SIZE); 0 keeps the source resolution.
-		string scaleFilter = maxWidth > 0 ? $"scale='min({maxWidth},iw)':-2" : string.Empty;
+		// Positive limits preserve aspect ratio and avoid upscaling normal inputs.
+		// Two-pixel minimums and even dimensions keep tiny/extreme-aspect sources
+		// compatible with yuva420p WebP output instead of producing zero sizes.
+		string scaleFilter = string.Empty;
+		if (maxWidth > 0 && maxHeight > 0)
+		{
+			string ratio = $"min(1,min({maxWidth}/iw,{maxHeight}/ih))";
+			scaleFilter = $"scale=w='max(2,2*trunc(iw*{ratio}/2))':h='max(2,2*trunc(ih*{ratio}/2))'";
+		}
+		else if (maxWidth > 0)
+			scaleFilter = $"scale='min({maxWidth},iw)':-2";
 		string frameArgs;
 		if (durations == null)
 			frameArgs = scaleFilter.Length > 0 ? $"{CodecArgs} -vf {scaleFilter}" : CodecArgs;

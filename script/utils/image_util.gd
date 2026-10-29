@@ -58,7 +58,7 @@ static func thumb_canvas(source: Image, size: int) -> Image:
 	return canvas
 
 static func compress_for_gpu(image: Image, path := "", used_rect := Rect2i()) -> void:
-	if not model_compress_enabled():
+	if image == null or image.is_compressed() or not model_compress_enabled():
 		return
 	var result := AnimatedImageRuntime.CompressTexture(image)
 	_count_lock.lock()
@@ -183,25 +183,27 @@ static func load_image(path: String) -> Image:
 		return null
 	return Image.load_from_file(full_path)
 
-static func load_gpu_image(path: String) -> Image:
-	var cached := load_vram_cache(path)
-	if not cached.is_empty():
-		return cached.image
+static func load_gpu_image(path: String, max_size: Vector2 = Vector2.ZERO) -> Image:
+	if max_size == Vector2.ZERO:
+		var cached := load_vram_cache(path)
+		if not cached.is_empty():
+			return cached.image
 	var image := load_image(path)
 	if image != null:
-		compress_for_gpu(image, path, image.get_used_rect())
+		fit_image(image, max_size)
+		compress_for_gpu(image, path if max_size == Vector2.ZERO else "", image.get_used_rect())
 	return image
 
-static func load_texture_with_rect(path: String) -> TextureLoadResult:
+static func load_texture_with_rect(path: String, max_size: Vector2 = Vector2.ZERO) -> TextureLoadResult:
 	var full_path := PathUtil.get_real_path(path)
 	if not FileAccess.file_exists(full_path):
 		push_error(TAG_LOAD + "file not found: " + full_path)
 		return TextureLoadResult.new()
 	var cached := load_vram_cache(path)
-	if not cached.is_empty():
+	if not cached.is_empty() and image_fits(cached.image, max_size):
 		return TextureLoadResult.new(ImageTexture.create_from_image(cached.image), cached.used_rect, estimate_vram_bytes(cached.image))
 	if is_animated_file(full_path):
-		var decoded: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(full_path, model_compress_enabled(), 0)
+		var decoded: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(full_path, model_compress_enabled(), int(max_size.x), int(max_size.y))
 		if decoded != null and decoded[&"texture"] != null:
 			var decoded_tex: Texture2D = decoded[&"texture"]
 			var decoded_size := Vector2i(decoded_tex.get_width(), decoded_tex.get_height())
@@ -209,9 +211,21 @@ static func load_texture_with_rect(path: String) -> TextureLoadResult:
 	var image := load_image(path)
 	if image == null:
 		return TextureLoadResult.new()
+	fit_image(image, max_size)
 	var used_rect := image.get_used_rect()
 	compress_for_gpu(image, path, used_rect)
 	return TextureLoadResult.new(ImageTexture.create_from_image(image), used_rect, estimate_vram_bytes(image))
+
+static func load_thumbnail_texture(path: String, max_size: Vector2) -> Texture2D:
+	if is_animated_file(path):
+		var decoded: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(PathUtil.get_real_path(path), model_compress_enabled(), int(max_size.x), int(max_size.y))
+		return decoded.get(&"texture") if decoded != null else null
+	var image := load_image(path)
+	if image == null:
+		return null
+	fit_image(image, max_size)
+	compress_for_gpu(image)
+	return ImageTexture.create_from_image(image)
 
 
 
@@ -273,7 +287,7 @@ static func _extract_sync(source_path: String, dest_folder: String, file_base: S
 	if dir_err != OK:
 		push_error(TAG_EXTRACT + "failed to create folder '%s': %s" % [dest_folder, error_string(dir_err)])
 		return {}
-	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(PathUtil.get_real_path(source_path), dest_folder, file_base, 0)
+	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(PathUtil.get_real_path(source_path), dest_folder, file_base, 0, 0)
 	if data == null or data.Durations.is_empty():
 		push_warning(TAG_EXTRACT + "no frames extracted from: " + source_path)
 		return {}

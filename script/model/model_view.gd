@@ -15,6 +15,7 @@ var _cycle_timer: Timer
 var _track := FrameTrack.new()
 var _out_track := FrameTrack.new()
 var _snap_start_cache: Dictionary[ModelStateEntry, int] = {}
+var _frame_leases: Dictionary[int, String] = {}
 var _anim_frames_left: int = 0
 var _transitioning: bool = false
 var _next_tex_current: Texture2D
@@ -221,12 +222,14 @@ func _start_frame_animation(state: ModelStateEntry) -> void:
 	_track.index = 0
 	show_static(state)
 	_track.frames = ModelLoader.textures.state_frame_array(state)
-	_track.index = _snap_start_index(state, ModelLoader.textures.has_all_thumbs(state))
+	_track.index = _snap_start_index(state, ModelLoader.textures.has_all_thumbs(state)) if _is_looping() else 0
 	if ModelLoader.DISABLE_LAZY_LOADING:
+		_lease_frame_window(state, 0, _track.frames.size())
 		ModelLoader.textures.request_frame_window(state, 0, _track.frames.size(), _track.frames, self, func(ready_count: int) -> void:
 			_on_frames_buffered(state, ready_count)
 		)
 		return
+	_lease_frame_window(state, _track.index, HOT_WINDOW)
 	ModelLoader.textures.request_frame_window(state, _track.index, HOT_WINDOW, _track.frames, self, func(ready_count: int) -> void:
 		_on_frames_buffered(state, ready_count)
 	)
@@ -248,6 +251,31 @@ func _show_track_frame() -> void:
 	else:
 		_commit_texture(tex)
 
+func _lease_frame_window(state: ModelStateEntry, start_index: int, count: int) -> void:
+	var paths := ModelLoader.textures.state_frame_paths(state)
+	if paths.is_empty():
+		return
+	for offset in count:
+		var index := (start_index + offset) % paths.size()
+		if _frame_leases.has(index) or paths[index].is_empty():
+			continue
+		_frame_leases[index] = paths[index]
+		ModelLoader.textures.acquire_texture(paths[index])
+
+func _release_frame_slot(index: int) -> void:
+	if not _frame_leases.has(index):
+		return
+	var path := _frame_leases[index]
+	_frame_leases.erase(index)
+	if index >= 0 and index < _track.frames.size():
+		_track.frames[index] = null
+	ModelLoader.textures.release_texture(path)
+
+func _release_frame_leases() -> void:
+	for path: String in _frame_leases.values():
+		ModelLoader.textures.release_texture(path)
+	_frame_leases.clear()
+
 func _stream_lookahead() -> void:
 	var state := _track.entry
 	if state == null or _track.frames.is_empty():
@@ -255,9 +283,11 @@ func _stream_lookahead() -> void:
 	if ModelLoader.DISABLE_LAZY_LOADING:
 		return
 	var size := _track.frames.size()
-	ModelLoader.textures.request_state_frame(state, (_track.index + HOT_LOOKAHEAD) % size, _track.frames, self)
+	var next_index := (_track.index + HOT_LOOKAHEAD) % size
+	_lease_frame_window(state, next_index, 1)
+	ModelLoader.textures.request_state_frame(state, next_index, _track.frames, self)
 	if size > (HOT_LOOKAHEAD + 1) * 2:
-		_track.frames[(_track.index - HOT_LOOKAHEAD - 1 + size) % size] = null
+		_release_frame_slot((_track.index - HOT_LOOKAHEAD - 1 + size) % size)
 	if not _snap_start_cache.has(state) and ModelLoader.textures.has_all_thumbs(state):
 		_snap_start_cache[state] = ModelLoader.textures.snap_start_index(state, _applied_tex)
 
@@ -291,9 +321,14 @@ func _entry_chance(entry: ModelStateEntry) -> float:
 	return entry.effective_animation_chance(global_chance)
 
 func _on_cycle_done() -> void:
-	_start_burst_timer()
+	var state := _track.entry
+	if state == null:
+		return
+	_stop_frames()
+	_start_frame_animation(state)
 
 func _stop_frames() -> void:
+	_release_frame_leases()
 	_track.clear()
 	_cycle_timer = NodeUtil.free_timer(_cycle_timer)
 	_anim_frames_left = 0

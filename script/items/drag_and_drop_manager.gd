@@ -2,7 +2,7 @@ class_name DragAndDropManager
 extends Node
 
 const TAG := "[DragAndDrop] "
-const STATIC_IMAGE_EXTENSIONS := ["png", "jpg", "jpeg"]
+const STATIC_IMAGE_EXTENSIONS := ["png", "jpg", "jpeg", "webp"]
 const SELECT_ICON_SIZE := 24.0
 const SELECT_MENU_MARGIN := 8.0
 const DESELECT_DELAY := 3.0
@@ -20,6 +20,7 @@ var _selected_was_dragging := false
 
 func _ready() -> void:
 	NodeUtil.connect_once(SignalBus, &"model_container_changed", _on_model_container_changed)
+	NodeUtil.connect_once(SignalBus, &"items_changed", _prune_item_references)
 	get_window().files_dropped.connect(_on_files_dropped)
 	NodeUtil.connect_once(get_viewport(), &"size_changed", _on_viewport_resized)
 	_deselect_timer = NodeUtil.ensure_timer(self, _deselect_timer, _on_deselect_timeout, true)
@@ -37,12 +38,22 @@ func _reapply_item_transforms() -> void:
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"model_container_changed", _on_model_container_changed)
+	NodeUtil.safe_disconnect(SignalBus, &"items_changed", _prune_item_references)
 	NodeUtil.safe_disconnect(get_viewport(), &"size_changed", _on_viewport_resized)
 	DragSession.reset()
 	if ModelLoader.model_loaded == null:
 		return
 	for item in ModelLoader.model_loaded.items:
 		item.deactivate_triggers()
+		item.release_runtime()
+
+func _prune_item_references() -> void:
+	var items: Array = ModelLoader.model_loaded.items if ModelLoader.model_loaded != null else []
+	if _selected_item != null and not items.has(_selected_item):
+		_select_item(null)
+	_icon_cache.clear()
+	if is_instance_valid(_select_menu):
+		_select_menu.clear()
 
 func _restore_items() -> void:
 	if ModelLoader.model_loaded == null:
@@ -92,7 +103,7 @@ func _process_dropped_file(file_path: String) -> void:
 		_process_static_drop(file_path)
 
 func _process_animated_drop(file_path: String) -> void:
-	var first: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(file_path, ImageUtil.model_compress_enabled(), int(Item.MAX_IMAGE_SIZE.x))
+	var first: Dictionary = AnimatedImageRuntime.LoadFirstFrameData(file_path, ImageUtil.model_compress_enabled(), int(Item.MAX_IMAGE_SIZE.x), int(Item.MAX_IMAGE_SIZE.y))
 	if first == null or first[&"texture"] == null:
 		_process_static_drop(file_path)
 		return
@@ -110,7 +121,7 @@ func _process_static_drop(file_path: String) -> void:
 		var texture := ImageUtil.create_gpu_texture(image)
 		_create_dropped_item_rect(texture, file_path)
 		SignalBus.items_changed.emit()
-	, self)
+	, self, Item.MAX_IMAGE_SIZE)
 
 func _create_dropped_item_rect(texture: Texture2D, file_path: String) -> Draggable:
 	var texture_rect := DragSession.create_for_item(texture, null)
@@ -198,7 +209,8 @@ func _hit_draggable_at_mouse() -> Draggable:
 func _select_icon_for(item: Item) -> Texture2D:
 	var source: Texture2D = item.instance.texture if is_instance_valid(item.instance) and item.instance.texture != null else null
 	var cached: Array = _icon_cache.get(item.asset_path, [null, null])
-	if cached[0] == source and cached[1] != null:
+	var cached_source: Texture2D = cached[0].get_ref() if cached[0] is WeakRef else null
+	if cached_source == source and cached[1] != null:
 		return cached[1]
 	if source == null:
 		source = item.load_image()
@@ -214,7 +226,7 @@ func _select_icon_for(item: Item) -> Texture2D:
 				var k := minf(1.0, SELECT_ICON_SIZE / maxf(w, h))
 				image.resize(maxi(1, int(w * k)), maxi(1, int(h * k)), Image.INTERPOLATE_LANCZOS)
 				icon = ImageTexture.create_from_image(image)
-	_icon_cache[item.asset_path] = [source, icon]
+	_icon_cache[item.asset_path] = [weakref(source) if source != null else null, icon]
 	return icon
 
 func _select_item(item: Item) -> void:

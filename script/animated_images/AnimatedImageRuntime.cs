@@ -47,16 +47,16 @@ public partial class AnimatedImageRuntime : RefCounted
 
 	// NOTE: optional C# parameters are not optional when called from GDScript
 	// (all arguments become required there), so every caller must pass maxWidth.
-	public static Godot.Collections.Dictionary LoadFirstFrameData(string filePath, bool compressTextures, int maxWidth)
+	public static Godot.Collections.Dictionary LoadFirstFrameData(string filePath, bool compressTextures, int maxWidth, int maxHeight)
 	{
 		EnsureInitialized();
-		return ToFirstFrameData(DecodeGuarded(filePath, token => FfmpegDecoder.DecodeFirstFrame(filePath, token, maxWidth)), compressTextures);
+		return ToFirstFrameData(DecodeGuarded(filePath, token => FfmpegDecoder.DecodeFirstFrame(filePath, token, maxWidth, maxHeight)), compressTextures);
 	}
 
-	public static ExtractedFrameFilesData ExtractFrameFiles(string filePath, string destFolder, string fileBase, int maxWidth)
+	public static ExtractedFrameFilesData ExtractFrameFiles(string filePath, string destFolder, string fileBase, int maxWidth, int maxHeight)
 	{
 		EnsureInitialized();
-		return DecodeGuarded(filePath, token => FfmpegDecoder.ExtractFramesToFolder(filePath, destFolder, fileBase, MaxFrames, token, maxWidth));
+		return DecodeGuarded(filePath, token => FfmpegDecoder.ExtractFramesToFolder(filePath, destFolder, fileBase, MaxFrames, token, maxWidth, maxHeight));
 	}
 
 	/// <summary>

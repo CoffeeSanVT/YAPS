@@ -1,6 +1,7 @@
 class_name AtlasStore
 
 const TAG := "[AtlasStore] "
+const RESOLVER_PAGE_CACHE_LIMIT := 2
 const BuilderScript := preload("uid://bslytymmlyym8")
 
 static var _busy := false
@@ -358,6 +359,7 @@ static func _sources_complete(state: ModelStateEntry, old_doc: Dictionary, out_d
 
 static func _make_resolver(old_doc: Dictionary, out_dir: String) -> Callable:
 	var page_images: Dictionary[String, Image] = {}
+	var page_order: Array[String] = []
 	return func(path: String) -> Image:
 		var image := ImageUtil.load_image(path)
 		if image != null:
@@ -373,11 +375,19 @@ static func _make_resolver(old_doc: Dictionary, out_dir: String) -> Callable:
 				return null
 			var page_path := out_dir.path_join(String(pages[page_index].get("file", "")))
 			var page: Image = page_images.get(page_path)
-			if page == null:
+			if page != null:
+				page_order.erase(page_path)
+				page_order.append(page_path)
+			else:
 				page = Image.load_from_file(PathUtil.get_real_path(page_path))
 				if page == null:
 					return null
 				page_images[page_path] = page
+				page_order.erase(page_path)
+				page_order.append(page_path)
+				while page_order.size() > RESOLVER_PAGE_CACHE_LIMIT:
+					var oldest: String = page_order.pop_front()
+					page_images.erase(oldest)
 			var rect_values: Array = frame_entry.get("rect", [])
 			if rect_values.size() != 4:
 				return null

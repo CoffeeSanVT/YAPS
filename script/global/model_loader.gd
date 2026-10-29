@@ -62,6 +62,9 @@ func reload_textures() -> void:
 		await LoadingOverlay.show_loading(status)
 		_hold_item_playback(true)
 	textures.clear()
+	if model_loaded != null:
+		for item in model_loaded.items:
+			item.reset_animation_textures()
 	SignalBus.model_images_reloaded.emit()
 	if with_overlay:
 		await wait_for_texture_work()

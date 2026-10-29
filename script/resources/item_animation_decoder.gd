@@ -6,6 +6,7 @@ const FRAMES_DIR_SUFFIX := "_frames"
 const META_FILE := "meta.json"
 const DECODER_VERSION := 4
 const FRAME_MAX_WIDTH := 800
+const FRAME_MAX_HEIGHT := 800
 
 var _scheduled := false
 var _cancelled := false
@@ -28,20 +29,22 @@ func request(asset_path: String, on_decoded: Callable, owner: Object, source_pat
 	, func(result: Dictionary) -> void:
 		_scheduled = false
 		_pending_source = ""
+		var completion := _on_decoded
+		_on_decoded = Callable()
 		if _cancelled:
 			_cancelled = false
 			return
 		if result.is_empty():
 			push_warning(TAG + "no frames extracted for: " + asset_path)
 			return
-		if _on_decoded.is_valid():
-			_on_decoded.call(_build_data(result))
-		_on_decoded = Callable()
+		if completion.is_valid():
+			completion.call(_build_data(result))
 	, owner)
 
 ## Aborts the running ffmpeg extraction (kills the process) without spamming
 ## errors; the next request re-extracts from scratch.
 func cancel() -> void:
+	_on_decoded = Callable()
 	if not _scheduled or _cancelled:
 		return
 	_cancelled = true
@@ -68,7 +71,7 @@ func _extract_sync(asset_path: String, source_path: String) -> Dictionary:
 	if dir_err != OK:
 		push_error(TAG + "failed to create folder '%s': %s" % [folder_fs, error_string(dir_err)])
 		return {}
-	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(source_path, folder_fs, asset_path.get_file().get_basename(), FRAME_MAX_WIDTH)
+	var data: ExtractedFrameFilesData = AnimatedImageRuntime.ExtractFrameFiles(source_path, folder_fs, asset_path.get_file().get_basename(), FRAME_MAX_WIDTH, FRAME_MAX_HEIGHT)
 	if data == null or data.FileNames.is_empty():
 		push_warning(TAG + "no frames extracted from: " + asset_path)
 		return {}

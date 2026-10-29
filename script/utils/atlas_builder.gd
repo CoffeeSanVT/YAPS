@@ -19,7 +19,6 @@ static func build_state_atlas(state: ModelStateEntry, out_dir: String, options: 
 	var paths: Array[String] = state.frames
 	if paths.is_empty():
 		paths = [state.asset_path]
-	var sprites: Array[Image] = []
 	var sizes: Array[Vector2i] = []
 	var frames_meta: Array = []
 	var source_pixels := 0
@@ -49,50 +48,67 @@ static func build_state_atlas(state: ModelStateEntry, out_dir: String, options: 
 		source_pixels += source_size.x * source_size.y
 		if trimmed.is_empty():
 			empty_count += 1
-			sprites.append(null)
 			sizes.append(Vector2i.ZERO)
 		else:
-			var sprite: Image = trimmed.image
-			sprites.append(sprite)
 			sizes.append(trimmed.size)
 			trimmed_pixels += trimmed.size.x * trimmed.size.y
 			meta.offset = trimmed.offset
 			meta.trimmed = true
 			meta.trimmed_size = trimmed.size
 		frames_meta.append(meta)
+		image = null
+		trimmed.clear()
 	var pack_result: Dictionary = AtlasPackerScript.pack(sizes, padding, min_page, max_page, merge_singles)
 	var pages_meta: Array = []
 	var atlas_pixels := 0
 	var files: Array[String] = []
+	var staged_files: Dictionary[String, String] = {}
 	var pack_pages: Array = pack_result.pages
+	var thumbs: Dictionary[int, Image] = {}
 	for page_index: int in pack_pages.size():
 		var page: Dictionary = pack_pages[page_index]
 		var page_size: Vector2i = page.size
 		atlas_pixels += page_size.x * page_size.y
 		var atlas := Image.create_empty(page_size.x, page_size.y, false, Image.FORMAT_RGBA8)
 		for placement: Dictionary in page.placements:
-			var sprite: Image = sprites[placement.index]
+			var frame_index := int(placement.index)
+			var meta: Dictionary = frames_meta[frame_index]
+			var sprite := _load_trimmed_image(String(meta.path), load_frame, alpha_threshold)
+			if sprite == null:
+				push_error(TAG + "failed to reload frame '%s' while building atlas" % meta.path)
+				return {}
 			var rect: Rect2i = placement.rect
 			atlas.blit_rect(sprite, Rect2i(Vector2i.ZERO, sprite.get_size()), rect.position)
-			var meta: Dictionary = frames_meta[placement.index]
 			meta.page = page_index
 			meta.rect = rect
+			var thumb := ImageUtil.thumb_canvas(sprite, THUMB_SIZE)
+			if thumb != null:
+				thumbs[frame_index] = thumb
 		if save:
 			var file_path := out_dir.path_join(page_file_name(state.state_name, page_index))
-			var err := atlas.save_png(PathUtil.get_real_path(file_path))
+			var staged_path := file_path + ".tmp"
+			var err := atlas.save_png(PathUtil.get_real_path(staged_path))
 			if err != OK:
-				push_error(TAG + "failed to save '%s': %s" % [file_path, error_string(err)])
+				push_error(TAG + "failed to save '%s': %s" % [staged_path, error_string(err)])
 			else:
+				staged_files[staged_path] = file_path
 				files.append(file_path)
 				pages_meta.append({ "file": file_path.get_file(), "size": [page_size.x, page_size.y] })
 		else:
 			pages_meta.append({ "file": "", "size": [page_size.x, page_size.y] })
-	var thumb_pages_meta := _build_thumb_atlas(state, out_dir, frames_meta, sprites, save)
+		atlas = null
+	var thumb_pages_meta := _build_thumb_atlas(state, out_dir, frames_meta, thumbs, save, staged_files)
 	for meta: Dictionary in thumb_pages_meta:
 		var thumb_file := String(meta.get("file", ""))
 		if not thumb_file.is_empty():
 			files.append(out_dir.path_join(THUMB_DIR).path_join(thumb_file))
 	if save:
+		for staged_path: String in staged_files:
+			var final_path := staged_files[staged_path]
+			var err := DirAccess.rename_absolute(PathUtil.get_real_path(staged_path), PathUtil.get_real_path(final_path))
+			if err != OK:
+				push_error(TAG + "failed to publish '%s': %s" % [final_path, error_string(err)])
+				return {}
 		files.append(_save_metadata(state, out_dir, frames_meta, pages_meta, thumb_pages_meta, alpha_threshold, padding))
 	return {
 		"state": state.state_name,
@@ -113,6 +129,13 @@ static func build_state_atlas(state: ModelStateEntry, out_dir: String, options: 
 		"frames_meta": frames_meta,
 	}
 
+static func _load_trimmed_image(path: String, load_frame: Callable, alpha_threshold: float) -> Image:
+	var image: Image = load_frame.call(path) if load_frame.is_valid() else ImageUtil.load_image(path)
+	if image == null or image.is_empty():
+		return null
+	var trimmed := AtlasPackerScript.trim_sprite(image, alpha_threshold)
+	return trimmed.get("image") if not trimmed.is_empty() else null
+
 static func _packed_count(frames_meta: Array) -> int:
 	var count := 0
 	for meta: Dictionary in frames_meta:
@@ -120,19 +143,10 @@ static func _packed_count(frames_meta: Array) -> int:
 			count += 1
 	return count
 
-static func _build_thumb_atlas(state: ModelStateEntry, out_dir: String, frames_meta: Array, sprites: Array[Image], save: bool) -> Array:
-	var thumbs: Array[Image] = []
+static func _build_thumb_atlas(state: ModelStateEntry, out_dir: String, frames_meta: Array, thumbs: Dictionary[int, Image], save: bool, staged_files: Dictionary[String, String]) -> Array:
 	var thumb_frames: Array[int] = []
 	for meta_index: int in frames_meta.size():
-		var meta: Dictionary = frames_meta[meta_index]
-		if int(meta.page) < 0:
-			continue
-		var sprite: Image = sprites[meta_index]
-		if sprite == null:
-			continue
-		var thumb := ImageUtil.thumb_canvas(sprite, THUMB_SIZE)
-		if thumb != null:
-			thumbs.append(thumb)
+		if thumbs.has(meta_index):
 			thumb_frames.append(meta_index)
 	var pages_meta: Array = []
 	if thumbs.is_empty():
@@ -154,20 +168,23 @@ static func _build_thumb_atlas(state: ModelStateEntry, out_dir: String, frames_m
 		var page_metas: Array = []
 		for placement: Dictionary in page.placements:
 			var rect: Rect2i = placement.rect
-			atlas.blit_rect(thumbs[placement.index], Rect2i(Vector2i.ZERO, Vector2i(THUMB_SIZE, THUMB_SIZE)), rect.position)
 			var meta: Dictionary = frames_meta[thumb_frames[placement.index]]
+			var thumb := thumbs[thumb_frames[placement.index]]
+			atlas.blit_rect(thumb, Rect2i(Vector2i.ZERO, Vector2i(THUMB_SIZE, THUMB_SIZE)), rect.position)
 			meta.thumb_page = page_index
 			meta.thumb_rect = [rect.position.x, rect.position.y, rect.size.x, rect.size.y]
 			page_metas.append(meta)
 		if save:
 			var file_path := thumb_dir.path_join(thumb_page_file_name(state.state_name, page_index))
-			var err := atlas.save_png(PathUtil.get_real_path(file_path))
+			var staged_path := file_path + ".tmp"
+			var err := atlas.save_png(PathUtil.get_real_path(staged_path))
 			if err != OK:
-				push_error(TAG + "failed to save '%s': %s" % [file_path, error_string(err)])
+				push_error(TAG + "failed to save '%s': %s" % [staged_path, error_string(err)])
 				for meta: Dictionary in page_metas:
 					meta.thumb_page = -1
 					meta.thumb_rect = []
 			else:
+				staged_files[staged_path] = file_path
 				pages_meta.append({ "file": file_path.get_file(), "size": [page_size.x, page_size.y] })
 		else:
 			pages_meta.append({ "file": "", "size": [page_size.x, page_size.y] })

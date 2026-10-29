@@ -33,8 +33,8 @@ static func wait_for_io(timeout_ms: int = IO_WAIT_TIMEOUT_MS) -> void:
 		WorkerThreadPool.wait_for_task_completion(task_id)
 	_pending_task_ids.clear()
 
-static func request_gpu_image(path: String, done: Callable, owner: Object = null) -> void:
-	run_io(func() -> Image: return ImageUtil.load_gpu_image(path), done, owner)
+static func request_gpu_image(path: String, done: Callable, owner: Object = null, max_size: Vector2 = Vector2.ZERO) -> void:
+	run_io(func() -> Image: return ImageUtil.load_gpu_image(path, max_size), done, owner)
 
 class DeferredSaver:
 	const TAG := "[DeferredSaver] "

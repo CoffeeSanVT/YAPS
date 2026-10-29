@@ -1,7 +1,6 @@
 extends Node
 
 const TAG := "[ModelRender] "
-const STATIC_EXTENSIONS: Array[String] = ["png", "jpg", "jpeg", "webp"]
 
 @export_category("Model Render")
 @export var model_container: Control
@@ -59,21 +58,22 @@ func _prewarm_textures() -> void:
 	var profile := ModelLoader.model_loaded
 	if profile == null:
 		return
+	var entries: Array[ModelStateEntry] = [_machine.get_initial_entry()]
+	var talking := profile.get_branch(ModelState.TALKING)
+	if talking != null:
+		entries.append(talking.resolve_default_entry())
+	if _machine.current_entry != null:
+		entries.append(_machine.current_entry)
 	var seen: Dictionary[String, bool] = {}
-	for branch in profile.branches:
-		for entry in branch.all_entries():
-			if not entry.asset_path.is_empty() and not seen.has(entry.asset_path):
-				seen[entry.asset_path] = true
-				ModelLoader.textures.pin_path(entry.asset_path)
-				if _is_static_image(entry.asset_path):
-					ModelLoader.textures.request_texture(entry.asset_path, Callable())
-			if entry.frames.is_empty():
-				continue
-			ModelLoader.textures.pin_path(entry.frames[0])
-			ModelLoader.textures.request_texture(entry.frames[0], Callable())
-
-static func _is_static_image(path: String) -> bool:
-	return path.get_extension().to_lower() in STATIC_EXTENSIONS
+	for entry in entries:
+		if entry == null:
+			continue
+		var path := ModelLoader.textures.state_first_path(entry)
+		if path.is_empty() or seen.has(path):
+			continue
+		seen[path] = true
+		ModelLoader.textures.pin_path(path)
+		ModelLoader.textures.request_texture(path, Callable())
 
 func _on_state_changed(_previous: ModelStateEntry, current: ModelStateEntry) -> void:
 	if current == null:

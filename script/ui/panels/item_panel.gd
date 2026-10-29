@@ -38,20 +38,23 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(item, &"enabled_changed", _on_item_enabled_changed)
+	NodeUtil.safe_disconnect(item, &"animation_ready", _populate_animation)
 
 func setup(new_item: Item) -> void:
 	NodeUtil.safe_disconnect(item, &"transform_changed", _on_item_transform_changed)
 	NodeUtil.safe_disconnect(item, &"enabled_changed", _on_item_enabled_changed)
+	NodeUtil.safe_disconnect(item, &"animation_ready", _populate_animation)
 	item = new_item
 	_populate()
 	if item != null:
 		item.transform_changed.connect(_on_item_transform_changed)
 		item.enabled_changed.connect(_on_item_enabled_changed)
+		item.animation_ready.connect(_populate_animation)
 
 func _populate() -> void:
 	if item == null:
 		return
-	thumbnail.texture = item.load_image()
+	thumbnail.texture = item.load_thumbnail()
 	item_name_label.text = String(item.state_name).capitalize()
 	enable_toggle.set_pressed_no_signal(item.enabled)
 	fixed_toggle.set_pressed_no_signal(item.is_fixed_to_model)

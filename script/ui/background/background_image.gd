@@ -19,4 +19,4 @@ func _on_file_selected(path: String) -> void:
 		if image == null or image.is_empty():
 			return
 		SignalBus.background_image_changed.emit(ImageUtil.create_gpu_texture(image))
-	, self)
+	, self, Vector2(Settings.settings.window_resolution))

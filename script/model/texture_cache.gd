@@ -5,14 +5,16 @@ const CACHE_BUDGET_BYTES := 512 * 1024 * 1024
 const SNAP_SAMPLE_SIZE := 32
 const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
 const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
-const PAGE_CACHE_LIMIT := 4
-const PAGE_CACHE_BUDGET_BYTES := 256 * 1024 * 1024
+const PAGE_CACHE_LIMIT := 2
+const PAGE_CACHE_BUDGET_BYTES := 64 * 1024 * 1024
 const IDLE_UNLOAD_SECONDS := 15.0
 const PAGE_IDLE_UNLOAD_SECONDS := 15.0
 
 var _cache: Dictionary[String, ImageTexture] = {}
 var _order: Array[String] = []
 var _pinned: Dictionary[String, bool] = {}
+var _leases: Dictionary[String, int] = {}
+var _evict_when_ready: Dictionary[String, bool] = {}
 var _pending_requests: Dictionary = {}
 var _generation: int = 0
 var _bounds: Dictionary[Texture2D, Rect2] = {}
@@ -141,6 +143,10 @@ func _finish_request(path: String, image: Image, used_rect: Rect2i, generation: 
 	for cb: Callable in callbacks:
 		if cb.is_valid():
 			cb.call(texture)
+	if _evict_when_ready.has(path):
+		_evict_when_ready.erase(path)
+		if not _leases.has(path) and not _pinned.has(path):
+			_evict_texture(path)
 
 func _state_frame_paths(state: ModelStateEntry) -> Array[String]:
 	if state.frames.is_empty():
@@ -155,6 +161,13 @@ func _asset_is_animated(asset_path: String) -> bool:
 	if not _animated_assets.has(asset_path):
 		_animated_assets[asset_path] = ImageUtil.is_animated_file(asset_path)
 	return _animated_assets[asset_path]
+
+func state_frame_paths(state: ModelStateEntry) -> Array[String]:
+	return _state_frame_paths(state)
+
+func state_first_path(state: ModelStateEntry) -> String:
+	var paths := _state_frame_paths(state)
+	return paths[0] if not paths.is_empty() else state.asset_path
 
 func state_frame_array(state: ModelStateEntry) -> Array[ImageTexture]:
 	var frames: Array[ImageTexture] = []
@@ -220,8 +233,11 @@ func request_thumb(path: String, done: Callable = Callable()) -> void:
 		if done.is_valid():
 			done.call_deferred(_thumbs[path])
 		return
+	var generation := _generation
 	var deliver := func(img: Image) -> void:
-		if img != null and img.get_width() == SNAP_SAMPLE_SIZE and img.get_height() == SNAP_SAMPLE_SIZE:
+		if generation != _generation:
+			return
+		if img != null and img.get_width() == SNAP_SAMPLE_SIZE and img.get_height() == SNAP_SAMPLE_SIZE and _thumb_refs.has(path):
 			_thumbs[path] = img
 		if done.is_valid():
 			done.call_deferred(img)
@@ -341,7 +357,43 @@ static func _texture_bytes(tex: Texture2D) -> int:
 func drop_texture(path: String) -> void:
 	release_texture(path)
 
-func release_texture(path: String) -> void:
+func acquire_texture(path: String) -> void:
+	if path.is_empty():
+		return
+	_leases[path] = int(_leases.get(path, 0)) + 1
+	_evict_when_ready.erase(path)
+
+func release_texture(path: String, evict_immediately: bool = true) -> void:
+	if _leases.has(path):
+		var leases := int(_leases[path]) - 1
+		if leases > 0:
+			_leases[path] = leases
+			return
+		_leases.erase(path)
+	if not evict_immediately:
+		if _cache.has(path):
+			_touch(path)
+		return
+	if _pinned.has(path):
+		return
+	if _cache.has(path):
+		_evict_texture(path)
+	elif _pending_requests.has(path):
+		_evict_when_ready[path] = true
+	else:
+		_last_use.erase(path)
+
+func evict_unleased(path: String) -> void:
+	if _leases.has(path) or _pinned.has(path):
+		return
+	if _cache.has(path):
+		_evict_texture(path)
+	elif _pending_requests.has(path):
+		_evict_when_ready[path] = true
+	else:
+		_last_use.erase(path)
+
+func _evict_texture(path: String) -> void:
 	_last_use.erase(path)
 	var texture: ImageTexture = _cache.get(path)
 	if texture == null:
@@ -363,6 +415,8 @@ func clear() -> void:
 	_cache.clear()
 	_order.clear()
 	_pinned.clear()
+	_leases.clear()
+	_evict_when_ready.clear()
 	_bounds.clear()
 	_thumbs.clear()
 	_thumbs_complete.clear()
@@ -371,6 +425,7 @@ func clear() -> void:
 	_path_bytes.clear()
 	_last_use.clear()
 	_bytes = 0
+	_page_lock.lock()
 	_page_images.clear()
 	_page_mtimes.clear()
 	_page_order.clear()
@@ -379,6 +434,7 @@ func clear() -> void:
 	_thumb_page_images.clear()
 	_thumb_page_mtimes.clear()
 	_thumb_page_order.clear()
+	_page_lock.unlock()
 
 func pending_count() -> int:
 	return _pending_requests.size()
@@ -490,7 +546,7 @@ func unload_idle(idle_seconds: float = IDLE_UNLOAD_SECONDS) -> int:
 	var idle_ms := int(idle_seconds * 1000.0)
 	var removed := 0
 	for path: String in _order.duplicate():
-		if _pinned.has(path):
+		if _pinned.has(path) or _leases.has(path):
 			continue
 		if not _cache.has(path):
 			continue
@@ -531,7 +587,7 @@ func _store(path: String, texture: ImageTexture, used_rect: Rect2i, vram_bytes :
 
 func _find_evictable() -> String:
 	for path in _order:
-		if not _pinned.has(path):
+		if not _pinned.has(path) and not _leases.has(path):
 			return path
 	return ""
 
