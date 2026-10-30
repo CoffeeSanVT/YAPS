@@ -43,7 +43,7 @@ func _on_remapping_success(action: String, shortcut_key: String) -> void:
 		var combo := InputMapper.get_captured_combo_keys()
 		_last_event = events[0]
 		_last_combo_keys = combo
-		_check_conflict()
+		_check_conflict(true)
 		shortcut_saved.emit(action_name, events[0], combo)
 
 func set_shortcut(event: InputEvent) -> void:
@@ -74,7 +74,7 @@ func _build_probe_trigger() -> BaseTrigger:
 	probe.combo_keys = _last_combo_keys
 	return probe
 
-func _check_conflict() -> void:
+func _check_conflict(notify := false) -> void:
 	if conflict_icon == null:
 		return
 	var conflicts := TriggerUtil.find_conflicts(_build_probe_trigger(), conflict_exclude_category, conflict_exclude_name)
@@ -82,10 +82,13 @@ func _check_conflict() -> void:
 		conflict_icon.visible = false
 		conflict_icon.tooltip_text = ""
 	else:
-		conflict_icon.visible = true
-		conflict_icon.tooltip_text = tr(&"SHORTCUT_CONFLICT") % [
+		var message: String = tr(&"SHORTCUT_CONFLICT") % [
 			TriggerUtil.format_conflict_tooltip(conflicts)
 		]
+		conflict_icon.visible = true
+		conflict_icon.tooltip_text = message
+		if notify:
+			SignalBus.shortcut_conflict_detected.emit(message)
 
 func _on_line_edit_focus_entered() -> void:
 	if action_name.is_empty():

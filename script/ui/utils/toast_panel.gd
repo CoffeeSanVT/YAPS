@@ -25,12 +25,14 @@ func _ready() -> void:
 		toast_template.visible = false
 	SignalBus.twitch_token_expired.connect(_on_twitch_token_expired)
 	SignalBus.twitch_token_refreshed.connect(_on_twitch_token_refreshed)
+	SignalBus.shortcut_conflict_detected.connect(_on_shortcut_conflict_detected)
 	if TwitchClient.is_refresh_in_progress():
 		show_toast(tr(&"TOAST_TOKEN_EXPIRED"), Kind.WARNING)
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"twitch_token_expired", _on_twitch_token_expired)
 	NodeUtil.safe_disconnect(SignalBus, &"twitch_token_refreshed", _on_twitch_token_refreshed)
+	NodeUtil.safe_disconnect(SignalBus, &"shortcut_conflict_detected", _on_shortcut_conflict_detected)
 
 func show_toast(message: String, kind: Kind = Kind.INFO, duration: float = -1.0) -> void:
 	if stack == null or toast_template == null or toast_label == null:
@@ -78,3 +80,6 @@ func _on_twitch_token_refreshed(success: bool) -> void:
 		show_toast(tr(&"TOAST_TOKEN_RENEWED"), Kind.SUCCESS)
 	else:
 		show_toast(tr(&"TOAST_TOKEN_RENEW_FAILED"), Kind.ERROR)
+
+func _on_shortcut_conflict_detected(message: String) -> void:
+	show_toast(message, Kind.WARNING)
