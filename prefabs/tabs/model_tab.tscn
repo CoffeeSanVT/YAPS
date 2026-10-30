@@ -14,6 +14,7 @@
 [ext_resource type="Script" uid="uid://v5uj2gtcx3id" path="res://script/ui/panels/emotions_list.gd" id="32_emo"]
 [ext_resource type="Script" uid="uid://x500mkq7lvrx" path="res://script/ui/model/outline_settings.gd" id="33_outset"]
 [ext_resource type="Script" uid="uid://bvt08gk33xjgw" path="res://script/ui/model/model_overlap_fade.gd" id="34_overlap"]
+[ext_resource type="Script" path="res://script/ui/model/flip_panel.gd" id="35_flip"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ajps"]
 content_margin_left = 12.0
@@ -217,6 +218,27 @@ max_value = 360.0
 step = 0.1
 alignment = 1
 suffix = "°"
+
+[node name="FlipContainer" type="HBoxContainer" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer" node_paths=PackedStringArray("flip_toggle")]
+layout_mode = 2
+script = ExtResource("35_flip")
+flip_toggle = NodePath("FlipToggle")
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/FlipContainer"]
+layout_mode = 2
+text = "Flip"
+metadata/localization_key = &"FLIP_X"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/FlipContainer/Label"]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/FlipContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FlipToggle" type="CheckButton" parent="ScrollContainer/MarginContainer/HFlowContainer/Transform/MarginContainer/VBoxContainer/FlipContainer"]
+layout_mode = 2
 
 [node name="Effects" type="PanelContainer" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=1952288163]
 layout_mode = 2

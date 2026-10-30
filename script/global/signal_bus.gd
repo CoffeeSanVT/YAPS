@@ -6,6 +6,7 @@ signal locale_changed(locale: String)
 
 signal remapping_started(action_name: String)
 signal remapping_success(action_name: String, shortcut_key: String)
+signal shortcut_conflict_detected(conflict_message: String)
 
 signal fps_limit_changed(value: int)
 signal performance_overlay_changed(visible: bool)
@@ -57,4 +58,5 @@ signal presets_changed()
 signal rename_editing_started()
 signal rename_editing_finished()
 signal model_transform_values(position: Vector2, scale_value: float, rotation: float)
+signal model_flip_changed(flip: bool)
 signal model_container_changed(container: Control)

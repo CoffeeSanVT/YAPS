@@ -21,6 +21,9 @@ extends Resource
 @export var effects: Array[BaseEffect] = []
 @export var effects_enabled: bool = true
 
+@export_category("Transform")
+@export var flip_x: bool = false
+
 @export_category("Transform Presets")
 @export var transform_presets: Array[TransformPreset] = []
 

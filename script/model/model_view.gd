@@ -125,6 +125,11 @@ func set_antialias(value: int) -> void:
 		return
 	(model_render.material as ShaderMaterial).set_shader_parameter(&"_AntiAlias", value)
 
+func set_flip(value: bool) -> void:
+	if model_render == null:
+		return
+	model_render.scale = Vector2(-1.0 if value else 1.0, 1.0)
+
 func apply_outline_settings(s: ModelProfile) -> void:
 	if s == null or model_render == null:
 		return

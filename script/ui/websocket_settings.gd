@@ -80,4 +80,5 @@ func _target_commands() -> PackedStringArray:
 		commands.append(ModelWsApi.set_item_command(item.state_name))
 	for preset in profile.transform_presets:
 		commands.append(ModelWsApi.apply_preset_command(preset.preset_name))
+	commands.append(ModelWsApi.set_flip_command(profile.flip_x))
 	return PackedStringArray(commands)

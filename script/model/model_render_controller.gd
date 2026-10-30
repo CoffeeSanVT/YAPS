@@ -46,6 +46,7 @@ func _bus_connections() -> Array:
 		[SignalBus, &"model_images_reloaded", _prewarm_textures],
 		[SignalBus, &"model_effects_changed", _on_effects_changed],
 		[SignalBus, &"outline_settings_changed", _on_outline_settings_changed],
+		[SignalBus, &"model_flip_changed", _on_flip_changed],
 	]
 
 func _setup_view() -> void:
@@ -53,6 +54,7 @@ func _setup_view() -> void:
 	if initial_state == null:
 		push_warning(TAG + "No initial state found; static PNG rendered without texture.")
 	_view.setup(model_container, ModelLoader.textures.load_state_texture(initial_state) if initial_state else null)
+	_view.set_flip(ModelLoader.model_loaded.flip_x)
 
 func _prewarm_textures() -> void:
 	var profile := ModelLoader.model_loaded
@@ -143,6 +145,9 @@ func _on_antialias_changed(value: int) -> void:
 
 func _on_outline_settings_changed() -> void:
 	_view.apply_outline_settings(ModelLoader.model_loaded)
+
+func _on_flip_changed(flip: bool) -> void:
+	_view.set_flip(flip)
 
 func _on_spout_enabled_changed(value: bool) -> void:
 	_apply_spout_enabled(value)
