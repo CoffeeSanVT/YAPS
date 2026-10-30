@@ -110,11 +110,21 @@ theme_override_constants/separation = 16
 layout_mode = 2
 theme_override_fonts/bold_font = ExtResource("4_6cdou")
 bbcode_enabled = true
-text = "Welcome to YAPS! To create your character, just click the Create button below. You need at minimum two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and[br] [b]<emotion name>_silence[/b] or just the emotion name."
+text = "Welcome to YAPS! To create your character, just click the Create button below. You need at minimum two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and[br] [b]<emotion name>_silence[/b] or just the emotion name. "
 fit_content = true
 metadata/localization_key = &"YAPS_DESCRIPTION"
 
 [node name="TranslationNode" type="Node" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2/RichTextLabel" unique_id=687757098]
+script = ExtResource("4_5ewt4")
+
+[node name="LinkButton" type="LinkButton" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1508309938]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_6cdou")
+text = "Learn More"
+uri = "https://github.com/CoffeeSanVT/YAPS/wiki"
+metadata/localization_key = &"DOC_LINK"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2/LinkButton" unique_id=74305807]
 script = ExtResource("4_5ewt4")
 
 [node name="Button" type="Button" parent="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer2" unique_id=1927068564]

@@ -7,8 +7,8 @@ const FULL_BOUNDS := Rect2(0.0, 0.0, 1.0, 1.0)
 const AtlasStoreScript := preload("res://script/utils/atlas_store.gd")
 const PAGE_CACHE_LIMIT := 2
 const PAGE_CACHE_BUDGET_BYTES := 64 * 1024 * 1024
-const IDLE_UNLOAD_SECONDS := 15.0
-const PAGE_IDLE_UNLOAD_SECONDS := 15.0
+const IDLE_UNLOAD_SECONDS := 10.0
+const PAGE_IDLE_UNLOAD_SECONDS := 10.0
 
 var _cache: Dictionary[String, ImageTexture] = {}
 var _order: Array[String] = []

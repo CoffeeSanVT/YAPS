@@ -53,19 +53,37 @@ func set_emotion(emotion: ModelEmotion) -> void:
 	set_emotion_effect(emotion)
 	if twitch_foldable != null:
 		twitch_foldable.setup(emotion.twitch_event)
+	_set_default_row_visible(true)
 	_update_default_button_state()
 
 func set_neutral(emotion: ModelEmotion) -> void:
 	_is_neutral = true
 	current_emotion = emotion
-	tile_text.text = tr(&"NEUTRAL")
 	rename_button.visible = false
-	default_button.visible = false
+	_set_default_row_visible(false)
 	if trigger_foldable != null:
 		trigger_foldable.visible = false
 	if twitch_foldable != null:
 		twitch_foldable.visible = false
 	set_emotion_effect(emotion)
+	_update_tile_text()
+
+func _set_default_row_visible(value: bool) -> void:
+	if default_button != null and default_button.get_parent() is Control:
+		(default_button.get_parent() as Control).visible = value
+
+func _update_tile_text() -> void:
+	if _is_neutral:
+		tile_text.text = _neutral_tile_text()
+	else:
+		tile_text.text = String(current_emotion.emotion_name).capitalize()
+
+func _neutral_tile_text() -> String:
+	if ModelLoader.model_loaded != null:
+		var default_emotion := ModelLoader.model_loaded.get_emotion(ModelLoader.model_loaded.default_emotion)
+		if default_emotion != null:
+			return String(tr(&"NEUTRAL_DEFAULT")) % String(default_emotion.emotion_name).capitalize()
+	return tr(&"NEUTRAL")
 
 func _update_default_button_state() -> void:
 	var is_default := false
@@ -75,7 +93,7 @@ func _update_default_button_state() -> void:
 
 func _on_locale_change() -> void:
 	if _is_neutral:
-		tile_text.text = tr(&"NEUTRAL")
+		_update_tile_text()
 	if options_button.item_count > 0:
 		options_button.set_item_text(0, tr(&"NONE"))
 	for i in _trigger_options.size():
@@ -188,6 +206,9 @@ func _on_default_toggled(pressed: bool) -> void:
 			ModelLoader.model_loaded.default_emotion = ""
 	commit()
 	SignalBus.states_changed.emit()
+	var machine := get_tree().get_first_node_in_group(&"model_state_machine") as ModelStateMachine
+	if machine != null:
+		machine.refresh_default_emotion()
 
 func _on_option_button_item_selected(index: int) -> void:
 	if index == 0:
@@ -223,7 +244,11 @@ func _on_twitch_event_changed(twitch_event: TwitchEvent) -> void:
 func _on_rename_pressed() -> void:
 	if current_emotion == null:
 		return
-	_rename_util.rename_property(tile_text, current_emotion, &"emotion_name", _is_emotion_name_taken)
+	_rename_util.rename_property(tile_text, current_emotion, &"emotion_name", _is_emotion_name_taken, RenameUtil.LabelMode.CAPITALIZED, _on_emotion_renamed)
+
+func _on_emotion_renamed(new_name: String) -> void:
+	if ModelLoader.model_loaded != null and ModelLoader.model_loaded.default_emotion.to_lower() == new_name.to_lower():
+		SignalBus.states_changed.emit()
 
 func _is_emotion_name_taken(candidate: String) -> bool:
 	return ModelLoader.model_loaded != null and ModelLoader.model_loaded.has_emotion_named(candidate, current_emotion)

@@ -1,5 +1,5 @@
 key,en,pt
-YAPS_DESCRIPTION,"Welcome to YAPS! To create your character, just click the Create button below. You need at minimum two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and[br] [b]<emotion name>_silence[/b] or just the emotion name.","Bem-vindo ao YAPS! Para criar seu personagem, clique no botão Criar abaixo. Você precisa de no mínimo duas imagens nomeadas talking e silence, e para cada emoção nomeie o arquivo como [b]<nome da emoção>_talking[/b] e [br] [b]<nome da emoção>_silence[/b] ou apenas o nome da emoção."
+YAPS_DESCRIPTION,"Welcome to YAPS! To create your character, just click the Create button below. You need at least two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and [br] [b]<emotion name>_silence[/b] or just the emotion name.","Bem-vindo ao YAPS! Para criar seu personagem, clique no botão Criar abaixo. Você precisa de no mínimo duas imagens nomeadas talking e silence, e para cada emoção nomeie o arquivo como [b]<nome da emoção>_talking[/b] e [br] [b]<nome da emoção>_silence[/b] ou apenas o nome da emoção."
 CHARACTERS,Characters,Personagens
 CREATE,Create,Criar
 CONFIRM,Confirm,Confirmar
@@ -12,7 +12,7 @@ NONE,None,Nenhum
 EFFECT_BOUNCE,Bounce,Pulo
 EFFECT_SHAKE,Shake,Tremer
 EFFECT_BOB,Float,Flutuar
-EFFECT_WARP,Wave Warp,Distorção de onda
+EFFECT_WARP,Wave Warp,Distorção de Onda
 EFFECT_DARKEN,Darken,Escurecer
 EFFECT_CATEGORY_MOVEMENT,Movement,Movimento
 EFFECT_CATEGORY_FILTER,Filter,Filtro
@@ -20,20 +20,21 @@ TRIGGER,Trigger,Ativador
 USE_TWITCH_EVENTS,Use Twitch Events,Usar Eventos da Twitch
 TRIGGER_KEY_PRESSED,Key Pressed,Apertar Tecla
 TRIGGER_KEY_HOLD,Key Holding,Segurar Tecla
-TRIGGER_START_TALKING,Start Talking,Começando a falar
-TRIGGER_VOLUME_RANGE,Volume Range,Faixa de volume
+TRIGGER_START_TALKING,Start Talking,Começar a Falar
+TRIGGER_VOLUME_RANGE,Volume Range,Faixa de Volume
 POSITION,Position,Posição
 SCALE,Scale,Escala
 ZOOM,Zoom,Zoom
 ROTATION,Rotation,Rotação
+FLIP_X,Flip,Inverter
 Z_INDEX,Z Index,Posição Z
 DURATION,Duration,Duração
 INTENSITY,Intensity,Intensidade
 AMPLITUDE,Amplitude,Amplitude
 FPS_LIMIT,FPS Limit,Limite de FPS
-PERFORMANCE_OVERLAY,Performance Overlay,Overlay de desempenho
+PERFORMANCE_OVERLAY,Performance Overlay,Overlay de Desempenho
 COMPRESS_TEXTURES,Compress Textures,Comprimir Texturas
-TEXTURE_FILTER,Texture Filter,Filtro de textura
+TEXTURE_FILTER,Texture Filter,Filtro de Textura
 WINDOW_RESOLUTION,Window Resolution,Resolução da Janela
 ANTI_ALIASING,Anti-Aliasing,Anti-serrilhado
 SPOUT_OUTPUT,Spout Output,Saída com Spout
@@ -47,12 +48,12 @@ BACKGROUND_CUSTOM_COLOR,Custom Color,Cor Personalizada
 MICROPHONE,Microphone,Microfone
 AUDIO,Audio,Áudio
 DEFAULT,Default,Padrão
-MARK_AS_DEFAULT,Mark as default,Marcar como padrão
-MIC_ACTIVATION_THRESHOLD,Activation Threshold,Volume de ativação
-SHOW_VOLUME_VISUALIZATION,Show Volume Visualizer,Mostrar visualização de volume
-MIC_MONITORING,Mic Monitoring,Retorno do microfone
-MIC_GAIN,Mic Gain,Ganho do microfone
-ADVANCED_OPTIONS,Advanced Options,Opções avançadas
+MARK_AS_DEFAULT,Mark as Default,Marcar como Padrão
+MIC_ACTIVATION_THRESHOLD,Activation Threshold,Volume de Ativação
+SHOW_VOLUME_VISUALIZATION,Show Volume Visualizer,Mostrar Visualização de Volume
+MIC_MONITORING,Mic Monitoring,Retorno do Microfone
+MIC_GAIN,Mic Gain,Ganho do Microfone
+ADVANCED_OPTIONS,Advanced Options,Opções Avançadas
 SMOOTHING_ATTACK,Smoothing Attack,Suavização de subida
 SMOOTHING_RELEASE,Smoothing Release,Suavização de descida
 TALK_HYSTERESIS,Talking Delay,Atraso de fala
@@ -61,19 +62,20 @@ SMOOTHING_ATTACK_DESC,How quickly the smoothed volume rises when you start speak
 SMOOTHING_RELEASE_DESC,How quickly the smoothed volume falls after you stop speaking. Higher values drop faster.,A rapidez com que o volume suavizado cai depois que você para de falar. Valores maiores caem mais rápido.
 TALK_HYSTERESIS_DESC,Extra volume drop (dB) below the activation threshold needed to stop talking. Prevents flickering near the threshold.,Queda extra de volume (dB) abaixo do limite de ativação para parar de falar. Evita oscilação perto do limite.
 TALK_HOLD_DESC,How long the volume must stay below the threshold before talking stops.,Por quanto tempo o volume precisa ficar abaixo do limite antes de parar de falar.
-AVERAGE_DB,Average volume: %.1f dB,Média de volume: %.1f dB
-START_CALC_AVERAGE_DB,Calculate average volume,Calcular média de volume
+AVERAGE_DB,Average volume: %.1f dB,Média de Volume: %.1f dB
+START_CALC_AVERAGE_DB,Calculate average volume,Calcular Média de Volume
 CALC_AVERAGE_DB,Average: %.1f dB,Média: %.1f dB
 MODEL,Model,Modelo
 EXPRESSIONS,Expressions,Expressões
+EXPRESSION,Expression,Expressão
 SETTINGS,Settings,Configurações
 GENERAL,General,Geral
 LANGUAGE,Language,Idioma
 LANG_ENGLISH,English,Inglês
 LANG_PORTUGUESE,Portuguese,Português
-MODEL_NAME,Model name,Nome do modelo
-TIME_TO_REVERT,Time to revert,Tempo para voltar
-TIME_TO_ACTIVATE,Time to activate,Tempo para ativar
+MODEL_NAME,Model Name,Nome do Modelo
+TIME_TO_REVERT,Time to Revert,Tempo para Voltar
+TIME_TO_ACTIVATE,Time to Activate,Tempo para Ativar
 BACK_TO_MENU,Back to Menu,Voltar ao Menu
 RELOAD_IMAGES,Reload Images,Recarregar Imagens
 MIN_DB,Min dB,Mín. dB
@@ -94,22 +96,22 @@ RENAME,Rename,Renomear
 DELETE,Delete,Excluir
 DELETE_MODEL_TITLE,Delete Model,Excluir Modelo
 DELETE_MODEL_MESSAGE,Delete model '%s'? All of its files will be permanently removed.,Excluir o modelo '%s'? Todos os seus arquivos serão removidos permanentemente.
-ITEM_FIXED,Fixed to Model,Preso ao modelo
+ITEM_FIXED,Fixed to Model,Preso ao Modelo
 ADD_STATE,Add State,Adicionar Estado
 FRAMES,Frames,Quadros
 FRAME_RATE,Animation FPS,FPS da animação
 OVERRIDE_FRAME_RATE,Override FPS,Substituir FPS
-OVERRIDE_EVERY,Override interval,Substituir intervalo
-ANIMATION_INTERVAL,Animation interval,Intervalo da animação
+OVERRIDE_EVERY,Override Interval,Substituir Intervalo
+ANIMATION_INTERVAL,Animation Interval,Intervalo da Animação
 LOOP,Loop,Loop
-OVERRIDE_SILENCE,Override silence,Substituir silêncio
-OVERRIDE_TALKING,Override talking,Substituir falando
+OVERRIDE_SILENCE,Override Silence,Substituir Silêncio
+OVERRIDE_TALKING,Override Talking,Substituir Falando
 ADD_FRAME,Add Frame,Adicionar Quadro
-EMPTY_ASSETS_LIST,No items in scene,Sem itens na cena
-WEBSOCKET_SERVER,Enable server,Ativar servidor
+EMPTY_ASSETS_LIST,No assets in scene,Sem itens na cena
+WEBSOCKET_SERVER,Enable Server,Ativar Servidor
 WEBSOCKET_SERVER_TITLE,WebSocket Server,Servidor WebSocket
 SERVER_PORT,Port,Porta
-CALLABLE_ACTIONS,Callable Actions,Ações disponíveis
+CALLABLE_ACTIONS,Callable Actions,Ações Disponíveis
 FADE_FOR_SEC,Fade for sec,Fade em seg
 STOP_AFTER_SEC,Stop after sec,Parar após seg
 ADVANCED,Advanced,Avançado
@@ -118,13 +120,14 @@ OFFSET_TRANSFORM,Offset Transform,Transformação Offset
 ANIMATION,Animation,Animação
 CLEAR,Clear,Limpar
 CLICK_TO_SET_KEY,Click to set key,Clique para definir a tecla
-PRESETS,Position Presets,Posições Prontas
-SAVE_PRESET,Save position,Salvar Posição
+PRESETS,Position Presets,Posições Salvas
+SAVE_PRESET,Save Position,Salvar Posição
 TALKING,Talking,Falando
 SILENCE,Silence,Silêncio
 EMOTIONS,Emotions,Emoções
 ADD_EMOTION,Add Emotion,Adicionar Emoção
 NEUTRAL,Neutral,Neutro
+NEUTRAL_DEFAULT,Neutral (%s),Neutro (%s)
 CANCEL,Cancel,Cancelar
 ENABLE,Enable,Ativar
 OUTLINE,Outline,Contorno
@@ -180,7 +183,7 @@ TWITCH_REWARD,Reward,Recompensa
 TWITCH_REWARD_NONE,None (no reaction),Nenhum (sem reação)
 TWITCH_REFRESH_REWARDS,Refresh Rewards,Atualizar Recompensas
 TWITCH_REWARDS_COUNT,Channel points rewards: %d,Recompensas de pontos do canal: %d
-TWITCH_MIN_BITS,Minimum bits,Bits mínimos
+TWITCH_MIN_BITS,Minimum bits,Bits Mínimos
 TWITCH_PULSE,Pulse (auto revert),Pulso (voltar sozinho)
 TWITCH_PULSE_DURATION,Duration,Duração
 TWITCH_AUTH_ERROR,Twitch connection failed: %s,Falha na conexão com a Twitch: %s
@@ -197,3 +200,4 @@ LOADING_MENU,Returning to menu,Voltando ao menu
 LOADING_GENERATING,Generating atlases,Gerando atlas
 RENAME_TEXT,Type the new name,Digite o novo nome
 OVERRIDE_SETTINGS,Override Settings,Substituir Configurações
+DOC_LINK,Learn More,Saiba Mais
