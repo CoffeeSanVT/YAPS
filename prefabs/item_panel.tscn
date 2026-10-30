@@ -28,7 +28,7 @@
 [ext_resource type="Script" uid="uid://b762yq6ybokpk" path="res://script/ui/panels/item_anim_controls.gd" id="22_anim"]
 
 
-[node name="PanelContainer" type="PanelContainer" unique_id=700000100 node_paths=PackedStringArray("thumbnail", "item_name_label", "enable_toggle", "fixed_toggle", "trigger_option", "trigger_ui", "rename_button", "position_x", "position_y", "scale_value", "rotation_value", "z_value", "anim_controls", "fade_spin", "hide_spin", "twitch_foldable")]
+[node name="PanelContainer" type="PanelContainer" unique_id=700000100 node_paths=PackedStringArray("thumbnail", "item_name_label", "enable_toggle", "fixed_toggle", "trigger_option", "trigger_ui", "rename_button", "position_x", "position_y", "scale_value", "rotation_value", "z_value", "anim_controls", "preset_list", "fade_spin", "hide_spin", "twitch_foldable")]
 custom_minimum_size = Vector2(270, 0)
 size_flags_horizontal = 3
 theme = ExtResource("1_fb12t")
@@ -47,6 +47,7 @@ scale_value = NodePath("VBoxContainer/TransformFoldable/TransformContainer/Scale
 rotation_value = NodePath("VBoxContainer/TransformFoldable/TransformContainer/RotationRow/Value")
 z_value = NodePath("VBoxContainer/TransformFoldable/TransformContainer/ZRow/Value")
 anim_controls = NodePath("VBoxContainer/AnimFoldable")
+preset_list = NodePath("VBoxContainer/PresetsFoldable/PresetsContainer/PresetList")
 fade_spin = NodePath("VBoxContainer/AdvancedFoldable/AdvancedContent/FadeRow/FadeSpin")
 hide_spin = NodePath("VBoxContainer/AdvancedFoldable/AdvancedContent/HideRow/HideSpin")
 twitch_foldable = NodePath("VBoxContainer/TwitchEventFoldable")
@@ -263,6 +264,34 @@ max_value = 99.0
 value = 1.0
 alignment = 1
 
+[node name="PresetsFoldable" type="FoldableContainer" parent="VBoxContainer" unique_id=700000120]
+layout_mode = 2
+folded = true
+title = "Position Presets"
+metadata/localization_key = &"PRESETS"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/PresetsFoldable" unique_id=700000121]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="PresetsContainer" type="VBoxContainer" parent="VBoxContainer/PresetsFoldable" unique_id=700000122]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SaveButton" type="Button" parent="VBoxContainer/PresetsFoldable/PresetsContainer" unique_id=700000123]
+layout_mode = 2
+text = "Save position"
+metadata/localization_key = &"SAVE_PRESET"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/PresetsFoldable/PresetsContainer/SaveButton" unique_id=700000124]
+script = ExtResource("3_loc")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="PresetList" type="VBoxContainer" parent="VBoxContainer/PresetsFoldable/PresetsContainer" unique_id=700000125]
+layout_mode = 2
+theme_override_constants/separation = 6
+
 [node name="TriggerFoldable" type="FoldableContainer" parent="VBoxContainer" unique_id=422396957]
 layout_mode = 2
 folded = true
@@ -435,6 +464,7 @@ layout_mode = 2
 [connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/ScaleRow/Value" to="." method="_on_scale_changed"]
 [connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/RotationRow/Value" to="." method="_on_rotation_changed"]
 [connection signal="value_changed" from="VBoxContainer/TransformFoldable/TransformContainer/ZRow/Value" to="." method="_on_z_changed"]
+[connection signal="pressed" from="VBoxContainer/PresetsFoldable/PresetsContainer/SaveButton" to="." method="_on_save_preset_pressed"]
 [connection signal="item_selected" from="VBoxContainer/TriggerFoldable/VBoxContainer/Trigger" to="." method="_on_trigger_selected"]
 [connection signal="loop_toggled" from="VBoxContainer/AnimFoldable" to="." method="_on_anim_loop_toggled"]
 [connection signal="pressed" from="VBoxContainer/AnimFoldable/AnimContainer/AnimRow/PlayPauseButton" to="VBoxContainer/AnimFoldable" method="_on_play_pressed"]

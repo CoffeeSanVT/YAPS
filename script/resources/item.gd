@@ -35,6 +35,9 @@ const Z_MAX := 99
 @export var enabled: bool = false
 @export var is_fixed_to_model: bool = true
 
+@export_category("Transform Presets")
+@export var transform_presets: Array[ItemTransformPreset] = []
+
 @export_category("Animation")
 @export var animation_loop: bool = true
 
@@ -49,6 +52,12 @@ var _failed_frames: Dictionary[int, bool] = {}
 var _playback_held: bool = false
 var _auto_hide_timer: Timer
 var _fading_out: bool = false
+var _active_preset: ItemTransformPreset
+var _current_expression: String = ""
+var _current_position: Vector2 = Vector2.ZERO
+var _current_scale: float = 1.0
+var _current_rotation: float = 0.0
+var _preset_tween: Tween
 
 func _init(name: String = "", path: String = "") -> void:
 	state_name = name
@@ -298,14 +307,135 @@ func effective_scale() -> float:
 	return scale.x if scale != Vector2.ZERO else 1.0
 
 func apply_transform_to_instance() -> void:
+	_preset_tween = NodeUtil.stop_tween(_preset_tween)
+	_set_current_transform(position, effective_scale(), rotation)
+
+func refresh_transform_to_instance() -> void:
+	_sync_current_transform_from_instance()
+	_apply_current_transform()
+
+func stop_transform_tween() -> void:
+	_preset_tween = NodeUtil.stop_tween(_preset_tween)
+	_sync_current_transform_from_instance()
+
+func has_preset_named(preset_name: String, excluding: ItemTransformPreset = null) -> bool:
+	for preset in transform_presets:
+		if preset != excluding and preset.preset_name.to_lower() == preset_name.to_lower():
+			return true
+	return false
+
+func has_preset_for_expression(expression_name: String, excluding: ItemTransformPreset = null) -> bool:
+	if expression_name.is_empty():
+		return false
+	for preset in transform_presets:
+		if preset != excluding and preset.expression_name.to_lower() == expression_name.to_lower():
+			return true
+	return false
+
+func preset_for_expression(expression_name: String) -> ItemTransformPreset:
+	if expression_name.is_empty():
+		return null
+	for preset in transform_presets:
+		if preset.expression_name.to_lower() == expression_name.to_lower():
+			return preset
+	return null
+
+func apply_expression(expression_name: String, instant: bool = false) -> void:
+	_current_expression = expression_name
+	_apply_preset(preset_for_expression(expression_name), instant)
+
+func refresh_expression_preset(instant: bool = false) -> void:
+	apply_expression(_current_expression, instant)
+
+func current_expression_name() -> String:
+	return _current_expression
+
+func displayed_position() -> Vector2:
 	if _live_instance() == null:
+		return position
+	_sync_current_transform_from_instance()
+	return _current_position
+
+func displayed_scale() -> float:
+	if _live_instance() == null:
+		return effective_scale()
+	_sync_current_transform_from_instance()
+	return _current_scale
+
+func displayed_rotation() -> float:
+	if _live_instance() == null:
+		return rotation
+	_sync_current_transform_from_instance()
+	return _current_rotation
+
+func apply_preset(preset: ItemTransformPreset, instant: bool = false) -> void:
+	_apply_preset(preset, instant)
+
+func _apply_preset(preset: ItemTransformPreset, instant: bool) -> void:
+	var transition := preset if preset != null else _active_preset
+	_active_preset = preset
+	var target_position := preset.position if preset != null else position
+	var target_scale := preset.scale_value if preset != null else effective_scale()
+	var target_rotation := preset.rotation if preset != null else rotation
+
+	_preset_tween = NodeUtil.stop_tween(_preset_tween)
+	_sync_current_transform_from_instance()
+	var live := _live_instance()
+	if instant or transition == null or not transition.interpolate or live == null:
+		_set_current_transform(target_position, target_scale, target_rotation)
 		return
-	var vp := instance.get_viewport()
-	var vp_size := Vector2(vp.size) if vp != null else Vector2(1, 1)
-	instance.offset_transform_position = DragSession.ratio_to_viewport(position, vp_size) - instance.pivot_offset
-	var s := effective_scale()
-	instance.offset_transform_scale = Vector2(s, s)
-	instance.offset_transform_rotation = rotation
+
+	var start_position := _current_position
+	var start_scale := _current_scale
+	var start_rotation := _current_rotation
+	_preset_tween = live.create_tween().set_parallel(true)
+	_preset_tween.set_ease(transition.ease_type as Tween.EaseType)
+	_preset_tween.set_trans(transition.trans_type as Tween.TransitionType)
+	_preset_tween.tween_method(_set_current_position, start_position, target_position, transition.duration)
+	_preset_tween.tween_method(_set_current_scale, start_scale, target_scale, transition.duration)
+	_preset_tween.tween_method(_set_current_rotation, start_rotation, target_rotation, transition.duration)
+	_preset_tween.chain().tween_callback(func() -> void:
+		_preset_tween = null
+		_set_current_transform(target_position, target_scale, target_rotation)
+	)
+
+func _set_current_position(value: Vector2) -> void:
+	_current_position = value
+	_apply_current_transform()
+
+func _set_current_scale(value: float) -> void:
+	_current_scale = value
+	_apply_current_transform()
+
+func _set_current_rotation(value: float) -> void:
+	_current_rotation = value
+	_apply_current_transform()
+
+func _set_current_transform(pos: Vector2, sc: float, rot: float) -> void:
+	_current_position = pos
+	_current_scale = sc
+	_current_rotation = rot
+	_apply_current_transform()
+
+func _sync_current_transform_from_instance() -> void:
+	var live := _live_instance()
+	if live == null:
+		return
+	var vp := live.get_viewport()
+	var vp_size := Vector2(vp.size) if vp != null else Vector2.ONE
+	_current_position = DragSession.viewport_to_ratio(live.offset_transform_position + live.pivot_offset, vp_size)
+	_current_scale = live.offset_transform_scale.x
+	_current_rotation = live.offset_transform_rotation
+
+func _apply_current_transform() -> void:
+	var live := _live_instance()
+	if live == null:
+		return
+	var vp := live.get_viewport()
+	var vp_size := Vector2(vp.size) if vp != null else Vector2.ONE
+	live.offset_transform_position = DragSession.ratio_to_viewport(_current_position, vp_size) - live.pivot_offset
+	live.offset_transform_scale = Vector2(_current_scale, _current_scale)
+	live.offset_transform_rotation = _current_rotation
 
 func get_animation_player() -> AnimatedImagePlayer:
 	var live := _live_instance()
@@ -342,8 +472,22 @@ func _finalize_disable() -> void:
 	enabled = false
 	pause_animation()
 	_release_all_frames()
+	_clear_instance_texture()
 	enabled_changed.emit(false)
 	schedule_save()
+
+func _clear_instance_texture() -> void:
+	var live := _live_instance()
+	if live == null:
+		return
+	live.texture = null
+
+func _restore_instance_texture() -> void:
+	if _live_instance() == null or instance.texture != null:
+		return
+	if _has_animation_cache():
+		return
+	instance.texture = load_image()
 
 func update_auto_hide_timer() -> void:
 	_clear_auto_hide_timer()
@@ -386,6 +530,8 @@ func _fade_instance(show: bool) -> void:
 	var trigger := _settings_trigger()
 	if trigger != null:
 		instance.fade_duration = trigger.fade_duration
+	if show:
+		_restore_instance_texture()
 	instance.set_visible_with_fade(show)
 	if not show:
 		NodeUtil.connect_once(instance, &"fade_out_done", _on_fade_out_done)
@@ -438,6 +584,7 @@ func deactivate_triggers() -> void:
 		trigger.enabled = false
 
 func release_runtime() -> void:
+	_preset_tween = NodeUtil.stop_tween(_preset_tween)
 	cancel_animation()
 	_release_all_frames()
 	animation_data = null

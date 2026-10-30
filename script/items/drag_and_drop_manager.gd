@@ -17,10 +17,13 @@ var _select_menu: PopupMenu
 var _icon_cache := {}
 var _deselect_timer: Timer
 var _selected_was_dragging := false
+var _state_machine: ModelStateMachine
 
 func _ready() -> void:
 	NodeUtil.connect_once(SignalBus, &"model_container_changed", _on_model_container_changed)
 	NodeUtil.connect_once(SignalBus, &"items_changed", _prune_item_references)
+	_state_machine = get_tree().get_first_node_in_group(&"model_state_machine") as ModelStateMachine
+	NodeUtil.connect_once(_state_machine, &"entry_changed", _on_expression_changed)
 	get_window().files_dropped.connect(_on_files_dropped)
 	NodeUtil.connect_once(get_viewport(), &"size_changed", _on_viewport_resized)
 	_deselect_timer = NodeUtil.ensure_timer(self, _deselect_timer, _on_deselect_timeout, true)
@@ -34,11 +37,12 @@ func _reapply_item_transforms() -> void:
 	if ModelLoader.model_loaded == null:
 		return
 	for item in ModelLoader.model_loaded.items:
-		item.apply_transform_to_instance()
+		item.refresh_transform_to_instance()
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"model_container_changed", _on_model_container_changed)
 	NodeUtil.safe_disconnect(SignalBus, &"items_changed", _prune_item_references)
+	NodeUtil.safe_disconnect(_state_machine, &"entry_changed", _on_expression_changed)
 	NodeUtil.safe_disconnect(get_viewport(), &"size_changed", _on_viewport_resized)
 	DragSession.reset()
 	if ModelLoader.model_loaded == null:
@@ -63,6 +67,7 @@ func _restore_items() -> void:
 		item.set_playback_held(true)
 	for item in ModelLoader.model_loaded.items:
 		item.instantiate_in_scene(_parent_for_item(item))
+		item.apply_expression(_current_expression_name(), true)
 		item.activate_trigger()
 		item.activate_twitch_event()
 		item.update_auto_hide_timer()
@@ -71,6 +76,18 @@ func _restore_items() -> void:
 	for item in ModelLoader.model_loaded.items:
 		item.set_playback_held(false)
 	LoadingOverlay.hide_loading()
+
+func _current_expression_name() -> String:
+	if _state_machine != null and _state_machine.current_entry != null:
+		return _state_machine.current_entry.state_name
+	return ""
+
+func _on_expression_changed(_previous: ModelStateEntry, current: ModelStateEntry) -> void:
+	if ModelLoader.model_loaded == null:
+		return
+	var expression_name := current.state_name if current != null else ""
+	for item in ModelLoader.model_loaded.items:
+		item.apply_expression(expression_name)
 
 func get_model_parent() -> Control:
 	return _get_image_parent()
@@ -136,6 +153,7 @@ func _create_dropped_item_rect(texture: Texture2D, file_path: String) -> Draggab
 	if item != null:
 		item.apply_z_index()
 		item.apply_transform_to_instance()
+		item.apply_expression(_current_expression_name(), true)
 	return texture_rect
 
 func _input(event: InputEvent) -> void:

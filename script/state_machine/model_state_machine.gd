@@ -148,6 +148,14 @@ func _default_emotion() -> ModelEmotion:
 		return null
 	return profile.get_emotion(profile.default_emotion)
 
+func refresh_default_emotion() -> void:
+	if _is_emotion_engaged(active_emotion):
+		return
+	var default_emotion := _default_emotion()
+	if active_emotion == default_emotion:
+		return
+	_set_active_emotion(default_emotion)
+
 func _is_emotion_engaged(emotion: ModelEmotion) -> bool:
 	if emotion == null:
 		return false

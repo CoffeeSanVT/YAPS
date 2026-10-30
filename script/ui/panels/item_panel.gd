@@ -3,6 +3,7 @@ extends ModelEntityPanel
 signal changed(item: Item)
 
 const MIRROR_INTERVAL := 0.066
+const ITEM_PRESET_PANEL_PREFAB: PackedScene = preload("res://prefabs/item_preset_panel.tscn")
 
 @export_category("UI References")
 @export var thumbnail: TextureRect
@@ -19,6 +20,7 @@ const MIRROR_INTERVAL := 0.066
 @export var rotation_value: SpinBox
 @export var z_value: SpinBox
 @export var anim_controls: ItemAnimControls
+@export var preset_list: VBoxContainer
 @export_category("Fade/hide")
 @export var fade_spin: SpinBox
 @export var hide_spin: SpinBox
@@ -61,6 +63,7 @@ func _populate() -> void:
 	if twitch_foldable != null:
 		twitch_foldable.setup(item.twitch_event)
 	_populate_transform()
+	_populate_presets()
 	_populate_triggers()
 	_populate_animation()
 
@@ -70,6 +73,54 @@ func _populate_transform() -> void:
 	_mirror_transform_to_ui()
 	if z_value != null:
 		z_value.set_value_no_signal(item.z_index)
+
+func _populate_presets() -> void:
+	NodeUtil.clear_children(preset_list)
+	if item == null:
+		return
+	for preset in item.transform_presets:
+		var panel := ITEM_PRESET_PANEL_PREFAB.instantiate() as ItemPresetPanel
+		panel.apply_requested.connect(_on_preset_apply)
+		panel.update_requested.connect(_on_preset_update)
+		panel.delete_requested.connect(_on_preset_delete)
+		preset_list.add_child(panel)
+		panel.setup_item(preset, item)
+
+func _on_save_preset_pressed() -> void:
+	if item == null:
+		return
+	var preset := ItemTransformPreset.new(
+		"Preset %d" % (item.transform_presets.size() + 1),
+		item.displayed_position(),
+		item.displayed_scale(),
+		item.displayed_rotation()
+	)
+	item.transform_presets.append(preset)
+	commit()
+	_populate_presets()
+
+func _on_preset_apply(preset: TransformPreset) -> void:
+	if item != null and preset is ItemTransformPreset:
+		item.apply_preset(preset as ItemTransformPreset)
+
+func _on_preset_update(preset: TransformPreset) -> void:
+	if item == null or not item.transform_presets.has(preset):
+		return
+	preset.position = item.displayed_position()
+	preset.scale_value = item.displayed_scale()
+	preset.rotation = item.displayed_rotation()
+	commit()
+
+func _on_preset_delete(preset: TransformPreset) -> void:
+	if item == null or not item.transform_presets.has(preset):
+		return
+	item.transform_presets.erase(preset)
+	if preset is ItemTransformPreset:
+		var expression_name := (preset as ItemTransformPreset).expression_name
+		if expression_name.to_lower() == item.current_expression_name().to_lower():
+			item.refresh_expression_preset()
+	commit()
+	_populate_presets()
 
 func _mirror_transform_to_ui() -> void:
 	position_x.set_value_no_signal(item.position.x)

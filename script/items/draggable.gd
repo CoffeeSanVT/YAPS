@@ -117,6 +117,8 @@ func _process(_delta: float) -> void:
 			item.transform_changed.emit()
 	elif state == States.PRESSED:
 		if mouse.distance_to(_press_pos) > DRAG_THRESHOLD and _can_start_drag_at(_press_pos):
+			if item != null:
+				item.stop_transform_tween()
 			_drag_offset = _viewport_to_ratio(offset_transform_position + pivot_offset) - mouse
 			DragSession.active_draggable = self
 			state = States.DRAGGING
@@ -164,6 +166,8 @@ func _get_mouse_in_viewport() -> Vector2:
 	return DragSession.mouse_in_viewport(get_viewport().get_parent() as SubViewportContainer, get_viewport())
 
 func scale_wheel(up: bool) -> void:
+	if item != null:
+		item.stop_transform_tween()
 	var current := offset_transform_scale.x
 	var new_scale := current * (WHEEL_ZOOM_UP if up else WHEEL_ZOOM_DOWN)
 	new_scale = clampf(new_scale, MIN_SCALE, MAX_SCALE)
