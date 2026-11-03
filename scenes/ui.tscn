@@ -51,6 +51,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1102165587]
+layer = 2
 follow_viewport_enabled = true
 
 [node name="Panels" type="Control" parent="CanvasLayer" unique_id=178264783]
@@ -67,14 +68,17 @@ theme = ExtResource("1_ro3t7")
 [node name="Model" parent="CanvasLayer/Panels" unique_id=875641184 instance=ExtResource("TAB_MODEL")]
 visible = false
 layout_mode = 1
+anchors_preset = 9
 
 [node name="Expressions" parent="CanvasLayer/Panels" unique_id=151535089 instance=ExtResource("TAB_EXPR")]
 visible = false
 layout_mode = 1
+anchors_preset = 9
 
 [node name="Assets" parent="CanvasLayer/Panels" unique_id=1362174498 instance=ExtResource("TAB_ASSETS")]
 visible = false
 layout_mode = 1
+anchors_preset = 9
 
 [node name="Settings" parent="CanvasLayer/Panels" unique_id=1182424716 instance=ExtResource("TAB_CFG")]
 visible = false
@@ -99,9 +103,6 @@ model_panel = NodePath("../Panels/Model")
 expression_panel = NodePath("../Panels/Expressions")
 assets_panel = NodePath("../Panels/Assets")
 config_panel = NodePath("../Panels/Settings")
-
-[node name="ToastPanel" parent="CanvasLayer" unique_id=2073145628 instance=ExtResource("TOAST")]
-theme = ExtResource("1_ro3t7")
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HTabContainer" unique_id=1418791301]
 layout_mode = 1
@@ -190,6 +191,9 @@ texture_hover = ExtResource("19_jw3jg")
 texture_disabled = ExtResource("20_j7qfw")
 texture_focused = ExtResource("21_n71uf")
 stretch_mode = 5
+
+[node name="ToastPanel" parent="CanvasLayer" unique_id=2073145628 instance=ExtResource("TOAST")]
+theme = ExtResource("1_ro3t7")
 
 [connection signal="button_up" from="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer/Model" to="CanvasLayer/HTabContainer" method="_on_model_button_up"]
 [connection signal="button_up" from="CanvasLayer/HTabContainer/MarginContainer/HBoxContainer/HBoxContainer/Expressions" to="CanvasLayer/HTabContainer" method="_on_expressions_button_up"]

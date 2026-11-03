@@ -15,7 +15,7 @@ translations_plugin/last_edited_file_path="res://localization/YAPS_Localization.
 [application]
 
 config/name="YAPS"
-config/version="1.3.0"
+config/version="1.3.1"
 run/main_scene="res://scenes/menu.tscn"
 config/use_custom_user_dir=true
 config/custom_user_dir_name="yaps"
@@ -26,7 +26,6 @@ boot_splash/stretch_mode=0
 boot_splash/image="uid://b4i12gm186tg0"
 config/icon="uid://dyco1qh4mc3g4"
 boot_splash/minimum_display_time=1
-config/build_number=107
 
 [audio]
 
@@ -46,6 +45,9 @@ TwitchClient="*res://script/external_connections/twitch_client.gd"
 GlobalInput="*uid://dtqvsd027rpqs"
 FileLogger="*res://script/global/file_logger.gd"
 LoadingOverlay="*res://scenes/loading_overlay.tscn"
+Profily="*uid://qmnu1ehm866e"
+RamUsage="*res://script/performance/RamUsage.cs"
+ProfilyVisibility="*res://script/global/profily_visibility.gd"
 
 [copy_files_on_export]
 
@@ -73,7 +75,7 @@ project/assembly_name="YAPS"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/csvedit/plugin.cfg", "res://addons/global_input/plugin.cfg", "res://addons/localization_apply/plugin.cfg")
+enabled=PackedStringArray("res://addons/csvedit/plugin.cfg", "res://addons/global_input/plugin.cfg", "res://addons/localization_apply/plugin.cfg", "res://addons/profily/plugin.cfg")
 
 [input]
 
@@ -137,6 +139,21 @@ locale/translations=PackedStringArray("res://localization/YAPS_Localization.en.t
 [physics]
 
 3d/physics_engine="Dummy"
+
+[profily]
+
+general/enabled_on_startup=false
+general/canvas_layer=1
+general/ui_scale=0.5
+general/graph_modules_position=1
+hotkeys/enabled=false
+fps/module_state=1
+ram/module_state=2
+audio/module_state=4
+advanced/module_state=2
+advanced/module_position=1
+advanced/module_offset=Vector2(0, 180)
+debugger/enabled=false
 
 [rendering]
 
