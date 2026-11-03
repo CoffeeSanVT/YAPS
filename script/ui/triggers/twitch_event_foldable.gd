@@ -23,7 +23,7 @@ func setup(event: TwitchEvent) -> void:
 	var active := twitch_event != null and twitch_event.event_type != &""
 	twitch_toggle.set_pressed_no_signal(active)
 	twitch_foldable.visible = active
-	twitch_foldable.folded = not active
+	twitch_foldable.folded = true
 	if active:
 		_instantiate_twitch_ui(twitch_event)
 	_loading = false
