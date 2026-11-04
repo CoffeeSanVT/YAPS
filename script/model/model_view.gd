@@ -322,7 +322,12 @@ func _entry_fps(entry: ModelStateEntry) -> float:
 	return entry.effective_frame_rate(global_rate)
 
 func _entry_chance(entry: ModelStateEntry) -> float:
-	var global_chance := ModelLoader.model_loaded.global_animation_chance if ModelLoader.model_loaded != null else 0.0
+	if entry.override_random_interval:
+		return randf_range(entry.random_interval_min, maxf(entry.random_interval_min, entry.random_interval_max))
+	var profile := ModelLoader.model_loaded
+	if profile != null and profile.random_anim_interval_enabled:
+		return randf_range(profile.random_anim_interval_min, maxf(profile.random_anim_interval_min, profile.random_anim_interval_max))
+	var global_chance := profile.global_animation_chance if profile != null else 0.0
 	return entry.effective_animation_chance(global_chance)
 
 func _on_cycle_done() -> void:

@@ -16,7 +16,7 @@
 [ext_resource type="Texture2D" uid="uid://dm5jhnakge0ff" path="res://assets/icons/runtime/trash/trash_disabled.svg" id="13_trash_d"]
 [ext_resource type="Texture2D" uid="uid://menup57lhvdt" path="res://assets/icons/runtime/trash/trash_focused.svg" id="14_trash_f"]
 
-[node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("frames_list", "frames_fold", "override_fold", "frame_rate_spin", "animation_chance_spin", "loop_toggle", "override_toggle", "override_chance_toggle", "override_silence_toggle", "override_silence_label", "tile_text", "rename_button")]
+[node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("frames_list", "frames_fold", "override_fold", "frame_rate_spin", "animation_chance_spin", "loop_toggle", "override_toggle", "override_chance_toggle", "override_random_toggle", "random_interval_row", "random_min_spin", "random_max_spin", "override_silence_toggle", "override_silence_label", "tile_text", "rename_button")]
 custom_minimum_size = Vector2(270, 0)
 size_flags_horizontal = 3
 theme = ExtResource("1_mar2q")
@@ -30,6 +30,10 @@ animation_chance_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/ChanceCont
 loop_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopToggle")
 override_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle/OverrideToggle")
 override_chance_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle")
+override_random_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle/OverrideRandomToggle")
+random_interval_row = NodePath("VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow")
+random_min_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MinValue/SpinBox")
+random_max_spin = NodePath("VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MaxValue/SpinBox")
 override_silence_toggle = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle")
 override_silence_label = NodePath("VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel")
 tile_text = NodePath("VBoxContainer/Title/Tile")
@@ -84,6 +88,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="FrameRateContainer" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=538784608]
+visible = false
 layout_mode = 2
 
 [node name="FrameRateLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer" unique_id=1316879096]
@@ -108,6 +113,7 @@ value = 12.0
 alignment = 1
 
 [node name="ChanceContainer" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=2054235956]
+visible = false
 layout_mode = 2
 
 [node name="ChanceLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/ChanceContainer" unique_id=1316879102]
@@ -128,6 +134,57 @@ layout_mode = 2
 min_value = 0.5
 max_value = 60.0
 step = 0.1
+value = 5.0
+alignment = 1
+suffix = "s"
+
+[node name="RandomIntervalRow" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer" unique_id=491457443]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MinValue" type="VBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow" unique_id=2017090077]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MinValue" unique_id=1656714711]
+layout_mode = 2
+text = "Min Time"
+metadata/localization_key = &"RANDOM_ANIM_MIN_TIME"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MinValue/Label" unique_id=79099152]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MinValue" unique_id=23575650]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 60.0
+step = 0.5
+value = 1.0
+alignment = 1
+suffix = "s"
+
+[node name="MaxValue" type="VBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow" unique_id=1731648234]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MaxValue" unique_id=133555008]
+layout_mode = 2
+text = "Max Time"
+metadata/localization_key = &"RANDOM_ANIM_MAX_TIME"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MaxValue/Label" unique_id=304260912]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SpinBox" type="SpinBox" parent="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MaxValue" unique_id=681863946]
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = 0.5
+max_value = 60.0
+step = 0.5
 value = 5.0
 alignment = 1
 suffix = "s"
@@ -205,6 +262,26 @@ size_flags_horizontal = 3
 layout_mode = 2
 size_flags_vertical = 4
 
+[node name="OverrideRandomToggle" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer" unique_id=1696638793]
+layout_mode = 2
+
+[node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle" unique_id=1719018495]
+layout_mode = 2
+text = "Override random interval"
+metadata/localization_key = &"OVERRIDE_RANDOM_INTERVAL"
+
+[node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle/OverrideLabel" unique_id=781911981]
+script = ExtResource("3_mar2q")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle" unique_id=1883651126]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="OverrideRandomToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle" unique_id=1315515880]
+layout_mode = 2
+size_flags_vertical = 4
+
 [node name="OverrideSilenceRow" type="HBoxContainer" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer" unique_id=1904237601]
 layout_mode = 2
 
@@ -266,8 +343,11 @@ theme_override_constants/separation = 6
 [connection signal="pressed" from="VBoxContainer/Title/DeleteButton" to="." method="_on_delete_pressed"]
 [connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/FrameRateContainer/FrameRate" to="." method="_on_frame_rate_changed"]
 [connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/ChanceContainer/AnimationChance" to="." method="_on_animation_chance_changed"]
+[connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MinValue/SpinBox" to="." method="_on_random_min_changed"]
+[connection signal="value_changed" from="VBoxContainer/RateRow/VBoxContainer/RandomIntervalRow/MaxValue/SpinBox" to="." method="_on_random_max_changed"]
 [connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/LoopContainer/LoopToggle" to="." method="_on_loop_toggled"]
 [connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle/OverrideToggle" to="." method="_on_override_toggled"]
 [connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle/OverrideEveryToggle" to="." method="_on_override_chance_toggled"]
+[connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle/OverrideRandomToggle" to="." method="_on_override_random_toggled"]
 [connection signal="toggled" from="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceToggle" to="." method="_on_silence_override_toggled"]
 [connection signal="pressed" from="VBoxContainer/FramesContainer/VBoxContainer/AddFrameButton" to="." method="_on_add_frame_pressed"]

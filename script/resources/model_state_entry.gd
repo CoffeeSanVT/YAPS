@@ -9,6 +9,9 @@ extends Resource
 @export var override_frame_rate: bool = false
 @export var animation_chance: float = 5.0
 @export var override_animation_chance: bool = false
+@export var override_random_interval: bool = false
+@export var random_interval_min: float = 1.0
+@export var random_interval_max: float = 5.0
 @export var loop_animation: bool = true
 @export var override_silence: bool = false
 
@@ -30,3 +33,13 @@ func effective_animation_chance(global_chance: float) -> float:
 	if override_animation_chance or global_chance <= 0.0:
 		return animation_chance
 	return global_chance
+
+func effective_random_interval_min(global_min: float) -> float:
+	if override_random_interval or global_min <= 0.0:
+		return random_interval_min
+	return global_min
+
+func effective_random_interval_max(global_max: float) -> float:
+	if override_random_interval or global_max <= 0.0:
+		return random_interval_max
+	return global_max

@@ -103,6 +103,10 @@ FRAME_RATE,Animation FPS,FPS da animação
 OVERRIDE_FRAME_RATE,Override FPS,Substituir FPS
 OVERRIDE_EVERY,Override Interval,Substituir Intervalo
 ANIMATION_INTERVAL,Animation Interval,Intervalo da Animação
+RANDOM_ANIM_INTERVAL,Random Animation Interval,Intervalo Aleatório da Animação
+RANDOM_ANIM_MIN_TIME,Min Time,Tempo Mínimo
+RANDOM_ANIM_MAX_TIME,Max Time,Tempo Máximo
+OVERRIDE_RANDOM_INTERVAL,Override random interval,Substituir Intervalo Aleatório
 LOOP,Loop,Loop
 OVERRIDE_SILENCE,Override Silence,Substituir Silêncio
 OVERRIDE_TALKING,Override Talking,Substituir Falando

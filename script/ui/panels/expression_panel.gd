@@ -9,6 +9,10 @@ extends ModelEntityPanel
 @export var loop_toggle: CheckButton
 @export var override_toggle: CheckButton
 @export var override_chance_toggle: CheckButton
+@export var override_random_toggle: CheckButton
+@export var random_interval_row: Control
+@export var random_min_spin: SpinBox
+@export var random_max_spin: SpinBox
 @export var override_silence_toggle: CheckButton
 @export var override_silence_label: Label
 
@@ -23,6 +27,8 @@ const TRASH_ICON_DISABLED := "uid://dm5jhnakge0ff"
 const TRASH_ICON_FOCUSED := "uid://menup57lhvdt"
 const OVERRIDE_FOLDED_META := &"override_settings_folded"
 const FRAMES_FOLDED_META := &"frames_folded"
+const RANDOM_INTERVAL_LIMIT_MIN := 0.5
+const RANDOM_INTERVAL_LIMIT_MAX := 60.0
 const THUMB_UNLOAD_SECONDS := 3.0
 
 var state_entry: ModelStateEntry
@@ -63,6 +69,9 @@ func set_state_entry(entry: ModelStateEntry) -> void:
 		override_chance_toggle.set_pressed_no_signal(entry.override_animation_chance)
 	if animation_chance_spin != null:
 		_update_chance_spin()
+	if override_random_toggle != null:
+		override_random_toggle.set_pressed_no_signal(entry.override_random_interval)
+	_update_random_spins()
 	if loop_toggle != null:
 		loop_toggle.set_pressed_no_signal(entry.loop_animation)
 	if override_silence_toggle != null:
@@ -196,6 +205,7 @@ func _update_frame_rate_spin() -> void:
 	var global_rate := ModelLoader.model_loaded.global_frame_rate if ModelLoader.model_loaded != null else 0.0
 	frame_rate_spin.set_value_no_signal(state_entry.effective_frame_rate(global_rate))
 	frame_rate_spin.editable = state_entry.override_frame_rate
+	_set_row_active(frame_rate_spin, state_entry.override_frame_rate)
 
 func _on_override_chance_toggled(pressed: bool) -> void:
 	if state_entry == null:
@@ -210,9 +220,69 @@ func _update_chance_spin() -> void:
 	var global_chance := ModelLoader.model_loaded.global_animation_chance if ModelLoader.model_loaded != null else 0.0
 	animation_chance_spin.set_value_no_signal(state_entry.effective_animation_chance(global_chance))
 	animation_chance_spin.editable = state_entry.override_animation_chance
+	_set_row_active(animation_chance_spin, state_entry.override_animation_chance)
+
+func _set_row_active(control: Control, enabled: bool) -> void:
+	var row := control.get_parent() as Control
+	if row != null:
+		row.visible = enabled
 
 func _on_animation_chance_changed(value: float) -> void:
 	_set_entry_value(&"animation_chance", value)
+
+func _on_override_random_toggled(pressed: bool) -> void:
+	if state_entry == null:
+		return
+	state_entry.override_random_interval = pressed
+	var profile := ModelLoader.model_loaded
+	if pressed and profile != null:
+		state_entry.random_interval_min = profile.random_anim_interval_min
+		state_entry.random_interval_max = profile.random_anim_interval_max
+	_update_random_spins()
+	ModelLoader.save_model()
+
+func _update_random_spins() -> void:
+	if state_entry == null:
+		return
+	var profile := ModelLoader.model_loaded
+	var gmin := 0.0
+	var gmax := 0.0
+	if profile != null and profile.random_anim_interval_enabled:
+		gmin = profile.random_anim_interval_min
+		gmax = profile.random_anim_interval_max
+	if random_min_spin != null:
+		random_min_spin.set_value_no_signal(state_entry.effective_random_interval_min(gmin))
+		random_min_spin.editable = state_entry.override_random_interval
+	if random_max_spin != null:
+		random_max_spin.set_value_no_signal(state_entry.effective_random_interval_max(gmax))
+		random_max_spin.editable = state_entry.override_random_interval
+	if random_interval_row != null:
+		random_interval_row.visible = state_entry.override_random_interval
+	_constrain_random_spins()
+
+func _constrain_random_spins() -> void:
+	if state_entry == null:
+		return
+	if random_min_spin != null:
+		random_min_spin.max_value = minf(RANDOM_INTERVAL_LIMIT_MAX, state_entry.random_interval_max)
+	if random_max_spin != null:
+		random_max_spin.min_value = maxf(RANDOM_INTERVAL_LIMIT_MIN, state_entry.random_interval_min)
+
+func _on_random_min_changed(value: float) -> void:
+	_set_entry_value(&"random_interval_min", value)
+	if state_entry != null and state_entry.random_interval_max < value:
+		state_entry.random_interval_max = value
+		if random_max_spin != null:
+			random_max_spin.set_value_no_signal(value)
+	_constrain_random_spins()
+
+func _on_random_max_changed(value: float) -> void:
+	_set_entry_value(&"random_interval_max", value)
+	if state_entry != null and state_entry.random_interval_min > value:
+		state_entry.random_interval_min = value
+		if random_min_spin != null:
+			random_min_spin.set_value_no_signal(value)
+	_constrain_random_spins()
 
 func _set_entry_value(property: StringName, value: float) -> void:
 	if state_entry == null:

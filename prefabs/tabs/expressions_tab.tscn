@@ -7,6 +7,8 @@
 [ext_resource type="Script" uid="uid://q8kwnib4wr1w" path="res://script/ui/panels/state_transition.gd" id="6_sttrn"]
 [ext_resource type="Script" uid="uid://v6ly6ggmv4yd" path="res://script/ui/panels/global_frame_rate.gd" id="8_gfr"]
 [ext_resource type="Script" uid="uid://cp3kvjyxewva3" path="res://script/ui/panels/global_animation_chance.gd" id="9_gac"]
+[ext_resource type="Script" uid="uid://d0uluxi1mbqvl" path="res://script/ui/panels/random_anim_interval_toggle.gd" id="10_rai"]
+[ext_resource type="Script" uid="uid://blxxeqruu8vjn" path="res://script/ui/panels/random_anim_interval_value.gd" id="11_raiv"]
 [ext_resource type="PackedScene" uid="uid://cc7xjj8k2abdq" path="res://prefabs/expressions/branch_container.tscn" id="37_brch"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2ajps"]
@@ -20,43 +22,58 @@ corner_radius_bottom_right = 8
 
 [node name="Expressions" type="Panel" unique_id=1333407965 node_paths=PackedStringArray("hflow_container")]
 custom_minimum_size = Vector2(360, 0)
+anchors_preset = 9
 anchor_bottom = 1.0
 grow_vertical = 2
 offset_transform_enabled = true
 theme = ExtResource("1_pncft")
 theme_override_styles/panel = SubResource("StyleBoxFlat_2ajps")
 script = ExtResource("2_5en4g")
-hflow_container = NodePath("ScrollContainer/MarginContainer/HFlowContainer")
+hflow_container = NodePath("ScrollContainer/MarginContainer/VBoxContainer/HFlowContainer")
 panel_prefab = ExtResource("3_exp")
 metadata/out_screen_x_pos = -1.0
 
-[node name="PanelContainer" type="PanelContainer" parent="." unique_id=456570274]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 131.0
-grow_horizontal = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
+[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1508000122]
+layout_mode = 0
+offset_right = 360.0
+offset_bottom = 671.0
+size_flags_vertical = 3
+theme_override_constants/scrollbar_h_separation = 8
 
-[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer" unique_id=1498969794]
+[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=1523836589]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer" unique_id=1899004060]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="FoldableContainer" type="FoldableContainer" parent="ScrollContainer/MarginContainer/VBoxContainer" unique_id=1742309180]
+layout_mode = 2
+title = "Global Anim Settings"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer" unique_id=1498969794]
 layout_mode = 2
 alignment = 1
 
-[node name="TransitionDuratration" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=1388654301]
+[node name="TransitionDuratration" type="HBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer" unique_id=1388654301]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/TransitionDuratration" unique_id=966280709]
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/TransitionDuratration" unique_id=966280709]
 layout_mode = 2
 text = "Transition Duration"
 metadata/localization_key = &"TRANSITION_DURATION"
 
-[node name="TranslationNode" type="Node" parent="PanelContainer/VBoxContainer/TransitionDuratration/Label" unique_id=1282893929]
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/TransitionDuratration/Label" unique_id=1282893929]
 script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="StateTransitionValue" type="SpinBox" parent="PanelContainer/VBoxContainer/TransitionDuratration" unique_id=1531910874]
+[node name="StateTransitionValue" type="SpinBox" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/TransitionDuratration" unique_id=1531910874]
 layout_mode = 2
 size_flags_horizontal = 3
 max_value = 1.0
@@ -66,20 +83,20 @@ alignment = 1
 suffix = "s"
 script = ExtResource("6_sttrn")
 
-[node name="Frame Rate" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=2059244433]
+[node name="Frame Rate" type="HBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer" unique_id=2059244433]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/Frame Rate" unique_id=1064148943]
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/Frame Rate" unique_id=1064148943]
 layout_mode = 2
 text = "Animation FPS"
 metadata/localization_key = &"FRAME_RATE"
 
-[node name="TranslationNode" type="Node" parent="PanelContainer/VBoxContainer/Frame Rate/Label" unique_id=144285378]
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/Frame Rate/Label" unique_id=144285378]
 script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="GlobalFrameRateValue" type="SpinBox" parent="PanelContainer/VBoxContainer/Frame Rate" unique_id=846244006]
+[node name="GlobalFrameRateValue" type="SpinBox" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/Frame Rate" unique_id=846244006]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
@@ -88,20 +105,20 @@ value = 12.0
 alignment = 1
 script = ExtResource("8_gfr")
 
-[node name="PlayAnimationDelay" type="HBoxContainer" parent="PanelContainer/VBoxContainer" unique_id=2059244434]
+[node name="PlayAnimationDelay" type="HBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer" unique_id=2059244434]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="Label" type="Label" parent="PanelContainer/VBoxContainer/PlayAnimationDelay" unique_id=1064148944]
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/PlayAnimationDelay" unique_id=1064148944]
 layout_mode = 2
 text = "Animation interval"
 metadata/localization_key = &"ANIMATION_INTERVAL"
 
-[node name="TranslationNode" type="Node" parent="PanelContainer/VBoxContainer/PlayAnimationDelay/Label" unique_id=144285379]
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/PlayAnimationDelay/Label" unique_id=144285379]
 script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
-[node name="GlobalEveryValue" type="SpinBox" parent="PanelContainer/VBoxContainer/PlayAnimationDelay" unique_id=846244007]
+[node name="GlobalEveryValue" type="SpinBox" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/PlayAnimationDelay" unique_id=846244007]
 layout_mode = 2
 size_flags_horizontal = 3
 min_value = 0.5
@@ -112,40 +129,107 @@ alignment = 1
 suffix = "s"
 script = ExtResource("9_gac")
 
-[node name="ScrollContainer" type="ScrollContainer" parent="." unique_id=1508000122]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.069000006
-anchor_right = 1.0
-anchor_bottom = 0.93200004
-offset_top = 75.31999
-offset_bottom = -0.040039063
-grow_horizontal = 0
-grow_vertical = 2
-size_flags_vertical = 3
-theme_override_constants/scrollbar_h_separation = 8
+[node name="RandomAnimInterval" type="VBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer" unique_id=1862503176]
+layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=832071672]
+[node name="TitleRow" type="HBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval" unique_id=413646198]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/TitleRow" unique_id=834458521]
+layout_mode = 2
+text = "Random Animation Interval"
+metadata/localization_key = &"RANDOM_ANIM_INTERVAL"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/TitleRow/Title" unique_id=700521978]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/TitleRow" unique_id=1702236004]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/margin_left = 4
-theme_override_constants/margin_top = 4
-theme_override_constants/margin_right = 4
-theme_override_constants/margin_bottom = 4
 
-[node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer/MarginContainer" unique_id=568996965]
+[node name="Toggle" type="CheckButton" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/TitleRow" unique_id=1729394372 node_paths=PackedStringArray("interval_row", "value_container")]
+layout_mode = 2
+script = ExtResource("10_rai")
+interval_row = NodePath("../../../PlayAnimationDelay")
+interval_spin = NodePath("../../../PlayAnimationDelay/GlobalEveryValue")
+value_container = NodePath("../../ValueContainer")
+
+[node name="ValueContainer" type="HBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval" unique_id=1464262950]
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MinValue" type="VBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer" unique_id=535234645]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MinValue" unique_id=1598076934]
+layout_mode = 2
+text = "Min Time"
+metadata/localization_key = &"RANDOM_ANIM_MIN_TIME"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MinValue/Label" unique_id=1708051782]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MinValue" unique_id=1517723516]
+layout_mode = 2
+size_flags_horizontal = 0
+min_value = 0.5
+max_value = 60.0
+step = 0.5
+value = 1.0
+alignment = 1
+suffix = "s"
+script = ExtResource("11_raiv")
+opposite_spin = NodePath("../../MaxValue/SpinBox")
+
+[node name="Spacer" type="Control" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer" unique_id=1617414424]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MaxValue" type="VBoxContainer" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer" unique_id=1602515138]
+layout_mode = 2
+size_flags_horizontal = 8
+
+[node name="Label" type="Label" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MaxValue" unique_id=706303252]
+layout_mode = 2
+text = "Max Time"
+metadata/localization_key = &"RANDOM_ANIM_MAX_TIME"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MaxValue/Label" unique_id=1819787438]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="SpinBox" type="SpinBox" parent="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MaxValue" unique_id=2003773123]
+layout_mode = 2
+size_flags_horizontal = 0
+min_value = 0.5
+max_value = 60.0
+step = 0.5
+value = 5.0
+alignment = 1
+suffix = "s"
+script = ExtResource("11_raiv")
+is_max = true
+opposite_spin = NodePath("../../MinValue/SpinBox")
+
+[node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer/MarginContainer/VBoxContainer" unique_id=568996965]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 alignment = 1
 
-[node name="Talking" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=2066911311 instance=ExtResource("37_brch")]
+[node name="Talking" parent="ScrollContainer/MarginContainer/VBoxContainer/HFlowContainer" unique_id=2066911311 instance=ExtResource("37_brch")]
 layout_mode = 2
 
-[node name="Silence" parent="ScrollContainer/MarginContainer/HFlowContainer" unique_id=253419879 instance=ExtResource("37_brch")]
+[node name="Silence" parent="ScrollContainer/MarginContainer/VBoxContainer/HFlowContainer" unique_id=253419879 instance=ExtResource("37_brch")]
 layout_mode = 2
 
-[connection signal="value_changed" from="PanelContainer/VBoxContainer/TransitionDuratration/StateTransitionValue" to="PanelContainer/VBoxContainer/TransitionDuratration/StateTransitionValue" method="_on_value_changed"]
-[connection signal="value_changed" from="PanelContainer/VBoxContainer/Frame Rate/GlobalFrameRateValue" to="PanelContainer/VBoxContainer/Frame Rate/GlobalFrameRateValue" method="_on_value_changed"]
-[connection signal="value_changed" from="PanelContainer/VBoxContainer/PlayAnimationDelay/GlobalEveryValue" to="PanelContainer/VBoxContainer/PlayAnimationDelay/GlobalEveryValue" method="_on_value_changed"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/TransitionDuratration/StateTransitionValue" to="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/TransitionDuratration/StateTransitionValue" method="_on_value_changed"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/Frame Rate/GlobalFrameRateValue" to="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/Frame Rate/GlobalFrameRateValue" method="_on_value_changed"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/PlayAnimationDelay/GlobalEveryValue" to="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/PlayAnimationDelay/GlobalEveryValue" method="_on_value_changed"]
+[connection signal="toggled" from="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/TitleRow/Toggle" to="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/TitleRow/Toggle" method="_on_toggled"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MinValue/SpinBox" to="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MinValue/SpinBox" method="_on_value_changed"]
+[connection signal="value_changed" from="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MaxValue/SpinBox" to="ScrollContainer/MarginContainer/VBoxContainer/FoldableContainer/VBoxContainer/RandomAnimInterval/ValueContainer/MaxValue/SpinBox" method="_on_value_changed"]

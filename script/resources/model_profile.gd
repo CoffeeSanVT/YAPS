@@ -16,6 +16,9 @@ extends Resource
 @export var state_transition_duration: float = 0.3
 @export var global_frame_rate: float = 0.0
 @export var global_animation_chance: float = 0.0
+@export var random_anim_interval_enabled: bool = false
+@export var random_anim_interval_min: float = 1.0
+@export var random_anim_interval_max: float = 5.0
 
 @export_category("Effects")
 @export var effects: Array[BaseEffect] = []

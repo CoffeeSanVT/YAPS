@@ -73,7 +73,6 @@ anchors_preset = 9
 [node name="Expressions" parent="CanvasLayer/Panels" unique_id=151535089 instance=ExtResource("TAB_EXPR")]
 visible = false
 layout_mode = 1
-anchors_preset = 9
 
 [node name="Assets" parent="CanvasLayer/Panels" unique_id=1362174498 instance=ExtResource("TAB_ASSETS")]
 visible = false
