@@ -236,6 +236,8 @@ func _add_expression_entry(model: ModelProfile, talking: ModelState, silence: Mo
 		model.ensure_emotion(emotion_name)
 	if ImageUtil.is_animated_file(file):
 		animated_entries.append({ "entry": entry, "source": file })
+	else:
+		entry.loop_animation = false
 
 func _copy_imported_frames(model: ModelProfile, frame_targets: Array, fallback_files: Array, allow_default_frame_rate: bool, on_done: Callable, owner_object: Object) -> void:
 	if frame_targets.is_empty() and fallback_files.is_empty():

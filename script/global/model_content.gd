@@ -110,6 +110,8 @@ func _add_emotion_image(emotion_name: String, file_path: String, branch_name: St
 
 func _persist_state_image(model: ModelProfile, entry: ModelStateEntry, file_path: String, on_saved: Callable, on_persisted: Callable = Callable()) -> void:
 	var is_animated := ImageUtil.is_animated_file(file_path)
+	if not is_animated:
+		entry.loop_animation = false
 	_save_file_to_model_folder(PathUtil.EXPRESSIONS_SUBFOLDER, file_path, "", func(err: Error) -> void:
 		if err != OK or _loader.model_loaded != model:
 			return

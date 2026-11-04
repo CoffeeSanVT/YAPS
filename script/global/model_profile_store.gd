@@ -39,6 +39,7 @@ static func _normalize_emotion_naming(model: ModelProfile) -> void:
 	_promote_default_entries(model)
 	_merge_duplicate_emotions(model)
 	_apply_blink_loop_defaults(model)
+	_apply_static_loop_defaults(model)
 
 static func _apply_blink_loop_defaults(model: ModelProfile) -> void:
 	for entry in model.all_entries():
@@ -53,6 +54,14 @@ static func _apply_blink_loop_defaults(model: ModelProfile) -> void:
 				break
 		if all_blink:
 			entry.loop_animation = false
+
+static func _apply_static_loop_defaults(model: ModelProfile) -> void:
+	for entry in model.all_entries():
+		if not entry.frames.is_empty() or entry.asset_path.is_empty():
+			continue
+		if ImageUtil.is_animated_file(entry.asset_path):
+			continue
+		entry.loop_animation = false
 
 static func _strip_entry_name_suffixes(model: ModelProfile) -> void:
 	for branch in model.branches:
