@@ -8,6 +8,7 @@ signal delete_requested(preset: TransformPreset)
 @export_category("UI References")
 @export var name_label: Label
 @export var default_toggle: CheckButton
+@export var flip_toggle: CheckButton
 @export var trigger_option: OptionButton
 @export var trigger_ui: VBoxContainer
 @export var interpolate_toggle: CheckButton
@@ -45,6 +46,7 @@ func _populate() -> void:
 		return
 	name_label.text = preset.preset_name
 	default_toggle.set_pressed_no_signal(preset.is_default)
+	flip_toggle.set_pressed_no_signal(preset.flip_x)
 	_populate_trigger_options()
 	_update_trigger_panel()
 	_populate_interpolation_options()
@@ -121,6 +123,12 @@ func _on_default_toggled(pressed: bool) -> void:
 				other.is_default = false
 	commit()
 	SignalBus.presets_changed.emit()
+
+func _on_flip_toggled(pressed: bool) -> void:
+	if preset == null:
+		return
+	preset.flip_x = pressed
+	commit()
 
 func _on_apply_pressed() -> void:
 	apply_requested.emit(preset)

@@ -42,7 +42,7 @@ func _apply_default_preset() -> void:
 		return
 	for preset in model.transform_presets:
 		if preset.is_default:
-			_apply_preset(preset, true)
+			_apply_preset(preset, true, false)
 			return
 
 func _apply_offsets() -> void:
@@ -66,11 +66,13 @@ func _tween_rotation(value: float) -> void:
 func _emit_values() -> void:
 	SignalBus.model_transform_values.emit(_current_position, _current_scale, _current_rotation)
 
-func _apply_preset(preset: TransformPreset, instant: bool = false) -> void:
+func _apply_preset(preset: TransformPreset, instant: bool = false, apply_flip: bool = true) -> void:
 	if preset == null:
 		return
 	_active_tween = NodeUtil.stop_tween(_active_tween)
 	_track_hold_preset(preset)
+	if apply_flip:
+		SignalBus.model_flip_changed.emit(preset.flip_x)
 	if instant or not preset.interpolate:
 		_set_preset_values(preset.position, preset.scale_value, preset.rotation)
 		return
@@ -93,6 +95,8 @@ func _on_hold_trigger_changed(trigger: BaseTrigger) -> void:
 	var preset := _hold_preset
 	_release_hold_trigger()
 	_active_tween = NodeUtil.stop_tween(_active_tween)
+	if ModelLoader.model_loaded != null:
+		SignalBus.model_flip_changed.emit(ModelLoader.model_loaded.flip_x)
 	_tween_transform(_hold_position, _hold_scale, _hold_rotation, preset)
 
 func _release_hold_trigger() -> void:

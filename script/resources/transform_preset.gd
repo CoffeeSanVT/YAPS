@@ -6,6 +6,7 @@ extends Resource
 @export var position: Vector2 = Vector2.ZERO
 @export var scale_value: float = 0.0
 @export var rotation: float = 0.0
+@export var flip_x: bool = false
 @export var is_default: bool = false
 @export var trigger: BaseTrigger = null
 
