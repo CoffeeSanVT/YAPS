@@ -1,8 +1,6 @@
 class_name ModelWsApi
 extends Node
 
-const CMD_GET_STATES := &"get_states"
-const CMD_SET_STATE := &"set_state"
 const CMD_GET_ITEMS := &"get_items"
 const CMD_SET_ITEM := &"set_item"
 const CMD_GET_EMOTIONS := &"get_emotions"
@@ -18,8 +16,6 @@ func _init(loader: ModelLoader) -> void:
 	_loader = loader
 
 func _ready() -> void:
-	WebSocketServer.register_action(CMD_GET_STATES, _get_states)
-	WebSocketServer.register_action(CMD_SET_STATE, _set_state)
 	WebSocketServer.register_action(CMD_GET_ITEMS, _get_items)
 	WebSocketServer.register_action(CMD_SET_ITEM, _set_item)
 	WebSocketServer.register_action(CMD_GET_EMOTIONS, _get_emotions)
@@ -30,8 +26,6 @@ func _ready() -> void:
 	WebSocketServer.register_action(CMD_SET_FLIP, _set_flip)
 
 func _exit_tree() -> void:
-	WebSocketServer.unregister_action(CMD_GET_STATES)
-	WebSocketServer.unregister_action(CMD_SET_STATE)
 	WebSocketServer.unregister_action(CMD_GET_ITEMS)
 	WebSocketServer.unregister_action(CMD_SET_ITEM)
 	WebSocketServer.unregister_action(CMD_GET_EMOTIONS)
@@ -59,19 +53,6 @@ func _respond(payload: Dictionary) -> void:
 func _get_model() -> ModelProfile:
 	return _loader.model_loaded
 
-func _get_states(_arg: String) -> void:
-	var model := _get_model()
-	if model == null:
-		_respond({"status": "error", "message": "no model loaded"})
-		return
-	var paths: Array[String] = []
-	for branch in model.branches:
-		if branch.default_entry != null:
-			paths.append(branch.default_entry.state_name)
-		for entry in branch.emotion_entries:
-			paths.append("%s/%s" % [branch.state_name, entry.state_name])
-	_respond({"status": "ok", "states": paths})
-
 func _get_items(_arg: String) -> void:
 	var model := _get_model()
 	if model == null:
@@ -84,33 +65,6 @@ func _get_items(_arg: String) -> void:
 			"enabled": item.enabled
 		})
 	_respond({"status": "ok", "items": items_data})
-
-func _set_state(arg: String) -> void:
-	var last_error := ""
-	for machine in get_tree().get_nodes_in_group(&"model_state_machine"):
-		var current_path := _current_entry_path(machine)
-		if not current_path.is_empty() and current_path == arg:
-			machine.force_emotion("")
-			_respond({"status": "ok", "state": _current_entry_path(machine)})
-			return
-		var error: String = machine.force_entry_by_path(arg)
-		if error.is_empty():
-			_respond({"status": "ok", "state": _current_entry_path(machine)})
-			return
-		last_error = error
-	_respond({"status": "error", "message": "state not found: %s (%s)" % [arg, last_error]})
-
-func _current_entry_path(machine: ModelStateMachine) -> String:
-	var model := _loader.model_loaded
-	var entry := machine.current_entry
-	if entry == null or model == null:
-		return ""
-	for branch in model.branches:
-		if branch.default_entry == entry:
-			return entry.state_name
-		if entry in branch.emotion_entries:
-			return "%s/%s" % [branch.state_name, entry.state_name]
-	return entry.state_name
 
 func _set_item(arg: String) -> void:
 	var model := _get_model()
