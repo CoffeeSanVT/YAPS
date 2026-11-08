@@ -36,6 +36,9 @@ func apply_rotation(value: float) -> void:
 func apply_preset(preset: TransformPreset) -> void:
 	_apply_preset(preset)
 
+func current_position() -> Vector2:
+	return _current_position
+
 func _apply_default_preset() -> void:
 	var model := ModelLoader.model_loaded
 	if model == null:

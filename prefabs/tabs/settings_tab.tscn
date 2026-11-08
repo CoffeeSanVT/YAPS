@@ -397,7 +397,7 @@ layout_mode = 2
 [node name="UrlLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/UrlContainer" unique_id=1176995352]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "ws://127.0.0.1:19190"
+text = "ws://127.0.0.1:19167"
 
 [node name="CopyButton" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/UrlContainer" unique_id=1176995353]
 layout_mode = 2
@@ -426,7 +426,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 min_value = 1.0
 max_value = 65535.0
-value = 19190.0
+value = 19167.0
 alignment = 1
 
 [node name="CallableActions" type="FoldableContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" unique_id=1070747991]

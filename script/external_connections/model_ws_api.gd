@@ -9,6 +9,9 @@ const CMD_GET_PRESETS := &"get_presets"
 const CMD_APPLY_PRESET := &"apply_preset"
 const CMD_GET_FLIP := &"get_flip"
 const CMD_SET_FLIP := &"set_flip"
+const CMD_SET_POSITION := &"set_position"
+const CMD_SET_ROTATION := &"set_rotation"
+const CMD_SET_SIZE := &"set_size"
 
 var _loader: ModelLoader
 
@@ -24,6 +27,9 @@ func _ready() -> void:
 	WebSocketServer.register_action(CMD_APPLY_PRESET, _apply_preset)
 	WebSocketServer.register_action(CMD_GET_FLIP, _get_flip)
 	WebSocketServer.register_action(CMD_SET_FLIP, _set_flip)
+	WebSocketServer.register_action(CMD_SET_POSITION, _set_position)
+	WebSocketServer.register_action(CMD_SET_ROTATION, _set_rotation)
+	WebSocketServer.register_action(CMD_SET_SIZE, _set_size)
 
 func _exit_tree() -> void:
 	WebSocketServer.unregister_action(CMD_GET_ITEMS)
@@ -34,6 +40,9 @@ func _exit_tree() -> void:
 	WebSocketServer.unregister_action(CMD_APPLY_PRESET)
 	WebSocketServer.unregister_action(CMD_GET_FLIP)
 	WebSocketServer.unregister_action(CMD_SET_FLIP)
+	WebSocketServer.unregister_action(CMD_SET_POSITION)
+	WebSocketServer.unregister_action(CMD_SET_ROTATION)
+	WebSocketServer.unregister_action(CMD_SET_SIZE)
 
 static func set_emotion_command(emotion_name: String) -> String:
 	return "%s:%s" % [CMD_SET_EMOTION, emotion_name]
@@ -46,6 +55,15 @@ static func apply_preset_command(preset_name: String) -> String:
 
 static func set_flip_command(value: bool) -> String:
 	return "%s:%s" % [CMD_SET_FLIP, "true" if value else "false"]
+
+static func set_position_command(axis: String, value: float) -> String:
+	return "%s:%s:%s" % [CMD_SET_POSITION, axis, value]
+
+static func set_rotation_command(angle: float) -> String:
+	return "%s:%s" % [CMD_SET_ROTATION, angle]
+
+static func set_size_command(value: float) -> String:
+	return "%s:%s" % [CMD_SET_SIZE, value]
 
 func _respond(payload: Dictionary) -> void:
 	WebSocketServer.send_to_all(JSON.stringify(payload))
@@ -161,6 +179,64 @@ func _set_flip(arg: String) -> void:
 	ModelLoader.save_model()
 	SignalBus.model_flip_changed.emit(value)
 	_respond({"status": "ok", "flip": value})
+
+func _transform_controller() -> UpdateModelTransform:
+	return UpdateModelTransform.find_controller(get_tree())
+
+func _set_position(arg: String) -> void:
+	var controller := _transform_controller()
+	if controller == null:
+		_respond({"status": "error", "message": "transform controller not found"})
+		return
+	var parsed := _split_axis_value(arg)
+	if parsed.is_empty():
+		_respond({"status": "error", "message": "invalid position argument: %s" % arg})
+		return
+	var axis: String = parsed["axis"]
+	var value: float = parsed["value"]
+	var position := controller.current_position()
+	if axis == "x":
+		position.x = value
+	else:
+		position.y = -value
+	controller.apply_position(position)
+	_respond({"status": "ok", "axis": axis, "position": {"x": position.x, "y": -position.y}})
+
+func _set_rotation(arg: String) -> void:
+	var controller := _transform_controller()
+	if controller == null:
+		_respond({"status": "error", "message": "transform controller not found"})
+		return
+	var text := arg.strip_edges()
+	if not text.is_valid_float():
+		_respond({"status": "error", "message": "invalid rotation value: %s" % arg})
+		return
+	var angle := text.to_float()
+	controller.apply_rotation(angle)
+	_respond({"status": "ok", "rotation": angle})
+
+func _set_size(arg: String) -> void:
+	var controller := _transform_controller()
+	if controller == null:
+		_respond({"status": "error", "message": "transform controller not found"})
+		return
+	var text := arg.strip_edges()
+	if not text.is_valid_float():
+		_respond({"status": "error", "message": "invalid size value: %s" % arg})
+		return
+	var value := text.to_float()
+	controller.apply_scale(value)
+	_respond({"status": "ok", "size": value})
+
+static func _split_axis_value(arg: String) -> Dictionary:
+	var colon := arg.find(":")
+	if colon < 0:
+		return {}
+	var axis := arg.substr(0, colon).strip_edges().to_lower()
+	var text := arg.substr(colon + 1).strip_edges()
+	if not (axis == "x" or axis == "y") or not text.is_valid_float():
+		return {}
+	return {"axis": axis, "value": text.to_float()}
 
 static func _split_optional_bool(arg: String) -> Dictionary:
 	var colon := arg.rfind(":")

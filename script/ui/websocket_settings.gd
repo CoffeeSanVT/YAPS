@@ -81,4 +81,8 @@ func _target_commands() -> PackedStringArray:
 	for preset in profile.transform_presets:
 		commands.append(ModelWsApi.apply_preset_command(preset.preset_name))
 	commands.append(ModelWsApi.set_flip_command(profile.flip_x))
+	commands.append(ModelWsApi.set_position_command("x", 0.0))
+	commands.append(ModelWsApi.set_position_command("y", 0.0))
+	commands.append(ModelWsApi.set_rotation_command(0.0))
+	commands.append(ModelWsApi.set_size_command(1.0))
 	return PackedStringArray(commands)

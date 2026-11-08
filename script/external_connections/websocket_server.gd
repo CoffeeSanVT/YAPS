@@ -1,7 +1,7 @@
 extends Node
 
 const TAG := "[WebSocketServer] "
-const DEFAULT_PORT := 19190
+const DEFAULT_PORT := 19167
 const DEFAULT_BIND_ADDRESS := "127.0.0.1"
 
 var port: int = DEFAULT_PORT
