@@ -5,6 +5,9 @@ func _init() -> void:
 	changed_signal = &"spout_enabled_changed"
 
 func _ready() -> void:
+	if OS.has_feature(&"linux"):
+		get_parent().visible = false
+		return
 	if not ClassDB.class_exists(&"SpoutViewport"):
 		button_pressed = false
 		disabled = true
