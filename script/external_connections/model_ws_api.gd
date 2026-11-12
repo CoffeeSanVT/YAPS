@@ -12,6 +12,19 @@ const CMD_SET_FLIP := &"set_flip"
 const CMD_SET_POSITION := &"set_position"
 const CMD_SET_ROTATION := &"set_rotation"
 const CMD_SET_SIZE := &"set_size"
+const TRANSFORM_ADD := "add"
+const TRANSFORM_SUBTRACT := "subtract"
+const TRANSFORM_INTERPOLATE := "interpolate"
+const TRANSITIONS := {
+	"linear": Tween.TRANS_LINEAR, "sine": Tween.TRANS_SINE, "quint": Tween.TRANS_QUINT,
+	"quart": Tween.TRANS_QUART, "quad": Tween.TRANS_QUAD, "expo": Tween.TRANS_EXPO,
+	"elastic": Tween.TRANS_ELASTIC, "cubic": Tween.TRANS_CUBIC, "circ": Tween.TRANS_CIRC,
+	"bounce": Tween.TRANS_BOUNCE, "back": Tween.TRANS_BACK, "spring": Tween.TRANS_SPRING,
+}
+const EASES := {
+	"in": Tween.EASE_IN, "out": Tween.EASE_OUT,
+	"in_out": Tween.EASE_IN_OUT, "out_in": Tween.EASE_OUT_IN,
+}
 
 var _loader: ModelLoader
 
@@ -56,14 +69,17 @@ static func apply_preset_command(preset_name: String) -> String:
 static func set_flip_command(value: bool) -> String:
 	return "%s:%s" % [CMD_SET_FLIP, "true" if value else "false"]
 
-static func set_position_command(axis: String, value: float) -> String:
-	return "%s:%s:%s" % [CMD_SET_POSITION, axis, value]
+static func set_position_command(axis: String, value: float, mode: String = "") -> String:
+	return _with_transform_mode("%s:%s:%s" % [CMD_SET_POSITION, axis, value], mode)
 
-static func set_rotation_command(angle: float) -> String:
-	return "%s:%s" % [CMD_SET_ROTATION, angle]
+static func set_rotation_command(angle: float, mode: String = "") -> String:
+	return _with_transform_mode("%s:%s" % [CMD_SET_ROTATION, angle], mode)
 
-static func set_size_command(value: float) -> String:
-	return "%s:%s" % [CMD_SET_SIZE, value]
+static func set_size_command(value: float, mode: String = "") -> String:
+	return _with_transform_mode("%s:%s" % [CMD_SET_SIZE, value], mode)
+
+static func _with_transform_mode(command: String, mode: String) -> String:
+	return command if mode.is_empty() else "%s:%s" % [command, mode]
 
 func _respond(payload: Dictionary) -> void:
 	WebSocketServer.send_to_all(JSON.stringify(payload))
@@ -188,18 +204,25 @@ func _set_position(arg: String) -> void:
 	if controller == null:
 		_respond({"status": "error", "message": "transform controller not found"})
 		return
-	var parsed := _split_axis_value(arg)
+	var parts := arg.split(":", true, 1)
+	var axis := parts[0].strip_edges().to_lower()
+	if parts.size() != 2 or axis not in ["x", "y"]:
+		_respond({"status": "error", "message": "invalid position argument: %s" % arg})
+		return
+	var position := controller.current_position()
+	var current := position.x if axis == "x" else -position.y
+	var parsed := _parse_transform_args(parts[1], current)
 	if parsed.is_empty():
 		_respond({"status": "error", "message": "invalid position argument: %s" % arg})
 		return
-	var axis: String = parsed["axis"]
 	var value: float = parsed["value"]
-	var position := controller.current_position()
+	var interpolation := parsed["interpolation"] as TransformPreset
 	if axis == "x":
 		position.x = value
+		controller.apply_position_axis(axis, value, interpolation)
 	else:
 		position.y = -value
-	controller.apply_position(position)
+		controller.apply_position_axis(axis, -value, interpolation)
 	_respond({"status": "ok", "axis": axis, "position": {"x": position.x, "y": -position.y}})
 
 func _set_rotation(arg: String) -> void:
@@ -207,12 +230,12 @@ func _set_rotation(arg: String) -> void:
 	if controller == null:
 		_respond({"status": "error", "message": "transform controller not found"})
 		return
-	var text := arg.strip_edges()
-	if not text.is_valid_float():
+	var parsed := _parse_transform_args(arg, controller.current_rotation())
+	if parsed.is_empty():
 		_respond({"status": "error", "message": "invalid rotation value: %s" % arg})
 		return
-	var angle := text.to_float()
-	controller.apply_rotation(angle)
+	var angle: float = parsed["value"]
+	controller.apply_rotation(angle, parsed["interpolation"] as TransformPreset)
 	_respond({"status": "ok", "rotation": angle})
 
 func _set_size(arg: String) -> void:
@@ -220,23 +243,64 @@ func _set_size(arg: String) -> void:
 	if controller == null:
 		_respond({"status": "error", "message": "transform controller not found"})
 		return
-	var text := arg.strip_edges()
-	if not text.is_valid_float():
+	var parsed := _parse_transform_args(arg, controller.current_scale())
+	if parsed.is_empty():
 		_respond({"status": "error", "message": "invalid size value: %s" % arg})
 		return
-	var value := text.to_float()
-	controller.apply_scale(value)
+	var value: float = parsed["value"]
+	controller.apply_scale(value, parsed["interpolation"] as TransformPreset)
 	_respond({"status": "ok", "size": value})
 
-static func _split_axis_value(arg: String) -> Dictionary:
-	var colon := arg.find(":")
-	if colon < 0:
+static func _parse_transform_args(arg: String, current: float) -> Dictionary:
+	var parts := arg.strip_edges().to_lower().split(":")
+	var text := parts[0].strip_edges()
+	if not text.is_valid_float():
 		return {}
-	var axis := arg.substr(0, colon).strip_edges().to_lower()
-	var text := arg.substr(colon + 1).strip_edges()
-	if not (axis == "x" or axis == "y") or not text.is_valid_float():
+	var value := text.to_float()
+	var next := 1
+	if next < parts.size():
+		match parts[next].strip_edges():
+			TRANSFORM_ADD:
+				value = current + value
+				next += 1
+			TRANSFORM_SUBTRACT:
+				value = current - value
+				next += 1
+	if not is_finite(value):
 		return {}
-	return {"axis": axis, "value": text.to_float()}
+
+	var interpolation: TransformPreset
+	if next < parts.size():
+		if parts[next].strip_edges() != TRANSFORM_INTERPOLATE:
+			return {}
+		interpolation = _parse_interpolation(parts.slice(next + 1))
+		if interpolation == null:
+			return {}
+	return {"value": value, "interpolation": interpolation}
+
+static func _parse_interpolation(parts: PackedStringArray) -> TransformPreset:
+	if parts.size() > 3:
+		return null
+
+	var options := TransformPreset.new()
+	var duration := parts[0].strip_edges() if parts.size() > 0 else ""
+	var transition := parts[1].strip_edges() if parts.size() > 1 else ""
+	var ease := parts[2].strip_edges() if parts.size() > 2 else ""
+	if not duration.is_empty():
+		if not duration.is_valid_float():
+			return null
+		options.duration = duration.to_float()
+		if not is_finite(options.duration) or options.duration < 0.0:
+			return null
+	if not transition.is_empty():
+		if not TRANSITIONS.has(transition):
+			return null
+		options.trans_type = TRANSITIONS[transition]
+	if not ease.is_empty():
+		if not EASES.has(ease):
+			return null
+		options.ease_type = EASES[ease]
+	return options
 
 static func _split_optional_bool(arg: String) -> Dictionary:
 	var colon := arg.rfind(":")

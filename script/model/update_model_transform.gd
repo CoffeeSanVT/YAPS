@@ -10,6 +10,7 @@ var _current_position: Vector2 = Vector2.ZERO
 var _current_scale: float = 1.0
 var _current_rotation: float = 0.0
 var _active_tween: Tween
+var _command_tweens: Dictionary[String, Tween] = {}
 var _hold_preset: TransformPreset
 var _hold_trigger: KeyHolding
 var _hold_position: Vector2 = Vector2.ZERO
@@ -25,19 +26,67 @@ func _exit_tree() -> void:
 	_release_hold_trigger()
 
 func apply_position(value: Vector2) -> void:
+	_active_tween = NodeUtil.stop_tween(_active_tween)
+	_stop_command_tween("x")
+	_stop_command_tween("y")
 	_tween_position(value)
 
-func apply_scale(value: float) -> void:
-	_tween_scale(value)
+func apply_position_axis(axis: String, value: float, interpolation: TransformPreset = null) -> void:
+	var current := _current_position.x if axis == "x" else _current_position.y
+	_apply_command_transform(axis, _update_position_axis.bind(axis), current, value, interpolation)
 
-func apply_rotation(value: float) -> void:
-	_tween_rotation(value)
+func apply_scale(value: float, interpolation: TransformPreset = null) -> void:
+	_apply_command_transform("scale", _tween_scale, _current_scale, value, interpolation)
+
+func apply_rotation(value: float, interpolation: TransformPreset = null) -> void:
+	_apply_command_transform("rotation", _tween_rotation, _current_rotation, value, interpolation)
+
+func _update_position_axis(value: float, axis: String) -> void:
+	var position_value := _current_position
+	if axis == "x":
+		position_value.x = value
+	else:
+		position_value.y = value
+	_tween_position(position_value)
+
+func _apply_command_transform(channel: String, update: Callable, current: float, target: float, interpolation: TransformPreset) -> void:
+	_active_tween = NodeUtil.stop_tween(_active_tween)
+	_stop_command_tween(channel)
+	if interpolation == null or interpolation.duration == 0.0:
+		update.call(target)
+		return
+
+	var tween := create_tween()
+	_command_tweens[channel] = tween
+	tween.set_trans(interpolation.trans_type as Tween.TransitionType)
+	tween.set_ease(interpolation.ease_type as Tween.EaseType)
+	tween.tween_method(update, current, target, interpolation.duration)
+	var tween_id := tween.get_instance_id()
+	tween.finished.connect(func() -> void:
+		if _command_tweens.get(channel) == instance_from_id(tween_id):
+			_command_tweens.erase(channel)
+	)
+
+func _stop_command_tween(channel: String) -> void:
+	NodeUtil.stop_tween(_command_tweens.get(channel) as Tween)
+	_command_tweens.erase(channel)
+
+func _stop_command_tweens() -> void:
+	for tween: Tween in _command_tweens.values():
+		NodeUtil.stop_tween(tween)
+	_command_tweens.clear()
 
 func apply_preset(preset: TransformPreset) -> void:
 	_apply_preset(preset)
 
 func current_position() -> Vector2:
 	return _current_position
+
+func current_rotation() -> float:
+	return _current_rotation
+
+func current_scale() -> float:
+	return _current_scale
 
 func _apply_default_preset() -> void:
 	var model := ModelLoader.model_loaded
@@ -73,6 +122,7 @@ func _apply_preset(preset: TransformPreset, instant: bool = false, apply_flip: b
 	if preset == null:
 		return
 	_active_tween = NodeUtil.stop_tween(_active_tween)
+	_stop_command_tweens()
 	_track_hold_preset(preset)
 	if apply_flip:
 		SignalBus.model_flip_changed.emit(preset.flip_x)
@@ -98,6 +148,7 @@ func _on_hold_trigger_changed(trigger: BaseTrigger) -> void:
 	var preset := _hold_preset
 	_release_hold_trigger()
 	_active_tween = NodeUtil.stop_tween(_active_tween)
+	_stop_command_tweens()
 	if ModelLoader.model_loaded != null:
 		SignalBus.model_flip_changed.emit(ModelLoader.model_loaded.flip_x)
 	_tween_transform(_hold_position, _hold_scale, _hold_rotation, preset)
