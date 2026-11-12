@@ -20,7 +20,7 @@ extends Resource
 @export_category("Display")
 @export var texture_filter: int = CanvasItem.TEXTURE_FILTER_LINEAR
 @export var antialias: int = 0
-@export var window_resolution: Vector2i = Vector2i(1600, 900)
+@export var window_resolution: Vector2i = Vector2i(1280, 720)
 
 const ANTIALIAS_MODE_MSAA_4X := 4
 const ANTIALIAS_MODE_MSAA_2X := 5
