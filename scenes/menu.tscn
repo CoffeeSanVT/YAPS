@@ -297,6 +297,7 @@ alignment = 2
 
 [node name="CancelButton" type="Button" parent="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons" unique_id=741852963]
 layout_mode = 2
+theme_type_variation = &"SecondaryButton"
 text = "Cancel"
 metadata/localization_key = &"CANCEL"
 

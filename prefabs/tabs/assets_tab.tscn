@@ -20,7 +20,7 @@ grow_vertical = 2
 offset_transform_enabled = true
 theme_override_styles/panel = SubResource("StyleBoxFlat_2ajps")
 script = ExtResource("29_mm3ey")
-items_container = NodePath("ScrollContainer/MarginContainer/HFlowContainer")
+items_container = NodePath("ScrollContainer/MarginContainer/Items")
 scroll_container = NodePath("ScrollContainer")
 panel_prefab = ExtResource("30_k36ej")
 metadata/out_screen_x_pos = -1.0
@@ -33,6 +33,7 @@ anchor_bottom = 0.94600004
 offset_bottom = -0.4000244
 grow_horizontal = 2
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 4
 
 [node name="MarginContainer" type="MarginContainer" parent="ScrollContainer" unique_id=5452044]
 layout_mode = 2
@@ -43,7 +44,7 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 16
 
-[node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer/MarginContainer" unique_id=1478464460]
+[node name="Items" type="VBoxContainer" parent="ScrollContainer/MarginContainer" unique_id=1478464460]
 layout_mode = 2
 size_flags_horizontal = 3
-alignment = 1
+theme_override_constants/separation = 8

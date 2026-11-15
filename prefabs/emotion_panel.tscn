@@ -101,10 +101,12 @@ theme_override_constants/separation = 6
 
 [node name="EffectsHint" type="Label" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=1507607481]
 layout_mode = 2
+autowrap_mode = 3
 text = "Global: None"
 
 [node name="MovementLabel" type="Label" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=804677039]
 layout_mode = 2
+autowrap_mode = 3
 text = "Movement"
 metadata/localization_key = &"EFFECT_CATEGORY_MOVEMENT"
 
@@ -122,6 +124,7 @@ theme_override_constants/separation = 6
 
 [node name="FilterLabel" type="Label" parent="VBoxContainer/EffectContainer/VBoxContainer" unique_id=241208242]
 layout_mode = 2
+autowrap_mode = 3
 text = "Filter"
 metadata/localization_key = &"EFFECT_CATEGORY_FILTER"
 

@@ -198,16 +198,14 @@ layout_mode = 2
 
 [node name="InterpolateLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow"]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Interpolate"
 metadata/localization_key = &"INTERPOLATE"
 
 [node name="TranslationNode" type="Node" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow/InterpolateLabel" unique_id=1058495947]
 script = ExtResource("3_loc")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="Spacer" type="Control" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow"]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="InterpolateToggle" type="CheckButton" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/InterpolateRow" unique_id=1030662355]
 layout_mode = 2
@@ -219,6 +217,7 @@ layout_mode = 2
 [node name="DurationLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/DurationRow" unique_id=2003881879]
 layout_mode = 2
 size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Duration"
 metadata/localization_key = &"DURATION"
 
@@ -242,6 +241,7 @@ layout_mode = 2
 [node name="TransitionLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/TransitionRow" unique_id=1004012442]
 layout_mode = 2
 size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Transition"
 metadata/localization_key = &"TRANSITION"
 
@@ -259,6 +259,7 @@ layout_mode = 2
 [node name="EaseLabel" type="Label" parent="VBoxContainer/VBoxContainer/InterpolationFoldable/VBoxContainer/EaseRow" unique_id=2143426738]
 layout_mode = 2
 size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Ease"
 metadata/localization_key = &"EASE"
 

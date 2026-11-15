@@ -7,7 +7,7 @@
 [ext_resource type="FontFile" uid="uid://dmld38g0i2q0a" path="res://assets/fonts/Bungee-Regular.ttf" id="5_title"]
 [ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="6_gallery"]
 [ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="7_locale"]
-[ext_resource type="Script" path="res://script/ui/model_creation_gallery.gd" id="8_gallery"]
+[ext_resource type="Script" uid="uid://12hrbdds0pt" path="res://script/ui/model_creation_gallery.gd" id="8_gallery"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t4i0i"]
 content_margin_left = 4.0
@@ -92,14 +92,12 @@ metadata/localization_key = &"EXPRESSIONS"
 script = ExtResource("7_locale")
 
 [node name="Expressions" type="Tree" parent="Layout/Content/Sidebar/Controls" unique_id=1862659875]
-unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_type_variation = &"ExpressionTree"
 hide_root = true
 
 [node name="CreateExpression" type="Button" parent="Layout/Content/Sidebar/Controls" unique_id=850193660]
-unique_name_in_owner = true
 layout_mode = 2
 text = "Create Expression"
 metadata/localization_key = &"MODEL_CREATION_ADD"
@@ -117,12 +115,10 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="Instruction" type="Label" parent="Layout/Content/ImagePanel/Images" unique_id=1240174655]
-unique_name_in_owner = true
 layout_mode = 2
 autowrap_mode = 2
 
 [node name="Gallery" type="ItemList" parent="Layout/Content/ImagePanel/Images" unique_id=59297248]
-unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_type_variation = &"ImageGallery"
@@ -144,7 +140,6 @@ theme_override_constants/separation = 8
 alignment = 2
 
 [node name="Cancel" type="Button" parent="Layout/Actions" unique_id=1156577809]
-unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"SecondaryButton"
 text = "Cancel"
@@ -154,7 +149,6 @@ metadata/localization_key = &"CANCEL"
 script = ExtResource("7_locale")
 
 [node name="Complete" type="Button" parent="Layout/Actions" unique_id=381808772]
-unique_name_in_owner = true
 layout_mode = 2
 text = "Complete Creation"
 metadata/localization_key = &"MODEL_CREATION_COMPLETE"
@@ -163,10 +157,8 @@ metadata/localization_key = &"MODEL_CREATION_COMPLETE"
 script = ExtResource("7_locale")
 
 [node name="ImageMenu" type="PopupMenu" parent="." unique_id=1659750129]
-unique_name_in_owner = true
+oversampling_override = 1.0
 
 [node name="ExpressionBranches" type="PopupMenu" parent="ImageMenu" unique_id=463763955]
-unique_name_in_owner = true
 
 [node name="ExpressionMenu" type="PopupMenu" parent="." unique_id=1718489604]
-unique_name_in_owner = true

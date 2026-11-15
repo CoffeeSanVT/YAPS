@@ -108,6 +108,7 @@ func _add_action_section(title_key: StringName, commands: PackedStringArray) -> 
 
 	var heading := Label.new()
 	heading.text = tr(title_key)
+	heading.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	heading.add_theme_font_override(&"font", SECTION_HEADING_FONT)
 	heading.add_theme_font_size_override(&"font_size", 18)
 	section.add_child(heading)
@@ -115,8 +116,10 @@ func _add_action_section(title_key: StringName, commands: PackedStringArray) -> 
 	for key in commands:
 		var label := RichTextLabel.new()
 		label.text = key
+		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		label.selection_enabled = true
 		label.mouse_filter = Control.MOUSE_FILTER_STOP
+		label.scroll_active = false
 		label.fit_content = true
 		section.add_child(label)

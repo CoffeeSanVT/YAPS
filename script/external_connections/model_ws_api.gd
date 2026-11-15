@@ -1,17 +1,17 @@
 class_name ModelWsApi
 extends Node
 
-const GetItemsAction := preload("res://script/external_connections/ws_actions/get_items.gd")
-const SetItemAction := preload("res://script/external_connections/ws_actions/set_item.gd")
-const GetEmotionsAction := preload("res://script/external_connections/ws_actions/get_emotions.gd")
-const SetEmotionAction := preload("res://script/external_connections/ws_actions/set_emotion.gd")
-const GetPresetsAction := preload("res://script/external_connections/ws_actions/get_presets.gd")
-const ApplyPresetAction := preload("res://script/external_connections/ws_actions/apply_preset.gd")
-const GetFlipAction := preload("res://script/external_connections/ws_actions/get_flip.gd")
-const SetFlipAction := preload("res://script/external_connections/ws_actions/set_flip.gd")
-const SetPositionAction := preload("res://script/external_connections/ws_actions/set_position.gd")
-const SetRotationAction := preload("res://script/external_connections/ws_actions/set_rotation.gd")
-const SetSizeAction := preload("res://script/external_connections/ws_actions/set_size.gd")
+const GetItemsAction := preload("uid://bs8ga8cf1tfgh")
+const SetItemAction := preload("uid://bcmlvyt0ghklf")
+const GetEmotionsAction := preload("uid://b70tgspr3oj6f")
+const SetEmotionAction := preload("uid://dadp8wwgww7w8")
+const GetPresetsAction := preload("uid://cad06wna22ffm")
+const ApplyPresetAction := preload("uid://b5gcrlr423qys")
+const GetFlipAction := preload("uid://bwcsp5ugx5trc")
+const SetFlipAction := preload("uid://cygy2wvriyob7")
+const SetPositionAction := preload("uid://chie3omx3veug")
+const SetRotationAction := preload("uid://culo765mskcck")
+const SetSizeAction := preload("uid://31jvk33tuye3")
 
 const CMD_GET_ITEMS := GetItemsAction.COMMAND
 const CMD_SET_ITEM := SetItemAction.COMMAND

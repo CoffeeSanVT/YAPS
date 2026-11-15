@@ -227,16 +227,14 @@ layout_mode = 2
 
 [node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle" unique_id=620417385]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Override Frame Rate"
 metadata/localization_key = &"OVERRIDE_FRAME_RATE"
 
 [node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle/OverrideLabel" unique_id=620417386]
 script = ExtResource("3_mar2q")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle" unique_id=1211772574]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="OverrideToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideToggle" unique_id=620417387]
 layout_mode = 2
@@ -247,16 +245,14 @@ layout_mode = 2
 
 [node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle" unique_id=620417388]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Override interval"
 metadata/localization_key = &"OVERRIDE_EVERY"
 
 [node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle/OverrideLabel" unique_id=620417389]
 script = ExtResource("3_mar2q")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle" unique_id=1211772575]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="OverrideEveryToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideEveryToggle" unique_id=620417390]
 layout_mode = 2
@@ -267,16 +263,14 @@ layout_mode = 2
 
 [node name="OverrideLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle" unique_id=1719018495]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Override random interval"
 metadata/localization_key = &"OVERRIDE_RANDOM_INTERVAL"
 
 [node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle/OverrideLabel" unique_id=781911981]
 script = ExtResource("3_mar2q")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle" unique_id=1883651126]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="OverrideRandomToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideRandomToggle" unique_id=1315515880]
 layout_mode = 2
@@ -287,16 +281,14 @@ layout_mode = 2
 
 [node name="OverrideSilenceLabel" type="Label" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow" unique_id=1904237602]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Override silence"
 metadata/localization_key = &"OVERRIDE_SILENCE"
 
 [node name="TranslationNode" type="Node" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow/OverrideSilenceLabel" unique_id=1904237603]
 script = ExtResource("3_mar2q")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="Spacer" type="Control" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow" unique_id=1904237604]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="OverrideSilenceToggle" type="CheckButton" parent="VBoxContainer/RateRow/VBoxContainer/OverrideSettings/VBoxContainer/OverrideSilenceRow" unique_id=1904237605]
 layout_mode = 2
@@ -331,6 +323,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 4
 script = ExtResource("9_fit_scroll")
 
 [node name="FramesList" type="VBoxContainer" parent="VBoxContainer/FramesContainer/VBoxContainer/FramesScroll" unique_id=1839082890]

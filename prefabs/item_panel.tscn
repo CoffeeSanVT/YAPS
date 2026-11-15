@@ -162,6 +162,8 @@ theme_override_constants/separation = 8
 
 [node name="PositionLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/PositionRow" unique_id=343309834]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Position"
 metadata/localization_key = &"POSITION"
 
@@ -205,6 +207,8 @@ theme_override_constants/separation = 8
 
 [node name="ScaleLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/ScaleRow" unique_id=165846372]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Scale"
 metadata/localization_key = &"SCALE"
 
@@ -227,6 +231,8 @@ theme_override_constants/separation = 8
 
 [node name="RotationLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/RotationRow" unique_id=1588286053]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Rotation"
 metadata/localization_key = &"ROTATION"
 
@@ -249,6 +255,8 @@ theme_override_constants/separation = 8
 
 [node name="ZLabel" type="Label" parent="VBoxContainer/TransformFoldable/TransformContainer/ZRow" unique_id=1847560329]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Z Index"
 metadata/localization_key = &"Z_INDEX"
 
@@ -337,6 +345,7 @@ layout_mode = 2
 [node name="FadeLabel" type="Label" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/FadeRow" unique_id=2064931616]
 layout_mode = 2
 size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Fade for sec"
 metadata/localization_key = &"FADE_FOR_SEC"
 
@@ -359,6 +368,7 @@ layout_mode = 2
 [node name="HideLabel" type="Label" parent="VBoxContainer/AdvancedFoldable/AdvancedContent/HideRow" unique_id=649422711]
 layout_mode = 2
 size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Stop after sec"
 metadata/localization_key = &"STOP_AFTER_SEC"
 
@@ -437,6 +447,8 @@ horizontal_alignment = 1
 
 [node name="LoopLabel" type="Label" parent="VBoxContainer/AnimFoldable/AnimContainer/AnimRow" unique_id=807604702]
 layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 3
 text = "Loop"
 metadata/localization_key = &"LOOP"
 

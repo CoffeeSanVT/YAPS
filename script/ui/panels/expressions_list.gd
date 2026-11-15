@@ -1,7 +1,7 @@
 extends Control
 
 @export_category("UI References")
-@export var hflow_container: HFlowContainer
+@export var branches_container: VBoxContainer
 @export var panel_prefab: PackedScene
 
 func _ready() -> void:
@@ -15,7 +15,7 @@ func _exit_tree() -> void:
 
 func _branch_containers() -> Array[VBoxContainer]:
 	var result: Array[VBoxContainer] = []
-	for child in hflow_container.get_children():
+	for child in branches_container.get_children():
 		if not child is PanelContainer:
 			continue
 		var container := child.get_child(0) as VBoxContainer

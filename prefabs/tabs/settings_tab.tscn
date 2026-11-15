@@ -63,6 +63,7 @@ grow_horizontal = 2
 size_flags_horizontal = 3
 offset_transform_enabled = true
 horizontal_scroll_mode = 0
+vertical_scroll_mode = 4
 
 [node name="HFlowContainer" type="HFlowContainer" parent="ScrollContainer" unique_id=804526642]
 layout_mode = 2
@@ -80,6 +81,7 @@ theme_override_constants/margin_bottom = 16
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer" unique_id=1045987476]
 layout_mode = 2
+theme_override_constants/separation = 8
 
 [node name="BackToMenu" type="Button" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=900000120]
 layout_mode = 2
@@ -101,6 +103,7 @@ theme_override_styles/panel = ExtResource("24_ecvn2")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General" unique_id=461967988]
 layout_mode = 2
+theme_override_constants/separation = 6
 
 [node name="Title" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/General/VBoxContainer" unique_id=969654052]
 layout_mode = 2
@@ -345,10 +348,11 @@ script = ExtResource("40_vram")
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
-theme_override_styles/panel = ExtResource("24_ecvn2")
+theme_type_variation = &"WebSocketPanel"
 
 [node name="WebSocketContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket" unique_id=944107447 node_paths=PackedStringArray("toggle", "port_container", "port_spinbox", "url_container", "url_label", "copy_button", "actions_foldable")]
 layout_mode = 2
+theme_override_constants/separation = 6
 script = ExtResource("30_wsset")
 toggle = NodePath("ToggleServerContainer/Toggle")
 port_container = NodePath("PortContainer")
@@ -440,6 +444,7 @@ metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/CallableActions" unique_id=1248425738]
 visible = false
+propagate_maximum_size = false
 layout_mode = 2
 theme_override_constants/separation = 6
 
@@ -451,7 +456,7 @@ theme_override_styles/panel = ExtResource("24_ecvn2")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio" unique_id=1186454057]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Title" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer" unique_id=1812365058]
 layout_mode = 2
@@ -619,6 +624,7 @@ layout_mode = 2
 
 [node name="MicGainLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/MicGainContainer" unique_id=730473472]
 layout_mode = 2
+autowrap_mode = 3
 text = "Mic Gain"
 metadata/localization_key = &"MIC_GAIN"
 
@@ -649,6 +655,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/SmoothingAttackRow" unique_id=128880845]
 layout_mode = 2
+autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "SMOOTHING_ATTACK_DESC"
 tooltip_auto_translate_mode = 1
@@ -688,6 +695,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/SmoothingReleaseRow" unique_id=128880850]
 layout_mode = 2
+autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "SMOOTHING_RELEASE_DESC"
 tooltip_auto_translate_mode = 1
@@ -727,6 +735,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHysteresisRow" unique_id=128880855]
 layout_mode = 2
+autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "TALK_HYSTERESIS_DESC"
 tooltip_auto_translate_mode = 1
@@ -765,6 +774,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHoldRow" unique_id=128880860]
 layout_mode = 2
+autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "TALK_HOLD_DESC"
 tooltip_auto_translate_mode = 1
@@ -775,10 +785,6 @@ metadata/localization_key = &"TALK_HOLD"
 [node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHoldRow/Label" unique_id=128880861]
 script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
-
-[node name="spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHoldRow" unique_id=545470672]
-layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="TalkHoldSpin" type="SpinBox" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHoldRow" unique_id=128880862]
 custom_minimum_size = Vector2(80, 0)
@@ -802,6 +808,7 @@ theme_override_styles/panel = ExtResource("24_ecvn2")
 [node name="TwitchContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel" unique_id=63792095 node_paths=PackedStringArray("connect_button", "connected_container", "username_label", "disconnect_button", "refresh_rewards_button", "rewards_count_label", "auth_status_label")]
 layout_mode = 2
 size_flags_horizontal = 0
+theme_override_constants/separation = 6
 script = ExtResource("36_twset")
 connect_button = NodePath("ClientIdContainer/ConnectButton")
 connected_container = NodePath("ConnectedContainer")
