@@ -8,7 +8,10 @@ static func run_io(task: Callable, on_done: Callable = Callable(), owner: Object
 	var id_box: Array[int] = [-1]
 	var owner_ref: WeakRef = weakref(owner) if owner != null else null
 	var deliver := func(result: Variant) -> void:
-		_pending_task_ids.erase(id_box[0])
+		if _pending_task_ids.has(id_box[0]):
+			# Waiting also releases the worker task's bookkeeping.
+			WorkerThreadPool.wait_for_task_completion(id_box[0])
+			_pending_task_ids.erase(id_box[0])
 		if owner_ref != null and owner_ref.get_ref() == null:
 			return
 		if on_done.is_valid():
@@ -27,11 +30,10 @@ static func wait_for_io(timeout_ms: int = IO_WAIT_TIMEOUT_MS) -> void:
 		while not WorkerThreadPool.is_task_completed(task_id):
 			if Time.get_ticks_msec() >= deadline:
 				push_warning("[IoService] wait_for_io timed out with %d task(s) pending" % _pending_task_ids.size())
-				_pending_task_ids.clear()
 				return
 			OS.delay_msec(10)
 		WorkerThreadPool.wait_for_task_completion(task_id)
-	_pending_task_ids.clear()
+		_pending_task_ids.erase(task_id)
 
 static func request_gpu_image(path: String, done: Callable, owner: Object = null, max_size: Vector2 = Vector2.ZERO) -> void:
 	run_io(func() -> Image: return ImageUtil.load_gpu_image(path, max_size), done, owner)

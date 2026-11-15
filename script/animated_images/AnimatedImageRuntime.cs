@@ -11,6 +11,8 @@ public partial class AnimatedImageRuntime : RefCounted
 
 	private static readonly object _initLock = new();
 	private static bool _initialized;
+	private readonly object _previewLock = new();
+	private CancellationTokenSource _previewCancellation = new();
 
 	private static void EnsureInitialized()
 	{
@@ -59,6 +61,39 @@ public partial class AnimatedImageRuntime : RefCounted
 		return DecodeGuarded(filePath, token => FfmpegDecoder.ExtractFramesToFolder(filePath, destFolder, fileBase, MaxFrames, token, maxWidth, maxHeight));
 	}
 
+	public Godot.Collections.Dictionary LoadPreviewFrames(string filePath, int maxWidth, int maxHeight)
+	{
+		CancellationToken previewToken;
+		lock (_previewLock)
+		{
+			if (_previewCancellation == null)
+				return null;
+			previewToken = _previewCancellation.Token;
+		}
+
+		try
+		{
+			if (previewToken.IsCancellationRequested)
+				return null;
+			EnsureInitialized();
+			return DecodeGuarded(filePath, token => FfmpegDecoder.DecodePreviewFrames(filePath, token, maxWidth, maxHeight), previewToken);
+		}
+		finally
+		{
+			lock (_previewLock)
+			{
+				_previewCancellation.Dispose();
+				_previewCancellation = null;
+			}
+		}
+	}
+
+	public void CancelPreview()
+	{
+		lock (_previewLock)
+			_previewCancellation?.Cancel();
+	}
+
 	/// <summary>
 	/// Kills any running ffmpeg decode whose source file path matches.
 	/// The path must match the one previously handed to ExtractFrameFiles.
@@ -74,7 +109,7 @@ public partial class AnimatedImageRuntime : RefCounted
 		FfmpegDecoder.CancelAllScopes();
 	}
 
-	private static T DecodeGuarded<T>(string filePath, Func<CancellationToken, T> decode) where T : class
+	private static T DecodeGuarded<T>(string filePath, Func<CancellationToken, T> decode, CancellationToken cancellationToken = default) where T : class
 	{
 		if (string.IsNullOrEmpty(filePath))
 			return null;
@@ -87,10 +122,17 @@ public partial class AnimatedImageRuntime : RefCounted
 		var cts = FfmpegDecoder.BeginCancelScope(filePath);
 		try
 		{
-			return decode(cts.Token);
+			using var linked = cancellationToken.CanBeCanceled
+				? CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken)
+				: null;
+			var token = linked?.Token ?? cts.Token;
+			token.ThrowIfCancellationRequested();
+			return decode(token);
 		}
 		catch (Exception err)
 		{
+			if (cancellationToken.IsCancellationRequested)
+				return null;
 			if (cts.IsCancellationRequested)
 			{
 				GD.PushWarning($"{Tag}decoding cancelled: '{filePath}'");

@@ -85,6 +85,12 @@ corner_radius_top_right = 6
 corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_list_panel"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+
 [sub_resource type="FontVariation" id="FontVariation_ecvn2"]
 base_font = ExtResource("1_h7bay")
 variation_opentype = {
@@ -371,6 +377,51 @@ corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gallery_cursor"]
+draw_center = false
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.698039, 0.619608, 0.588235, 0.5)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+expand_margin_left = -4.0
+expand_margin_top = -4.0
+expand_margin_right = -4.0
+expand_margin_bottom = -4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gallery_hover"]
+bg_color = Color(1, 0.439216, 0.545098, 0.15)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+expand_margin_left = -4.0
+expand_margin_top = -4.0
+expand_margin_right = -4.0
+expand_margin_bottom = -4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gallery_selected"]
+bg_color = Color(1, 0.439216, 0.545098, 0.45)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+expand_margin_left = -4.0
+expand_margin_top = -4.0
+expand_margin_right = -4.0
+expand_margin_bottom = -4.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tree_selected"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 0.439216, 0.545098, 0.45)
+
 [resource]
 default_font = ExtResource("1_h7bay")
 default_font_size = 16
@@ -401,6 +452,15 @@ CheckButton/styles/hover = SubResource("StyleBoxFlat_toggle_hover")
 CheckButton/styles/hover_pressed = SubResource("StyleBoxFlat_toggle_pressed")
 CheckButton/styles/normal = SubResource("StyleBoxFlat_toggle_normal")
 CheckButton/styles/pressed = SubResource("StyleBoxFlat_toggle_pressed")
+ExpressionTree/base_type = &"Tree"
+ExpressionTree/colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
+ExpressionTree/constants/v_separation = 8
+ExpressionTree/styles/hovered = SubResource("StyleBoxFlat_toggle_hover")
+ExpressionTree/styles/hovered_selected = SubResource("StyleBoxFlat_tree_selected")
+ExpressionTree/styles/hovered_selected_focus = SubResource("StyleBoxFlat_tree_selected")
+ExpressionTree/styles/panel = SubResource("StyleBoxEmpty_list_panel")
+ExpressionTree/styles/selected = SubResource("StyleBoxFlat_tree_selected")
+ExpressionTree/styles/selected_focus = SubResource("StyleBoxFlat_tree_selected")
 FoldableContainer/colors/collapsed_font_color = Color(0.96862745, 0.8745098, 0.81960785, 1)
 FoldableContainer/colors/font_color = Color(0.96862745, 0.8745098, 0.81960785, 1)
 FoldableContainer/colors/font_outline_color = Color(0.96862745, 0.8745098, 0.81960785, 1)
@@ -421,6 +481,18 @@ HSlider/constants/center_grabber = 1
 HSlider/styles/grabber_area = SubResource("StyleBoxFlat_slider_fill")
 HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_slider_fill")
 HSlider/styles/slider = SubResource("StyleBoxFlat_slider_bg")
+ImageGallery/base_type = &"ItemList"
+ImageGallery/colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
+ImageGallery/constants/h_separation = 8
+ImageGallery/constants/v_separation = 8
+ImageGallery/styles/cursor = SubResource("StyleBoxFlat_gallery_cursor")
+ImageGallery/styles/cursor_unfocused = SubResource("StyleBoxEmpty_list_panel")
+ImageGallery/styles/hovered = SubResource("StyleBoxFlat_gallery_hover")
+ImageGallery/styles/hovered_selected = SubResource("StyleBoxFlat_gallery_selected")
+ImageGallery/styles/hovered_selected_focus = SubResource("StyleBoxFlat_gallery_selected")
+ImageGallery/styles/panel = SubResource("StyleBoxEmpty_list_panel")
+ImageGallery/styles/selected = SubResource("StyleBoxFlat_gallery_selected")
+ImageGallery/styles/selected_focus = SubResource("StyleBoxFlat_gallery_selected")
 Label/colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
 Label/colors/font_shadow_color = Color(0, 0, 0, 0)
 Label/font_sizes/font_size = 16
@@ -476,6 +548,12 @@ ProgressBar/colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
 ProgressBar/styles/background = SubResource("StyleBoxFlat_slider_bg")
 ProgressBar/styles/fill = SubResource("StyleBoxFlat_slider_fill")
 RichTextLabel/colors/default_color = Color(0.968627, 0.87451, 0.819608, 1)
+SecondaryButton/base_type = &"Button"
+SecondaryButton/colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
+SecondaryButton/colors/font_hover_color = Color(0.968627, 0.87451, 0.819608, 1)
+SecondaryButton/styles/hover = SubResource("StyleBoxFlat_button_secondary_hover")
+SecondaryButton/styles/normal = SubResource("StyleBoxFlat_button_secondary_normal")
+SecondaryButton/styles/pressed = SubResource("StyleBoxFlat_button_secondary_hover")
 TabBar/colors/font_disabled_color = Color(0.698039, 0.619608, 0.588235, 0.5)
 TabBar/colors/font_hovered_color = Color(0.968627, 0.87451, 0.819608, 1)
 TabBar/colors/font_selected_color = Color(0.101961, 0.101961, 0.101961, 1)

@@ -10,13 +10,14 @@
 [ext_resource type="StyleBox" uid="uid://b6v1h62iemncy" path="res://themes/panel-dialog-style.tres" id="3_dlg"]
 [ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="4_nthy6"]
 
-[node name="AddEmotionDialog" type="PanelContainer" unique_id=1363638362 node_paths=PackedStringArray("name_input", "confirm_button", "close_button")]
+[node name="AddEmotionDialog" type="PanelContainer" unique_id=1363638362 node_paths=PackedStringArray("name_input", "confirm_button", "close_button", "title_label")]
 theme = ExtResource("1_theme")
 theme_override_styles/panel = ExtResource("3_dlg")
 script = ExtResource("2_script")
 name_input = NodePath("MarginContainer/VBoxContainer/NameInput")
 confirm_button = NodePath("MarginContainer/VBoxContainer/ConfirmButton")
 close_button = NodePath("MarginContainer/VBoxContainer/Header/CloseButton")
+title_label = NodePath("MarginContainer/VBoxContainer/Header/TitleLabel")
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=566235218]
 layout_mode = 2

@@ -361,9 +361,11 @@ static func _make_resolver(old_doc: Dictionary, out_dir: String) -> Callable:
 	var page_images: Dictionary[String, Image] = {}
 	var page_order: Array[String] = []
 	return func(path: String) -> Image:
-		var image := ImageUtil.load_image(path)
-		if image != null:
-			return image
+		# Packed frames may have no standalone file. Recover their pixels from the old atlas.
+		if FileAccess.file_exists(PathUtil.get_real_path(path)):
+			var image := ImageUtil.load_image(path)
+			if image != null:
+				return image
 		var pages: Array = old_doc.get("pages", [])
 		for frame_entry: Dictionary in old_doc.get("frames", []):
 			if String(frame_entry.get("path", "")) != path:

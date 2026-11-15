@@ -1,0 +1,172 @@
+[gd_scene format=3 uid="uid://dfkedjqsumm81"]
+
+[ext_resource type="Script" uid="uid://b3271y8frtukx" path="res://script/ui/model_creation.gd" id="1"]
+[ext_resource type="StyleBox" uid="uid://b6v1h62iemncy" path="res://themes/panel-dialog-style.tres" id="2"]
+[ext_resource type="StyleBox" uid="uid://cjct721y6ocun" path="res://themes/card-secondary-style.tres" id="3"]
+[ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="4_theme"]
+[ext_resource type="FontFile" uid="uid://dmld38g0i2q0a" path="res://assets/fonts/Bungee-Regular.ttf" id="5_title"]
+[ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="6_gallery"]
+[ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="7_locale"]
+[ext_resource type="Script" path="res://script/ui/model_creation_gallery.gd" id="8_gallery"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t4i0i"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(1, 1, 1, 0.75)
+draw_center = false
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+expand_margin_left = 2.0
+expand_margin_top = 2.0
+expand_margin_right = 2.0
+expand_margin_bottom = 2.0
+
+[node name="ModelCreation" type="PanelContainer" unique_id=429777187 node_paths=PackedStringArray("expressions", "gallery", "instruction", "create_button", "cancel_button", "complete_button", "image_menu", "expression_branches", "expression_menu")]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 24.0
+offset_right = -32.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("4_theme")
+theme_override_styles/panel = ExtResource("2")
+script = ExtResource("1")
+expressions = NodePath("Layout/Content/Sidebar/Controls/Expressions")
+gallery = NodePath("Layout/Content/ImagePanel/Images/Gallery")
+instruction = NodePath("Layout/Content/ImagePanel/Images/Instruction")
+create_button = NodePath("Layout/Content/Sidebar/Controls/CreateExpression")
+cancel_button = NodePath("Layout/Actions/Cancel")
+complete_button = NodePath("Layout/Actions/Complete")
+image_menu = NodePath("ImageMenu")
+expression_branches = NodePath("ImageMenu/ExpressionBranches")
+expression_menu = NodePath("ExpressionMenu")
+
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1824410545]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="Layout" unique_id=764876037]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_title")
+theme_override_font_sizes/font_size = 24
+text = "Create Model"
+metadata/localization_key = &"MODEL_CREATION_TITLE"
+
+[node name="TranslationNode" type="Node" parent="Layout/Title" unique_id=873654118]
+script = ExtResource("7_locale")
+
+[node name="Content" type="HBoxContainer" parent="Layout" unique_id=219366827]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="Sidebar" type="PanelContainer" parent="Layout/Content" unique_id=1050164475]
+custom_minimum_size = Vector2(248, 0)
+layout_mode = 2
+theme_override_styles/panel = ExtResource("3")
+
+[node name="Controls" type="VBoxContainer" parent="Layout/Content/Sidebar" unique_id=538776510]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Layout/Content/Sidebar/Controls" unique_id=205504649]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("5_title")
+text = "Expressions"
+metadata/localization_key = &"EXPRESSIONS"
+
+[node name="TranslationNode" type="Node" parent="Layout/Content/Sidebar/Controls/Title" unique_id=1342687131]
+script = ExtResource("7_locale")
+
+[node name="Expressions" type="Tree" parent="Layout/Content/Sidebar/Controls" unique_id=1862659875]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"ExpressionTree"
+hide_root = true
+
+[node name="CreateExpression" type="Button" parent="Layout/Content/Sidebar/Controls" unique_id=850193660]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Create Expression"
+metadata/localization_key = &"MODEL_CREATION_ADD"
+
+[node name="TranslationNode" type="Node" parent="Layout/Content/Sidebar/Controls/CreateExpression" unique_id=451113404]
+script = ExtResource("7_locale")
+
+[node name="ImagePanel" type="PanelContainer" parent="Layout/Content" unique_id=1006526838]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = ExtResource("6_gallery")
+
+[node name="Images" type="VBoxContainer" parent="Layout/Content/ImagePanel" unique_id=1762697343]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Instruction" type="Label" parent="Layout/Content/ImagePanel/Images" unique_id=1240174655]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="Gallery" type="ItemList" parent="Layout/Content/ImagePanel/Images" unique_id=59297248]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"ImageGallery"
+theme_override_styles/focus = SubResource("StyleBoxFlat_t4i0i")
+select_mode = 2
+max_text_lines = 2
+max_columns = 0
+same_column_width = true
+fixed_column_width = 144
+icon_mode = 0
+script = ExtResource("8_gallery")
+
+[node name="Separator" type="HSeparator" parent="Layout" unique_id=1396430251]
+layout_mode = 2
+
+[node name="Actions" type="HBoxContainer" parent="Layout" unique_id=2111849720]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="Cancel" type="Button" parent="Layout/Actions" unique_id=1156577809]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"SecondaryButton"
+text = "Cancel"
+metadata/localization_key = &"CANCEL"
+
+[node name="TranslationNode" type="Node" parent="Layout/Actions/Cancel" unique_id=1489800191]
+script = ExtResource("7_locale")
+
+[node name="Complete" type="Button" parent="Layout/Actions" unique_id=381808772]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Complete Creation"
+metadata/localization_key = &"MODEL_CREATION_COMPLETE"
+
+[node name="TranslationNode" type="Node" parent="Layout/Actions/Complete" unique_id=976324729]
+script = ExtResource("7_locale")
+
+[node name="ImageMenu" type="PopupMenu" parent="." unique_id=1659750129]
+unique_name_in_owner = true
+
+[node name="ExpressionBranches" type="PopupMenu" parent="ImageMenu" unique_id=463763955]
+unique_name_in_owner = true
+
+[node name="ExpressionMenu" type="PopupMenu" parent="." unique_id=1718489604]
+unique_name_in_owner = true

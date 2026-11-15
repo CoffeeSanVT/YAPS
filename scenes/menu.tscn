@@ -110,7 +110,7 @@ theme_override_constants/separation = 16
 layout_mode = 2
 theme_override_fonts/bold_font = ExtResource("4_6cdou")
 bbcode_enabled = true
-text = "Welcome to YAPS! To create your character, just click the Create button below. You need at minimum two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and[br] [b]<emotion name>_silence[/b] or just the emotion name. "
+text = "Click Create to choose your character's images. Files named [b]talking[/b], [b]silence[/b], [b]<expression>_talking[/b] or [b]<expression>_silence[/b] are assigned automatically. You can assign other images in the creation screen."
 fit_content = true
 metadata/localization_key = &"YAPS_DESCRIPTION"
 

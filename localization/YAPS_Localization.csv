@@ -1,5 +1,5 @@
 key,en,pt
-YAPS_DESCRIPTION,"Welcome to YAPS! To create your character, just click the Create button below. You need at least two images named talking and silence, and for each emotion name the file as [b]<emotion name>_talking[/b] and [br] [b]<emotion name>_silence[/b] or just the emotion name.","Bem-vindo ao YAPS! Para criar seu personagem, clique no botão Criar abaixo. Você precisa de no mínimo duas imagens nomeadas talking e silence, e para cada emoção nomeie o arquivo como [b]<nome da emoção>_talking[/b] e [br] [b]<nome da emoção>_silence[/b] ou apenas o nome da emoção."
+YAPS_DESCRIPTION,"Click Create to choose your character's images. Files named [b]talking[/b], [b]silence[/b], [b]<expression>_talking[/b] or [b]<expression>_silence[/b] are assigned automatically. You can assign other images in the creation screen.","Clique em Criar para escolher as imagens do seu personagem. Arquivos nomeados [b]talking[/b], [b]silence[/b], [b]<expressão>_talking[/b] ou [b]<expressão>_silence[/b] são atribuídos automaticamente. Você pode atribuir as outras imagens na tela de criação."
 CHARACTERS,Characters,Personagens
 CREATE,Create,Criar
 CONFIRM,Confirm,Confirmar
@@ -67,6 +67,13 @@ START_CALC_AVERAGE_DB,Calculate average volume,Calcular Média de Volume
 CALC_AVERAGE_DB,Average: %.1f dB,Média: %.1f dB
 MODEL,Model,Modelo
 EXPRESSIONS,Expressions,Expressões
+MODEL_CREATION_TITLE,Create Model,Criar modelo
+MODEL_CREATION_ADD,Create Expression,Criar expressão
+MODEL_CREATION_RENAME,Rename Expression,Renomear expressão
+MODEL_CREATION_ASSIGN,Click to select or deselect. The first image is the base and the rest are frames.,Clique para selecionar ou desmarcar. A primeira imagem é a base e as demais são frames.
+MODEL_CREATION_COMPLETE,Complete Creation,Concluir criação
+MODEL_CREATION_NAME,Expression name,Nome da expressão
+MODEL_CREATION_SELECT_BRANCH,Select Silence or Talking in the expression tree to choose an image,Selecione Silêncio ou Falando na árvore para escolher uma imagem
 EXPRESSION,Expression,Expressão
 SETTINGS,Settings,Configurações
 GENERAL,General,Geral

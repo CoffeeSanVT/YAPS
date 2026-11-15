@@ -162,12 +162,17 @@ func _add_animated_frames_to_state(state: ModelStateEntry, file_path: String, do
 			done.call()
 	)
 
-func extract_frames_for_entry(model: ModelProfile, entry: ModelStateEntry, source_path: String, on_finished: Callable = Callable(), owner: Object = null) -> void:
+func extract_frames_for_entry(model: ModelProfile, entry: ModelStateEntry, source_path: String, on_finished: Callable = Callable(), owner: Object = null, append_to_sequence: bool = false) -> void:
 	var file_base := _unique_frame_base(entry, source_path.get_file().get_basename())
+	if append_to_sequence:
+		file_base = NameUtil.unique_name(file_base, func(candidate: String) -> bool:
+			return DirAccess.dir_exists_absolute(PathUtil.frames_folder_path(model.model_name, candidate))
+		)
 	_extract_frames(model, entry, source_path, file_base, func(frame_paths: Array[String], frame_rate: float) -> void:
 		if not frame_paths.is_empty():
 			entry.frames.append_array(frame_paths)
-			entry.frame_rate = frame_rate
+			if not append_to_sequence:
+				entry.frame_rate = frame_rate
 			if model.global_frame_rate <= 0.0:
 				model.global_frame_rate = frame_rate
 			if model.global_animation_chance <= 0.0:

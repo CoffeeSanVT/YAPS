@@ -48,6 +48,32 @@ internal static class FfmpegDecoder
 		}
 	}
 
+	internal static Godot.Collections.Dictionary DecodePreviewFrames(string filePath, CancellationToken token, int maxWidth, int maxHeight)
+	{
+		string tempDir = CreateTempDirectory();
+		try
+		{
+			var data = ExtractFramesToFolder(filePath, tempDir, "preview", AnimatedImageRuntime.MaxFrames, token, maxWidth, maxHeight);
+			if (data == null)
+				return null;
+
+			var frames = new Godot.Collections.Array<Image>();
+			foreach (string fileName in data.FileNames)
+			{
+				token.ThrowIfCancellationRequested();
+				var image = Image.LoadFromFile(Path.Combine(tempDir, fileName));
+				if (image == null || image.IsEmpty())
+					return null;
+				frames.Add(image);
+			}
+			return new Godot.Collections.Dictionary { ["frames"] = frames, ["durations"] = data.Durations };
+		}
+		finally
+		{
+			TryDeleteDirectory(tempDir);
+		}
+	}
+
 	internal static ExtractedFrameFilesData ExtractFramesToFolder(string filePath, string destFolder, string fileBase, int maxFrames, CancellationToken token, int maxWidth = 0, int maxHeight = 0)
 	{
 		List<float> durations = new();

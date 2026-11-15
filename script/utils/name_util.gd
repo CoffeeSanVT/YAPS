@@ -29,6 +29,10 @@ static func is_frame_file_name(file_name: String) -> bool:
 static func is_neutral_file_name(file_name: String) -> bool:
 	return is_neutral_entry_name(file_name.get_basename())
 
+static func has_explicit_branch(entry_name: String) -> bool:
+	var emotion := strip_emotion_suffix(entry_name)
+	return is_neutral_entry_name(entry_name) or (emotion != entry_name and not emotion.strip_edges().is_empty())
+
 static func is_neutral_entry_name(entry_name: String) -> bool:
 	var lowered := entry_name.to_lower()
 	return lowered == "talking" or lowered == "silence"
