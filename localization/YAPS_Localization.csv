@@ -68,6 +68,8 @@ CALC_AVERAGE_DB,Average: %.1f dB,Média: %.1f dB
 MODEL,Model,Modelo
 EXPRESSIONS,Expressions,Expressões
 MODEL_CREATION_TITLE,Create Model,Criar modelo
+MODEL_CREATION_OPTIMIZATION_SIZE,%d image(s) outside the recommended dimensions. Use even dimensions from 720 to 2048 px per side. Aim for 1024 × 1024 px.,%d imagem(ns) fora das dimensões recomendadas. Use dimensões pares de 720 a 2048 px por lado. O ideal é 1024 × 1024 px.
+MODEL_CREATION_OPTIMIZATION_FRAMES,%d animation(s) exceed 30 frames. Limit each expression to 30 frames to reduce VRAM usage.,%d animação(ões) acima de 30 quadros. Limite cada expressão a 30 quadros para reduzir o uso de VRAM.
 MODEL_CREATION_ADD,Create Expression,Criar expressão
 MODEL_CREATION_RENAME,Rename Expression,Renomear expressão
 MODEL_CREATION_ASSIGN,Click to select or deselect. The first image is the base and the rest are frames.,Clique para selecionar ou desmarcar. A primeira imagem é a base e as demais são frames.

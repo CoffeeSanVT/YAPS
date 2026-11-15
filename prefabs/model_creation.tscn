@@ -8,6 +8,8 @@
 [ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="6_gallery"]
 [ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="7_locale"]
 [ext_resource type="Script" uid="uid://12hrbdds0pt" path="res://script/ui/model_creation_gallery.gd" id="8_gallery"]
+[ext_resource type="Texture2D" path="res://assets/icons/runtime/error/error.svg" id="9_warning"]
+[ext_resource type="PackedScene" uid="uid://ccylxyyp567d1" path="res://prefabs/toast_panel.tscn" id="10_toast"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_t4i0i"]
 content_margin_left = 4.0
@@ -31,7 +33,7 @@ expand_margin_top = 2.0
 expand_margin_right = 2.0
 expand_margin_bottom = 2.0
 
-[node name="ModelCreation" type="PanelContainer" unique_id=429777187 node_paths=PackedStringArray("expressions", "gallery", "instruction", "create_button", "cancel_button", "complete_button", "image_menu", "expression_branches", "expression_menu")]
+[node name="ModelCreation" type="PanelContainer" unique_id=429777187 node_paths=PackedStringArray("expressions", "gallery", "instruction", "create_button", "cancel_button", "complete_button", "image_menu", "expression_branches", "expression_menu", "optimization_warning", "toast_panel")]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -53,20 +55,36 @@ complete_button = NodePath("Layout/Actions/Complete")
 image_menu = NodePath("ImageMenu")
 expression_branches = NodePath("ImageMenu/ExpressionBranches")
 expression_menu = NodePath("ExpressionMenu")
+optimization_warning = NodePath("Layout/Header/OptimizationWarning")
+toast_panel = NodePath("Notifications/ToastPanel")
 
 [node name="Layout" type="VBoxContainer" parent="." unique_id=1824410545]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="Layout" unique_id=764876037]
+[node name="Header" type="HBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Title" type="Label" parent="Layout/Header" unique_id=764876037]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("5_title")
 theme_override_font_sizes/font_size = 24
 text = "Create Model"
 metadata/localization_key = &"MODEL_CREATION_TITLE"
 
-[node name="TranslationNode" type="Node" parent="Layout/Title" unique_id=873654118]
+[node name="TranslationNode" type="Node" parent="Layout/Header/Title" unique_id=873654118]
 script = ExtResource("7_locale")
+
+[node name="OptimizationWarning" type="TextureRect" parent="Layout/Header"]
+visible = false
+custom_minimum_size = Vector2(22, 22)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 1
+texture = ExtResource("9_warning")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Content" type="HBoxContainer" parent="Layout" unique_id=219366827]
 layout_mode = 2
@@ -162,3 +180,13 @@ oversampling_override = 1.0
 [node name="ExpressionBranches" type="PopupMenu" parent="ImageMenu" unique_id=463763955]
 
 [node name="ExpressionMenu" type="PopupMenu" parent="." unique_id=1718489604]
+
+[node name="Notifications" type="Control" parent="."]
+layout_mode = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="ToastPanel" parent="Notifications" instance=ExtResource("10_toast")]
+listen_for_global_events = false

@@ -25,6 +25,41 @@ internal static class FfmpegDecoder
 	private static readonly Regex ShowInfoRegex = new(
 		@"n:\s*\d+\s+pts:\s*\d+\s+pts_time:\S+(?:\s+duration:\s*\d+\s+duration_time:(\S+))?",
 		RegexOptions.Compiled);
+	private static readonly Regex FrameSizeRegex = new(@"\bs:(\d+)x(\d+)\b", RegexOptions.Compiled);
+
+	internal static AnimatedImageRuntime.AnimationInfo InspectAnimation(string filePath, int frameLimit, CancellationToken token)
+	{
+		int width = 0;
+		int height = 0;
+		int frames = 0;
+		string decoderArgs = ResolveInputDecoderArgs(filePath);
+		bool success = FFMpegArguments
+			.FromFileInput(filePath, false, options =>
+			{
+				if (decoderArgs.Length > 0)
+					options.WithCustomArgument(decoderArgs);
+			})
+			.OutputToFile("-", true, options => options
+				.WithFrameOutputCount(frameLimit)
+				.WithCustomArgument("-map 0:v:0 -vf showinfo -fps_mode passthrough -f null"))
+			.WithLogLevel(FFMpegLogLevel.Info)
+			.NotifyOnError(line =>
+			{
+				if (!ShowInfoRegex.IsMatch(line))
+					return;
+				if (frames++ != 0)
+					return;
+				Match size = FrameSizeRegex.Match(line);
+				if (size.Success)
+				{
+					width = int.Parse(size.Groups[1].Value, CultureInfo.InvariantCulture);
+					height = int.Parse(size.Groups[2].Value, CultureInfo.InvariantCulture);
+				}
+			})
+			.CancellableThrough(token)
+			.ProcessSynchronously(false);
+		return success && frames > 0 ? new(new Vector3I(width, height, frames)) : null;
+	}
 
 	internal static Image DecodeFirstFrame(string filePath, CancellationToken token, int maxWidth = 0, int maxHeight = 0)
 	{

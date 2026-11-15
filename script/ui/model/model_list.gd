@@ -23,7 +23,7 @@ func _input(event: InputEvent) -> void:
 		if delete_panel.visible:
 			delete_panel.hide()
 		elif rename_panel.visible:
-			rename_panel.hide()
+			_on_rename_canceled()
 
 func _ready() -> void:
 	_context_menu = PopupMenu.new()
@@ -97,6 +97,9 @@ func _start_rename() -> void:
 	rename_panel.show()
 	rename_line.grab_focus()
 	rename_line.select_all()
+
+func _on_rename_canceled() -> void:
+	rename_panel.hide()
 
 func _apply_rename() -> void:
 	if _selected_index < 0 or _selected_index >= models.size():

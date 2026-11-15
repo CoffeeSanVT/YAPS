@@ -61,6 +61,15 @@ public partial class AnimatedImageRuntime : RefCounted
 		return DecodeGuarded(filePath, token => FfmpegDecoder.ExtractFramesToFolder(filePath, destFolder, fileBase, MaxFrames, token, maxWidth, maxHeight));
 	}
 
+	public static Vector3I InspectAnimation(string filePath, int frameLimit)
+	{
+		EnsureInitialized();
+		var info = DecodeGuarded(filePath, token => FfmpegDecoder.InspectAnimation(filePath, frameLimit, token));
+		return info?.Value ?? default;
+	}
+
+	internal sealed record AnimationInfo(Vector3I Value);
+
 	public Godot.Collections.Dictionary LoadPreviewFrames(string filePath, int maxWidth, int maxHeight)
 	{
 		CancellationToken previewToken;

@@ -5,6 +5,10 @@ signal canceled
 
 const NAME_DIALOG := preload("uid://twgitjdha3g2")
 const CONTEXT_BRANCHES := [ModelState.TALKING, ModelState.SILENCE]
+const MIN_RECOMMENDED_IMAGE_SIDE := 720
+const MAX_RECOMMENDED_IMAGE_SIDE := 2048
+const MAX_RECOMMENDED_FRAMES := 30
+const TOAST_PANEL := preload("res://script/ui/utils/toast_panel.gd")
 
 enum ExpressionAction { RENAME, DELETE }
 
@@ -18,6 +22,8 @@ enum ExpressionAction { RENAME, DELETE }
 @export var image_menu: PopupMenu
 @export var expression_branches: PopupMenu
 @export var expression_menu: PopupMenu
+@export var optimization_warning: TextureRect
+@export var toast_panel: TOAST_PANEL
 
 var _paths: PackedStringArray
 var _assignments: Dictionary = {}
@@ -57,6 +63,42 @@ func _ready() -> void:
 	silence.select(0)
 	_refresh_gallery()
 	expressions.grab_focus()
+	IoService.run_io(_inspect_images.bind(_paths), _show_optimization_warning, self)
+
+static func _inspect_images(paths: PackedStringArray) -> Vector2i:
+	var warnings := Vector2i.ZERO
+	for path in paths:
+		var source := PathUtil.get_real_path(path)
+		var image_size := Vector2i.ZERO
+		if ImageUtil.is_animated_file(source):
+			var animation := AnimatedImageRuntime.InspectAnimation(source, MAX_RECOMMENDED_FRAMES + 1)
+			image_size = Vector2i(animation.x, animation.y)
+			if animation.z > MAX_RECOMMENDED_FRAMES:
+				warnings.y += 1
+		else:
+			var image := ImageUtil.load_image(path)
+			if image != null:
+				image_size = image.get_size()
+		if image_size.x <= 0 or image_size.y <= 0:
+			continue
+		if (mini(image_size.x, image_size.y) < MIN_RECOMMENDED_IMAGE_SIDE
+			or maxi(image_size.x, image_size.y) > MAX_RECOMMENDED_IMAGE_SIDE
+			or image_size.x % 2 != 0 or image_size.y % 2 != 0):
+			warnings.x += 1
+	return warnings
+
+func _show_optimization_warning(warnings: Vector2i) -> void:
+	if warnings == Vector2i.ZERO or not is_visible_in_tree() or is_queued_for_deletion():
+		return
+	var details := PackedStringArray()
+	if warnings.x > 0:
+		details.append(tr("MODEL_CREATION_OPTIMIZATION_SIZE") % warnings.x)
+	if warnings.y > 0:
+		details.append(tr("MODEL_CREATION_OPTIMIZATION_FRAMES") % warnings.y)
+	var message := "\n".join(details)
+	optimization_warning.tooltip_text = message
+	optimization_warning.show()
+	toast_panel.show_toast(message, TOAST_PANEL.Kind.WARNING)
 
 func _has_open_menu() -> bool:
 	return image_menu.visible or expression_menu.visible

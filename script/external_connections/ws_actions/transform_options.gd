@@ -44,7 +44,7 @@ static func _parse_interpolation(parts: PackedStringArray) -> TransformPreset:
 	var options := TransformPreset.new()
 	var duration := parts[0].strip_edges() if parts.size() > 0 else ""
 	var transition := parts[1].strip_edges() if parts.size() > 1 else ""
-	var ease := parts[2].strip_edges() if parts.size() > 2 else ""
+	var ease_name := parts[2].strip_edges() if parts.size() > 2 else ""
 	if not duration.is_empty():
 		if not duration.is_valid_float():
 			return null
@@ -55,8 +55,8 @@ static func _parse_interpolation(parts: PackedStringArray) -> TransformPreset:
 		if not TRANSITIONS.has(transition):
 			return null
 		options.trans_type = TRANSITIONS[transition]
-	if not ease.is_empty():
-		if not EASES.has(ease):
+	if not ease_name.is_empty():
+		if not EASES.has(ease_name):
 			return null
-		options.ease_type = EASES[ease]
+		options.ease_type = EASES[ease_name]
 	return options

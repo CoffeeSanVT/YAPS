@@ -373,12 +373,26 @@ metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 [node name="RenameInput" type="LineEdit" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=160700492]
 layout_mode = 2
 
-[node name="ConfirmButton" type="Button" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=1271811603]
+[node name="Buttons" type="HBoxContainer" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer" unique_id=165619732]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 2
+
+[node name="CancelButton" type="Button" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons" unique_id=1175867325]
+layout_mode = 2
+theme_type_variation = &"SecondaryButton"
+text = "Cancel"
+metadata/localization_key = &"CANCEL"
+
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/CancelButton" unique_id=1286645643]
+script = ExtResource("4_5ewt4")
+
+[node name="ConfirmButton" type="Button" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons" unique_id=1271811603]
 layout_mode = 2
 text = "Confirm"
 metadata/localization_key = &"CONFIRM"
 
-[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/ConfirmButton" unique_id=-1912044681]
+[node name="TranslationNode" type="Node" parent="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/ConfirmButton" unique_id=-1912044681]
 script = ExtResource("4_5ewt4")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
@@ -414,4 +428,5 @@ script = ExtResource("15_mxgkd")
 [connection signal="pressed" from="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/CancelButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_on_delete_canceled"]
 [connection signal="pressed" from="CanvasLayer/Control/DeleteModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/DeleteButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_on_delete_confirmed"]
 [connection signal="text_submitted" from="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/RenameInput" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_apply_rename"]
-[connection signal="pressed" from="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/ConfirmButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_apply_rename"]
+[connection signal="pressed" from="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/CancelButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_on_rename_canceled"]
+[connection signal="pressed" from="CanvasLayer/Control/RenameModelPanel/CenterContainer/Panel/MarginContainer/VBoxContainer/Buttons/ConfirmButton" to="CanvasLayer/Control/CenterContainer/Panel/VBoxContainer/MarginContainer/HBoxContainer/VBoxContainer" method="_apply_rename"]

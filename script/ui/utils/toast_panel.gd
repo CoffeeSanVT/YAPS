@@ -8,6 +8,7 @@ const FADE_OUT_SEC := 0.35
 @export var stack: VBoxContainer
 @export var toast_template: PanelContainer
 @export var toast_label: Label
+@export var listen_for_global_events := true
 @export var max_toasts := 4
 @export var default_duration_sec := 5.0
 @export var info_color := Color(0.55, 0.73, 0.94)
@@ -23,6 +24,8 @@ func _ready() -> void:
 		_template_label_index = toast_label.get_index()
 	if toast_template != null:
 		toast_template.visible = false
+	if not listen_for_global_events:
+		return
 	SignalBus.twitch_token_expired.connect(_on_twitch_token_expired)
 	SignalBus.twitch_token_refreshed.connect(_on_twitch_token_refreshed)
 	SignalBus.shortcut_conflict_detected.connect(_on_shortcut_conflict_detected)
