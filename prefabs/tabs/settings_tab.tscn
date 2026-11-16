@@ -96,6 +96,7 @@ script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
 
 [node name="General" type="PanelContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=566559152]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -345,6 +346,7 @@ size_flags_vertical = 4
 script = ExtResource("40_vram")
 
 [node name="Websocket" type="PanelContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer" unique_id=1221402293]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 6
@@ -395,6 +397,7 @@ layout_mode = 2
 size_flags_horizontal = 0
 
 [node name="UrlContainer" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer" unique_id=1176995351]
+visible = false
 layout_mode = 2
 
 [node name="UrlLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Websocket/WebSocketContainer/UrlContainer" unique_id=1176995352]
@@ -624,8 +627,8 @@ layout_mode = 2
 
 [node name="MicGainLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/MicGainContainer" unique_id=730473472]
 layout_mode = 2
-autowrap_mode = 3
 text = "Mic Gain"
+autowrap_mode = 3
 metadata/localization_key = &"MIC_GAIN"
 
 [node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/MicGainContainer/MicGainLabel" unique_id=-2007718172]
@@ -655,12 +658,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/SmoothingAttackRow" unique_id=128880845]
 layout_mode = 2
-autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "SMOOTHING_ATTACK_DESC"
 tooltip_auto_translate_mode = 1
 mouse_filter = 0
 text = "Smoothing Attack"
+autowrap_mode = 3
 metadata/localization_key = &"SMOOTHING_ATTACK"
 
 [node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/SmoothingAttackRow/Label" unique_id=128880846]
@@ -695,12 +698,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/SmoothingReleaseRow" unique_id=128880850]
 layout_mode = 2
-autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "SMOOTHING_RELEASE_DESC"
 tooltip_auto_translate_mode = 1
 mouse_filter = 0
 text = "Smoothing Release"
+autowrap_mode = 3
 metadata/localization_key = &"SMOOTHING_RELEASE"
 
 [node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/SmoothingReleaseRow/Label" unique_id=128880851]
@@ -735,12 +738,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHysteresisRow" unique_id=128880855]
 layout_mode = 2
-autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "TALK_HYSTERESIS_DESC"
 tooltip_auto_translate_mode = 1
 mouse_filter = 0
 text = "Talk Hysteresis"
+autowrap_mode = 3
 metadata/localization_key = &"TALK_HYSTERESIS"
 
 [node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHysteresisRow/Label" unique_id=128880856]
@@ -774,12 +777,12 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHoldRow" unique_id=128880860]
 layout_mode = 2
-autowrap_mode = 3
 size_flags_horizontal = 3
 tooltip_text = "TALK_HOLD_DESC"
 tooltip_auto_translate_mode = 1
 mouse_filter = 0
 text = "Talk Hold"
+autowrap_mode = 3
 metadata/localization_key = &"TALK_HOLD"
 
 [node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/Audio/VBoxContainer/AdvancedOptionsFoldable/MarginContainer/AdvancedContent/TalkHoldRow/Label" unique_id=128880861]
@@ -805,7 +808,7 @@ size_flags_horizontal = 3
 size_flags_vertical = 0
 theme_override_styles/panel = ExtResource("24_ecvn2")
 
-[node name="TwitchContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel" unique_id=63792095 node_paths=PackedStringArray("connect_button", "connected_container", "username_label", "disconnect_button", "refresh_rewards_button", "rewards_count_label", "auth_status_label")]
+[node name="TwitchContainer" type="VBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel" unique_id=63792095 node_paths=PackedStringArray("connect_button", "connected_container", "username_label", "disconnect_button", "refresh_rewards_button", "rewards_count_label", "auth_status_label", "event_queue_toggle")]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/separation = 6
@@ -817,6 +820,7 @@ disconnect_button = NodePath("ConnectedContainer/DisconnectButton")
 refresh_rewards_button = NodePath("ConnectedContainer/RefreshRewardsButton")
 rewards_count_label = NodePath("ConnectedContainer/RewardsCountLabel")
 auth_status_label = NodePath("AuthStatusLabel")
+event_queue_toggle = NodePath("EventQueueContainer/Toggle")
 
 [node name="Title" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer" unique_id=664901177]
 layout_mode = 2
@@ -828,6 +832,29 @@ metadata/localization_key = &"TWITCH"
 [node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/Title" unique_id=664901178]
 script = ExtResource("2_hu0pd")
 metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="EventQueueContainer" type="HBoxContainer" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer" unique_id=260830524]
+layout_mode = 2
+size_flags_horizontal = 0
+
+[node name="Label" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/EventQueueContainer" unique_id=468079284]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Use event queue"
+metadata/localization_key = &"TWITCH_USE_EVENT_QUEUE"
+
+[node name="TranslationNode" type="Node" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/EventQueueContainer/Label" unique_id=353790378]
+script = ExtResource("2_hu0pd")
+metadata/_custom_type_script = "uid://0f67ptl2s7ny"
+
+[node name="Spacer" type="Control" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/EventQueueContainer" unique_id=1702427971]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Toggle" type="CheckButton" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer/EventQueueContainer" unique_id=817378126]
+layout_mode = 2
+size_flags_horizontal = 0
+button_pressed = true
 
 [node name="AuthStatusLabel" type="Label" parent="ScrollContainer/HFlowContainer/MarginContainer/VBoxContainer/TwitchPanel/TwitchContainer" unique_id=2117985201]
 visible = false

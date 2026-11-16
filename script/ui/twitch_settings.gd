@@ -8,8 +8,11 @@ extends VBoxContainer
 @export var refresh_rewards_button: Button
 @export var rewards_count_label: Label
 @export var auth_status_label: Label
+@export var event_queue_toggle: CheckButton
 
 func _ready() -> void:
+	event_queue_toggle.set_pressed_no_signal(Settings.settings.twitch_event_queue_enabled)
+	event_queue_toggle.toggled.connect(_on_event_queue_toggled)
 	_populate_ui()
 	SignalBus.twitch_connected.connect(_on_connection_changed)
 	SignalBus.twitch_disconnected.connect(_on_connection_changed)
@@ -37,6 +40,10 @@ func _on_connect_pressed() -> void:
 
 func _on_disconnect_pressed() -> void:
 	TwitchClient.disconnect_twitch()
+
+func _on_event_queue_toggled(enabled: bool) -> void:
+	Settings.settings.twitch_event_queue_enabled = enabled
+	Settings.save_settings()
 
 func _on_refresh_rewards_pressed() -> void:
 	TwitchClient.fetch_channel_redeems()

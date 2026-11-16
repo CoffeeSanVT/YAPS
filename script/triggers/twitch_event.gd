@@ -35,6 +35,7 @@ var _active: bool = false
 var _pulse_end_msec: int = 0
 var _last_subscribed_type: StringName = &""
 var _last_subscribed_reward: String = ""
+var _item: WeakRef
 
 func _init() -> void:
 	trigger_name = &"twitch_event"
@@ -58,6 +59,10 @@ func deactivate() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"twitch_connected", _on_twitch_connected)
 	_release_subscription()
 	_active = false
+	TwitchClient.discard_pending_events(self)
+
+func bind_item(item: Item) -> void:
+	_item = weakref(item)
 
 func refresh_subscription() -> void:
 	if not _active:
@@ -65,6 +70,7 @@ func refresh_subscription() -> void:
 		return
 	if event_type == _last_subscribed_type and _current_reward() == _last_subscribed_reward:
 		return
+	TwitchClient.discard_pending_events(self)
 	_release_subscription()
 	_last_subscribed_type = event_type
 	_last_subscribed_reward = _current_reward()
@@ -109,10 +115,24 @@ func _on_twitch_event(type: StringName, data: Dictionary, sub_reward_id: String)
 	if event_type == &"bits" and min_bits > 0:
 		if int(data.get("bits", 0)) < min_bits:
 			return
+	TwitchClient.dispatch_event(self)
+
+func execute_event() -> void:
+	if not _active:
+		return
 	if pulse_mode:
 		_trigger_pulse()
 		return
 	set_enabled(not enabled)
+
+func advance_execution() -> bool:
+	if not _active:
+		return false
+	_expire_pulse()
+	if pulse_mode and enabled and _pulse_end_msec > 0:
+		return true
+	var item := _item.get_ref() as Item if _item != null else null
+	return item != null and item.is_twitch_action_running()
 
 func _on_twitch_connected(_username: String) -> void:
 	if not _active:
@@ -132,6 +152,9 @@ func _on_reward_revoked(sub_reward_id: String) -> void:
 	reward_invalidated.emit(self)
 
 func tick(_delta: float, _current_state: ModelStateEntry) -> void:
+	_expire_pulse()
+
+func _expire_pulse() -> void:
 	if not pulse_mode or not enabled:
 		return
 	if Time.get_ticks_msec() < _pulse_end_msec:

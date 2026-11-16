@@ -30,6 +30,8 @@ var _refresh_timer: Timer
 var _auth := TwitchAuthServer.new()
 var _api: TwitchApi
 var _eventsub: TwitchEventSub
+var _pending_actions: Array[TwitchEvent] = []
+var _running_action: TwitchEvent
 
 func _ready() -> void:
 	_auth.code_received.connect(_on_code_received)
@@ -63,6 +65,25 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_auth.poll()
+	if ApplicationState.get_state() == ApplicationState.AppState.LOADING:
+		return
+	if _running_action != null and _running_action.advance_execution():
+		return
+	_running_action = null
+	if not _pending_actions.is_empty():
+		_running_action = _pending_actions.pop_front()
+		_running_action.execute_event()
+
+func dispatch_event(trigger: TwitchEvent) -> void:
+	if Settings.settings.twitch_event_queue_enabled:
+		_pending_actions.push_back(trigger)
+	else:
+		trigger.execute_event()
+
+func discard_pending_events(trigger: TwitchEvent) -> void:
+	_pending_actions = _pending_actions.filter(func(pending: TwitchEvent) -> bool:
+		return pending != trigger
+	)
 
 func _exit_tree() -> void:
 	_eventsub.stop_session()
@@ -79,6 +100,7 @@ func start_auth() -> void:
 
 func disconnect_twitch() -> void:
 	state = ConnectionState.DISCONNECTED
+	_pending_actions.clear()
 	username = ""
 	user_id = ""
 	_access_token = ""

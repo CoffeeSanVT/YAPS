@@ -35,6 +35,7 @@ const ANTIALIAS_MODE_MSAA_2X := 5
 @export_category("Twitch")
 @export var twitch_username: String = ""
 @export var twitch_user_id: String = ""
+@export var twitch_event_queue_enabled: bool = true
 
 @export_category("Localization")
 @export var preferred_locale: String = "en"

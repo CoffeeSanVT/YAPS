@@ -555,13 +555,18 @@ func set_twitch_event(new_event: TwitchEvent) -> void:
 	if twitch_event == new_event:
 		return
 	twitch_event = _replace_trigger(twitch_event, new_event)
-	_activate_trigger(twitch_event, &"event_type")
+	activate_twitch_event()
 
 func activate_trigger() -> void:
 	_activate_trigger(state_trigger, &"trigger_name")
 
 func activate_twitch_event() -> void:
+	if twitch_event != null:
+		twitch_event.bind_item(self)
 	_activate_trigger(twitch_event, &"event_type")
+
+func is_twitch_action_running() -> bool:
+	return _fading_out or (_auto_hide_timer != null and not _auto_hide_timer.is_stopped())
 
 func _replace_trigger(current: BaseTrigger, new_trigger: BaseTrigger) -> BaseTrigger:
 	NodeUtil.safe_disconnect(current, &"enabled_changed", _on_trigger_enabled_changed)

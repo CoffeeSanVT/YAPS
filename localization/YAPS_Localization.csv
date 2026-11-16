@@ -182,6 +182,7 @@ EASE_OUT_IN,Out In,Saída e Entrada
 SHORTCUT_CONFLICT,Shortcut conflict: this shortcut is already assigned to: %s,Conflito de atalho: este atalho já está atribuído a: %s
 TWITCH,Twitch,Twitch
 TWITCH_CONNECT,Connect with Twitch,Conectar com Twitch
+TWITCH_USE_EVENT_QUEUE,Use event queue,Usar fila de eventos
 TWITCH_DISCONNECT,Disconnect,Desconectar
 TWITCH_EVENT,Event,Evento
 TWITCH_EVENT_FOLLOW,Follow,Follow
