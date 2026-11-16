@@ -91,7 +91,7 @@ static func _collect_stale_jobs(model: ModelProfile, force: bool = false) -> Arr
 		var frames := entry.frames
 		if frames.is_empty():
 			continue
-		var out_dir := String(frames[0]).get_base_dir()
+		var out_dir := _state_atlas_dir(entry)
 		var snapshot := ModelStateEntry.new(entry.state_name, entry.asset_path)
 		snapshot.frames = frames.duplicate()
 		snapshot.frame_rate = entry.frame_rate
@@ -100,6 +100,24 @@ static func _collect_stale_jobs(model: ModelProfile, force: bool = false) -> Arr
 			continue
 		jobs.append({ "state": snapshot, "out_dir": out_dir })
 	return jobs
+
+static func _state_atlas_dir(state: ModelStateEntry) -> String:
+	var first_dir := state.frames[0].get_base_dir()
+	var frames_by_dir: Dictionary[String, Dictionary] = {}
+	for path in state.frames:
+		var folder := path.get_base_dir()
+		if not frames_by_dir.has(folder):
+			frames_by_dir[folder] = {}
+		frames_by_dir[folder][path] = true
+	if frames_by_dir.size() == 1:
+		return first_dir
+	var file_name := BuilderScript.metadata_file_name(state.state_name)
+	for folder in frames_by_dir:
+		var doc := _read_doc(folder, file_name)
+		for frame_meta_entry: Dictionary in doc.get("frames", []):
+			if frames_by_dir[folder].has(String(frame_meta_entry.get("path", ""))):
+				return folder
+	return first_dir
 
 static func frame_meta(frame_path: String) -> Dictionary:
 	var folder := String(frame_path).get_base_dir()
@@ -190,22 +208,10 @@ static func _read_doc(out_dir: String, file_name: String) -> Dictionary:
 
 static func _is_fresh(state: ModelStateEntry, out_dir: String) -> bool:
 	var parsed := _read_doc(out_dir, BuilderScript.metadata_file_name(state.state_name))
-	if parsed.is_empty():
-		return false
-	if int(parsed.get("version", 0)) != BuilderScript.DOC_VERSION:
-		return false
-	if not _thumb_size_matches(parsed):
-		return false
-	if not _thumb_refs_valid(parsed, out_dir):
-		return false
-	var frames_meta: Array = parsed.get("frames", [])
-	if frames_meta.size() != state.frames.size():
+	if not _doc_matches_frames(parsed, state.frames, out_dir):
 		return false
 	var json_mtime := FileAccess.get_modified_time(PathUtil.get_real_path(out_dir.path_join(BuilderScript.metadata_file_name(state.state_name))))
-	for i: int in state.frames.size():
-		var frame_path := String(state.frames[i])
-		if String(frames_meta[i].get("path", "")) != frame_path:
-			return false
+	for frame_path in state.frames:
 		if FileAccess.get_modified_time(PathUtil.get_real_path(frame_path)) > json_mtime:
 			return false
 	for page_meta: Dictionary in parsed.get("pages", []):
@@ -243,9 +249,15 @@ static func _doc_matches_frames(doc: Dictionary, frames: Array[String], out_dir:
 	var frames_meta: Array = doc.get("frames", [])
 	if frames_meta.size() != frames.size():
 		return false
-	for i: int in frames.size():
-		if String(frames_meta[i].get("path", "")) != String(frames[i]):
+	var frame_counts: Dictionary[String, int] = {}
+	for path in frames:
+		frame_counts[path] = frame_counts.get(path, 0) + 1
+	for meta: Dictionary in frames_meta:
+		var path := String(meta.get("path", ""))
+		var count: int = frame_counts.get(path, 0)
+		if count == 0:
 			return false
+		frame_counts[path] = count - 1
 	return true
 
 static func _thumb_size_matches(doc: Dictionary) -> bool:

@@ -120,6 +120,8 @@ LOOP,Loop,Loop
 OVERRIDE_SILENCE,Override Silence,Substituir Silêncio
 OVERRIDE_TALKING,Override Talking,Substituir Falando
 ADD_FRAME,Add Frame,Adicionar Quadro
+MOVE_FRAME_UP,Move frame up,Subir quadro
+MOVE_FRAME_DOWN,Move frame down,Descer quadro
 EMPTY_ASSETS_LIST,No assets in scene,Sem itens na cena
 WEBSOCKET_SERVER,Enable Server,Ativar Servidor
 WEBSOCKET_SERVER_TITLE,WebSocket Server,Servidor WebSocket

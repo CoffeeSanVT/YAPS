@@ -87,8 +87,8 @@ func _populate_frames() -> void:
 	_sync_thumb_holds()
 	if state_entry == null or not _frames_visible():
 		return
-	for frame_path in state_entry.frames:
-		_add_frame_row(frame_path)
+	for index in state_entry.frames.size():
+		_add_frame_row(index)
 
 func _sync_thumb_holds() -> void:
 	var held: Array[String] = []
@@ -134,7 +134,8 @@ func _restore_fold_state() -> void:
 	if override_fold != null:
 		override_fold.folded = state_entry.get_meta(OVERRIDE_FOLDED_META, true)
 
-func _add_frame_row(frame_path: String) -> void:
+func _add_frame_row(index: int) -> void:
+	var frame_path := state_entry.frames[index]
 	var row := HBoxContainer.new()
 	row.custom_minimum_size = Vector2(0, 40)
 
@@ -158,6 +159,10 @@ func _add_frame_row(frame_path: String) -> void:
 	label.clip_text = true
 	row.add_child(label)
 
+	if state_entry.frames.size() > 1:
+		row.add_child(_make_frame_move_button("up", &"MOVE_FRAME_UP", index, -1))
+		row.add_child(_make_frame_move_button("down", &"MOVE_FRAME_DOWN", index, 1))
+
 	var delete_button := TextureButton.new()
 	delete_button.texture_normal = load(TRASH_ICON_NORMAL)
 	delete_button.texture_pressed = load(TRASH_ICON_PRESSED)
@@ -166,12 +171,46 @@ func _add_frame_row(frame_path: String) -> void:
 	delete_button.texture_focused = load(TRASH_ICON_FOCUSED)
 	delete_button.custom_minimum_size = Vector2(24, 24)
 	delete_button.custom_maximum_size = Vector2(24, 24)
+	delete_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	delete_button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
 	delete_button.tooltip_text = tr(&"DELETE")
 	delete_button.pressed.connect(_on_frame_delete_pressed.bind(frame_path))
 	row.add_child(delete_button)
 
 	frames_list.add_child(row)
+
+func _make_frame_move_button(direction: String, tooltip_key: StringName, index: int, offset: int) -> TextureButton:
+	var icon_prefix := "res://assets/icons/arrow_%s/%s_" % [direction, direction]
+	var button := TextureButton.new()
+	button.texture_normal = load(icon_prefix + "normal.svg")
+	button.texture_pressed = load(icon_prefix + "pressed.svg")
+	button.texture_hover = load(icon_prefix + "hover.svg")
+	button.texture_disabled = load(icon_prefix + "disabled.svg")
+	button.texture_focused = load(icon_prefix + "focused.svg")
+	button.ignore_texture_size = true
+	button.stretch_mode = TextureButton.STRETCH_KEEP_ASPECT_CENTERED
+	button.tooltip_text = tr(tooltip_key)
+	button.custom_minimum_size = Vector2(24, 24)
+	button.custom_maximum_size = Vector2(24, 24)
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	button.disabled = not _can_move_frame(index, offset)
+	button.pressed.connect(_move_frame.bind(index, offset))
+	return button
+
+func _can_move_frame(index: int, offset: int) -> bool:
+	return state_entry != null and index >= 0 and index < state_entry.frames.size() \
+		and index + offset >= 0 and index + offset < state_entry.frames.size()
+
+func _move_frame(index: int, offset: int) -> void:
+	if not _can_move_frame(index, offset):
+		return
+	var frames := state_entry.frames
+	var target := index + offset
+	var frame_path := frames[index]
+	frames[index] = frames[target]
+	frames[target] = frame_path
+	ModelLoader.save_model()
+	SignalBus.state_frames_changed.emit()
 
 func _on_add_frame_pressed() -> void:
 	if state_entry == null:
