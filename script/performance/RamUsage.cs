@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 [GlobalClass]
@@ -19,7 +20,6 @@ public partial class RamUsage : Node
 	private IntPtr _wsCounter;
 	private byte[] _buffer = new byte[262144];
 
-	private float _lastGoodMib = -1f;
 	private float _peakMib = -1f;
 	private Godot.Vector2 _cached = new(-1f, -1f);
 	private ulong _nextPollMs;
@@ -38,6 +38,15 @@ public partial class RamUsage : Node
 
 	private Godot.Vector2 Collect()
 	{
+		if (OperatingSystem.IsLinux())
+		{
+			using Process process = Process.GetCurrentProcess();
+			long residentBytes = process.WorkingSet64;
+			return residentBytes > 0 ? RecordSample(residentBytes) : _cached;
+		}
+		if (!OperatingSystem.IsWindows())
+			return _cached;
+
 		if (_query == IntPtr.Zero && !OpenQuery())
 			return _cached;
 		if (PdhCollectQueryData(_query) != 0)
@@ -50,14 +59,16 @@ public partial class RamUsage : Node
 		foreach (KeyValuePair<string, long> entry in workingSets)
 		{
 			if (pids.TryGetValue(entry.Key, out long instancePid) && instancePid == processId)
-			{
-				_lastGoodMib = entry.Value * BytesToMiB;
-				if (_lastGoodMib > _peakMib)
-					_peakMib = _lastGoodMib;
-				return new Godot.Vector2(_lastGoodMib, _peakMib);
-			}
+				return RecordSample(entry.Value);
 		}
 		return _cached;
+	}
+
+	private Godot.Vector2 RecordSample(long bytes)
+	{
+		float currentMib = bytes * BytesToMiB;
+		_peakMib = Math.Max(_peakMib, currentMib);
+		return new Godot.Vector2(currentMib, _peakMib);
 	}
 
 	private bool OpenQuery()
