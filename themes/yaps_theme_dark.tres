@@ -3,6 +3,14 @@
 [ext_resource type="FontFile" uid="uid://dpq874jiyjsm3" path="res://assets/fonts/PlusJakartaSans-VariableFont_wght.ttf" id="1_h7bay"]
 [ext_resource type="FontFile" uid="uid://dmld38g0i2q0a" path="res://assets/fonts/Bungee-Regular.ttf" id="1_pkk6s"]
 [ext_resource type="StyleBox" uid="uid://cm5qfssuhjo7b" path="res://themes/card-tertiary-style.tres" id="2_card"]
+[ext_resource type="Texture2D" uid="uid://di4cgj3axpc30" path="res://assets/icons/toggle/toggle_checked.svg" id="toggle_checked"]
+[ext_resource type="Texture2D" uid="uid://d1if6f8qf11rj" path="res://assets/icons/toggle/toggle_checked_disabled.svg" id="toggle_checked_disabled"]
+[ext_resource type="Texture2D" uid="uid://dbmpolygbeeqo" path="res://assets/icons/toggle/toggle_checked_disabled_mirrored.svg" id="toggle_checked_disabled_mirrored"]
+[ext_resource type="Texture2D" uid="uid://b5777te217oc5" path="res://assets/icons/toggle/toggle_checked_mirrored.svg" id="toggle_checked_mirrored"]
+[ext_resource type="Texture2D" uid="uid://ce16yh462dqwk" path="res://assets/icons/toggle/toggle_unchecked.svg" id="toggle_unchecked"]
+[ext_resource type="Texture2D" uid="uid://dbo2b2vepf8xa" path="res://assets/icons/toggle/toggle_unchecked_disabled.svg" id="toggle_unchecked_disabled"]
+[ext_resource type="Texture2D" uid="uid://7rvcp28sg1mp" path="res://assets/icons/toggle/toggle_unchecked_disabled_mirrored.svg" id="toggle_unchecked_disabled_mirrored"]
+[ext_resource type="Texture2D" uid="uid://bp8m3tuljy5hu" path="res://assets/icons/toggle/toggle_unchecked_mirrored.svg" id="toggle_unchecked_mirrored"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_secondary_normal"]
 content_margin_left = 18.0
@@ -69,7 +77,7 @@ content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
-bg_color = Color(1, 0.439216, 0.545098, 0.15)
+bg_color = Color(1, 0.4392157, 0.54509807, 0)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -80,7 +88,7 @@ content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
 content_margin_bottom = 4.0
-bg_color = Color(1, 0.439216, 0.545098, 0.45)
+bg_color = Color(1, 0.4392157, 0.54509807, 0.19607843)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -462,11 +470,19 @@ CheckButton/colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
 CheckButton/colors/font_disabled_color = Color(0.698039, 0.619608, 0.588235, 1)
 CheckButton/colors/font_hover_color = Color(0.968627, 0.87451, 0.819608, 1)
 CheckButton/colors/font_pressed_color = Color(0.968627, 0.87451, 0.819608, 1)
+CheckButton/icons/checked = ExtResource("toggle_checked")
+CheckButton/icons/checked_disabled = ExtResource("toggle_checked_disabled")
+CheckButton/icons/checked_disabled_mirrored = ExtResource("toggle_checked_disabled_mirrored")
+CheckButton/icons/checked_mirrored = ExtResource("toggle_checked_mirrored")
+CheckButton/icons/unchecked = ExtResource("toggle_unchecked")
+CheckButton/icons/unchecked_disabled = ExtResource("toggle_unchecked_disabled")
+CheckButton/icons/unchecked_disabled_mirrored = ExtResource("toggle_unchecked_disabled_mirrored")
+CheckButton/icons/unchecked_mirrored = ExtResource("toggle_unchecked_mirrored")
 CheckButton/styles/disabled = SubResource("StyleBoxFlat_toggle_normal")
 CheckButton/styles/hover = SubResource("StyleBoxFlat_toggle_hover")
 CheckButton/styles/hover_pressed = SubResource("StyleBoxFlat_toggle_pressed")
 CheckButton/styles/normal = SubResource("StyleBoxFlat_toggle_normal")
-CheckButton/styles/pressed = SubResource("StyleBoxFlat_toggle_pressed")
+CheckButton/styles/pressed = SubResource("StyleBoxFlat_toggle_normal")
 ExpressionTree/base_type = &"Tree"
 ExpressionTree/colors/font_color = Color(0.968627, 0.87451, 0.819608, 1)
 ExpressionTree/constants/v_separation = 8

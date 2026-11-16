@@ -2,13 +2,14 @@
 
 [ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="1_theme"]
 [ext_resource type="Script" uid="uid://cgdi2i7ytfyt1" path="res://script/ui/panels/add_emotion_dialog.gd" id="2_script"]
-[ext_resource type="Texture2D" uid="uid://b7beisj23blbs" path="res://assets/icons/runtime/close/close_focused.svg" id="3_cl_f"]
-[ext_resource type="Texture2D" uid="uid://c0rhqttfful14" path="res://assets/icons/runtime/close/close_disabled.svg" id="3_cl_d"]
-[ext_resource type="Texture2D" uid="uid://cvx6y01ingkfl" path="res://assets/icons/runtime/close/close_hover.svg" id="3_cl_h"]
-[ext_resource type="Texture2D" uid="uid://dymf1iy5je0bl" path="res://assets/icons/runtime/close/close_normal.svg" id="3_cl_n"]
-[ext_resource type="Texture2D" uid="uid://bxpsbnyxkxg1e" path="res://assets/icons/runtime/close/close_pressed.svg" id="3_cl_p"]
+[ext_resource type="Texture2D" uid="uid://b7beisj23blbs" path="res://assets/icons/close/close_focused.svg" id="3_cl_f"]
+[ext_resource type="Texture2D" uid="uid://c0rhqttfful14" path="res://assets/icons/close/close_disabled.svg" id="3_cl_d"]
+[ext_resource type="Texture2D" uid="uid://cvx6y01ingkfl" path="res://assets/icons/close/close_hover.svg" id="3_cl_h"]
+[ext_resource type="Texture2D" uid="uid://dymf1iy5je0bl" path="res://assets/icons/close/close_normal.svg" id="3_cl_n"]
+[ext_resource type="Texture2D" uid="uid://bxpsbnyxkxg1e" path="res://assets/icons/close/close_pressed.svg" id="3_cl_p"]
 [ext_resource type="StyleBox" uid="uid://b6v1h62iemncy" path="res://themes/panel-dialog-style.tres" id="3_dlg"]
 [ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="4_nthy6"]
+
 
 [node name="AddEmotionDialog" type="PanelContainer" unique_id=1363638362 node_paths=PackedStringArray("name_input", "confirm_button", "close_button", "title_label")]
 theme = ExtResource("1_theme")

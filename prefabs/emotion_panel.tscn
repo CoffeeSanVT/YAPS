@@ -4,13 +4,14 @@
 [ext_resource type="Script" uid="uid://nsoivr2c8jhl" path="res://script/ui/panels/emotion_panel.gd" id="1_x483a"]
 [ext_resource type="StyleBox" uid="uid://cjct721y6ocun" path="res://themes/card-secondary-style.tres" id="2_nbf34"]
 [ext_resource type="Script" uid="uid://0f67ptl2s7ny" path="res://script/ui/translation_node.gd" id="3_mar2q"]
-[ext_resource type="Texture2D" uid="uid://qyabvnn6x3rd" path="res://assets/icons/runtime/pencil/pencil_normal.svg" id="4_pencil_n"]
-[ext_resource type="Texture2D" uid="uid://br45bxytsbnxx" path="res://assets/icons/runtime/pencil/pencil_hover.svg" id="5_pencil_h"]
-[ext_resource type="Texture2D" uid="uid://bksbqck24mwac" path="res://assets/icons/runtime/pencil/pencil_pressed.svg" id="6_pencil_p"]
-[ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/runtime/pencil/pencil_disabled.svg" id="7_pencil_d"]
-[ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/runtime/pencil/pencil_focused.svg" id="8_pencil_f"]
+[ext_resource type="Texture2D" uid="uid://qyabvnn6x3rd" path="res://assets/icons/pencil/pencil_normal.svg" id="4_pencil_n"]
+[ext_resource type="Texture2D" uid="uid://br45bxytsbnxx" path="res://assets/icons/pencil/pencil_hover.svg" id="5_pencil_h"]
+[ext_resource type="Texture2D" uid="uid://bksbqck24mwac" path="res://assets/icons/pencil/pencil_pressed.svg" id="6_pencil_p"]
+[ext_resource type="Texture2D" uid="uid://0tn5ump7ln6h" path="res://assets/icons/pencil/pencil_disabled.svg" id="7_pencil_d"]
+[ext_resource type="Texture2D" uid="uid://b5qlqav03avye" path="res://assets/icons/pencil/pencil_focused.svg" id="8_pencil_f"]
 [ext_resource type="PackedScene" uid="uid://d1q6ma2vw4h7n" path="res://prefabs/triggers/twitch_event_foldable.tscn" id="9_twitch_foldable"]
 [ext_resource type="PackedScene" uid="uid://can0slfbyde8w" path="res://prefabs/triggers/twitch_event_pulse.tscn" id="10_twitch_pulse"]
+
 
 
 [node name="PanelContainer" type="PanelContainer" unique_id=555983010 node_paths=PackedStringArray("trigger_foldable", "options_button", "trigger_options", "twitch_foldable", "effects_hint", "movement_option", "movement_options", "filter_option", "filter_options", "tile_text", "rename_button", "default_button")]

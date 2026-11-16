@@ -7,8 +7,7 @@
 [ext_resource type="Script" uid="uid://dyo7hlmrm1bl6" path="res://script/ui/background/background_changer.gd" id="3_tefeu"]
 [ext_resource type="Script" uid="uid://cv2micvi2togb" path="res://script/ui/audio/mic_visualizer.gd" id="5_micviz"]
 [ext_resource type="Theme" uid="uid://b2abxxvicwo1p" path="res://themes/yaps_theme_dark.tres" id="5_tefeu"]
-[ext_resource type="Texture2D" uid="uid://3wo4ud0lgnsh" path="res://assets/icons/runtime/mic/mic_disabled.svg" id="8_tipki"]
-
+[ext_resource type="Texture2D" uid="uid://3wo4ud0lgnsh" path="res://assets/icons/mic/mic_disabled.svg" id="8_tipki"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tipki"]
 content_margin_left = 0.0
@@ -149,4 +148,3 @@ size_flags_vertical = 4
 min_value = -60.0
 max_value = 0.0
 show_percentage = false
-
