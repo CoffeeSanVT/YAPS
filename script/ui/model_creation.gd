@@ -187,7 +187,7 @@ func _add_expression(value: String) -> TreeItem:
 	_add_branch(expression, value, ModelState.TALKING)
 	return expression
 
-func _add_branch(parent: TreeItem, emotion: String, branch: String) -> TreeItem:
+func _add_branch(parent: TreeItem, emotion: String, branch: StringName) -> TreeItem:
 	var item := expressions.create_item(parent)
 	item.set_text(0, tr(branch.to_upper()))
 	item.set_metadata(0, { "emotion": emotion, "branch": branch })
