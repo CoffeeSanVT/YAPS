@@ -11,6 +11,7 @@ const MAX_IMAGE_SIZE := Vector2(800.0, 800.0)
 const ANIM_PREFETCH := 4
 const Z_MIN := -99
 const Z_MAX := 99
+const DEFAULT_FADE_DURATION := 0.25
 
 
 @export_category("Identity")
@@ -40,6 +41,8 @@ const Z_MAX := 99
 
 @export_category("Animation")
 @export var animation_loop: bool = true
+@export var fade_duration: float = -1.0
+@export var auto_hide_after: float = -1.0
 
 var instance: Draggable
 var animation_data: Variant
@@ -491,18 +494,20 @@ func _restore_instance_texture() -> void:
 
 func update_auto_hide_timer() -> void:
 	_clear_auto_hide_timer()
-	if not enabled:
+	if not enabled or _fading_out:
 		return
-	var trigger := _settings_trigger()
-	if trigger == null:
-		return
-	if trigger.auto_hide_after <= 0.0:
-		return
-	if _live_instance() == null:
+	var duration := get_auto_hide_after()
+	if duration <= 0.0 or _live_instance() == null:
 		return
 	_auto_hide_timer = NodeUtil.ensure_timer(instance, _auto_hide_timer, _on_auto_hide_timeout, true)
-	_auto_hide_timer.wait_time = trigger.auto_hide_after
+	_auto_hide_timer.wait_time = duration
 	_auto_hide_timer.start()
+
+func get_auto_hide_after() -> float:
+	if auto_hide_after >= 0.0:
+		return auto_hide_after
+	var trigger := _settings_trigger()
+	return trigger.auto_hide_after if trigger != null else 0.0
 
 func _settings_trigger() -> BaseTrigger:
 	if state_trigger != null and state_trigger.trigger_name != &"":
@@ -523,16 +528,19 @@ func _on_auto_hide_timeout() -> void:
 		twitch_event.set_enabled(false)
 	set_enabled(false)
 
+func get_fade_duration() -> float:
+	if fade_duration >= 0.0:
+		return fade_duration
+	var trigger := _settings_trigger()
+	return trigger.fade_duration if trigger != null else DEFAULT_FADE_DURATION
+
 func _fade_instance(show: bool) -> void:
 	if _live_instance() == null:
 		_finalize_disable()
 		return
-	var trigger := _settings_trigger()
-	if trigger != null:
-		instance.fade_duration = trigger.fade_duration
 	if show:
 		_restore_instance_texture()
-	instance.set_visible_with_fade(show)
+	instance.set_visible_with_fade(show, get_fade_duration())
 	if not show:
 		NodeUtil.connect_once(instance, &"fade_out_done", _on_fade_out_done)
 
@@ -614,8 +622,7 @@ func _should_defer_twitch_hide(trigger: BaseTrigger) -> bool:
 	var twitch := trigger as TwitchEvent
 	if twitch == null or twitch != twitch_event or twitch.enabled:
 		return false
-	var settings := _settings_trigger()
-	return settings != null and settings.auto_hide_after > 0.0 and enabled and not _fading_out
+	return get_auto_hide_after() > 0.0 and enabled and not _fading_out
 
 func schedule_save() -> void:
 	ModelLoader.save_model()

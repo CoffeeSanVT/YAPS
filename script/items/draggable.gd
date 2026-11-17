@@ -12,7 +12,6 @@ const WHEEL_ZOOM_UP := 1.1
 const WHEEL_ZOOM_DOWN := 0.9
 const SELECT_Z_OVERRIDE := 100
 
-var fade_duration := 0.25
 var _press_pos := Vector2.ZERO
 var _drag_offset := Vector2.ZERO
 var item: Item
@@ -210,16 +209,16 @@ static func valid_selected_draggable() -> Draggable:
 		return null
 	return DragSession.selected_draggable
 
-func set_visible_with_fade(should_show: bool) -> void:
+func set_visible_with_fade(should_show: bool, duration: float) -> void:
 	_fade_tween = NodeUtil.stop_tween(_fade_tween)
 	_fade_tween = create_tween()
 	if should_show:
 		state = States.SELECTED if _is_still_selected() else States.NONE
 		modulate.a = 0.0
 		visible = true
-		_fade_tween.tween_property(self, "modulate:a", 1.0, fade_duration)
+		_fade_tween.tween_property(self, "modulate:a", 1.0, duration)
 	else:
-		_fade_tween.tween_property(self, "modulate:a", 0.0, fade_duration)
+		_fade_tween.tween_property(self, "modulate:a", 0.0, duration)
 		_fade_tween.tween_callback(_on_fade_out_done)
 
 func _on_fade_out_done() -> void:

@@ -45,6 +45,9 @@ class DeferredSaver:
 	var _pending_tasks: Array[Callable] = []
 	var _pending_saves: Dictionary = {}
 
+	func has_pending_work() -> bool:
+		return _busy
+
 	func schedule(task: Callable) -> void:
 		if _busy:
 			_pending_tasks.append(task)

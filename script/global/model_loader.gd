@@ -100,11 +100,20 @@ func save_model() -> void:
 		return
 	save_model_profile(model_loaded)
 
+func wait_for_model_saves() -> void:
+	while _saver.has_pending_work():
+		await get_tree().process_frame
+
 func save_and_sync_triggers() -> void:
 	save_model()
 	SignalBus.model_triggers_changed.emit()
 
 func save_model_profile(model: ModelProfile) -> void:
+	for item in model.items:
+		if item == null:
+			continue
+		item.fade_duration = item.get_fade_duration()
+		item.auto_hide_after = item.get_auto_hide_after()
 	var save_path: String = model.resource_path
 	if save_path.is_empty():
 		save_path = PathUtil.get_model_folder_path(model.model_name).path_join(ModelProfileStore.MODEL_FILE_NAME)

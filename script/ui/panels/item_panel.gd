@@ -32,11 +32,15 @@ var _mirror_timer: Timer
 
 func _ready() -> void:
 	_setup_rename_util(rename_button)
-	if fade_spin != null:
-		fade_spin.value_changed.connect(_on_fade_duration_changed)
-	if hide_spin != null:
-		hide_spin.value_changed.connect(_on_auto_hide_changed)
+	_connect_duration_spin(fade_spin, _on_fade_duration_changed)
+	_connect_duration_spin(hide_spin, _on_auto_hide_changed)
 	NodeUtil.connect_once(twitch_foldable, &"twitch_event_changed", _on_twitch_event_changed)
+
+func _connect_duration_spin(spin: SpinBox, apply_value: Callable) -> void:
+	if spin == null:
+		return
+	spin.value_changed.connect(apply_value)
+	spin.get_line_edit().text_changed.connect(_on_duration_text_changed.bind(spin, apply_value))
 
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(item, &"enabled_changed", _on_item_enabled_changed)
@@ -139,33 +143,27 @@ func _refresh_trigger_ui(trigger: BaseTrigger) -> void:
 	_refresh_fade_and_hide_options()
 
 func _refresh_fade_and_hide_options() -> void:
-	var trigger := _settings_trigger()
-	if trigger == null:
-		trigger = BaseTrigger.new()
 	if fade_spin != null:
-		fade_spin.set_value_no_signal(trigger.fade_duration)
+		fade_spin.set_value_no_signal(item.get_fade_duration())
 	if hide_spin != null:
-		hide_spin.set_value_no_signal(trigger.auto_hide_after)
+		hide_spin.set_value_no_signal(item.get_auto_hide_after())
 
-func _settings_trigger() -> BaseTrigger:
-	if item == null:
-		return null
-	if item.state_trigger != null and item.state_trigger.trigger_name != &"":
-		return item.state_trigger
-	return item.twitch_event
+func _on_duration_text_changed(text: String, spin: SpinBox, apply_value: Callable) -> void:
+	var seconds := text.strip_edges().trim_suffix(spin.suffix).strip_edges().replace(",", ".")
+	if seconds.is_valid_float():
+		var duration := snappedf(seconds.to_float(), spin.step)
+		apply_value.call(clampf(duration, spin.min_value, spin.max_value))
 
 func _on_fade_duration_changed(value: float) -> void:
-	var trigger := _settings_trigger()
-	if item == null or trigger == null:
+	if item == null or is_equal_approx(item.fade_duration, value):
 		return
-	trigger.fade_duration = value
+	item.fade_duration = value
 	commit()
 
 func _on_auto_hide_changed(value: float) -> void:
-	var trigger := _settings_trigger()
-	if item == null or trigger == null:
+	if item == null or is_equal_approx(item.auto_hide_after, value):
 		return
-	trigger.auto_hide_after = value
+	item.auto_hide_after = value
 	item.update_auto_hide_timer()
 	commit()
 
