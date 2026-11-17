@@ -11,6 +11,7 @@ var current_entry: ModelStateEntry
 var is_talking: bool = false
 var active_emotion: ModelEmotion
 var _emotion_stack: Array[ModelEmotion] = []
+var _keyboard_emotion: ModelEmotion
 
 func _ready() -> void:
 	add_to_group(&"model_state_machine")
@@ -21,6 +22,7 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	NodeUtil.safe_disconnect(SignalBus, &"mic_input_exceed_threshold", _on_mic_threshold)
 	NodeUtil.safe_disconnect(SignalBus, &"model_triggers_changed", _sync_emotion_triggers)
+	_keyboard_emotion = null
 	_unbind_emotion_triggers()
 
 func _process(delta: float) -> void:
@@ -75,6 +77,8 @@ func _sync_emotion_triggers() -> void:
 		resolve()
 
 func _prune_stale_emotions(profile: ModelProfile) -> void:
+	if _keyboard_emotion != null and profile.get_emotion(_keyboard_emotion.emotion_name) != _keyboard_emotion:
+		_keyboard_emotion = null
 	for i in range(_emotion_stack.size() - 1, -1, -1):
 		if profile.get_emotion(_emotion_stack[i].emotion_name) == null:
 			_emotion_stack.remove_at(i)
@@ -89,7 +93,12 @@ func _unbind_emotion_triggers() -> void:
 		_unbind_emotion_trigger(emotion)
 
 func _bind_emotion_trigger(emotion: ModelEmotion) -> void:
-	_bind_trigger(emotion.trigger, emotion)
+	var key_pressed := emotion.trigger as KeyPressed
+	if key_pressed != null:
+		NodeUtil.connect_once(key_pressed, &"selection_requested", _select_keyboard_emotion.bind(emotion))
+		key_pressed.activate()
+	else:
+		_bind_trigger(emotion.trigger, emotion)
 	_bind_trigger(emotion.twitch_event, emotion)
 	if emotion.trigger == null and emotion.twitch_event == null:
 		push_warning(TAG + "Emotion '%s' has no trigger; it will never activate." % [emotion.emotion_name])
@@ -99,7 +108,12 @@ func _unbind_emotion_trigger(emotion: ModelEmotion) -> void:
 	unbind_trigger(emotion.twitch_event, emotion)
 
 func unbind_trigger(trigger: BaseTrigger, emotion: ModelEmotion) -> void:
-	if trigger != null:
+	if trigger is KeyPressed:
+		NodeUtil.safe_disconnect(trigger, &"selection_requested", _select_keyboard_emotion.bind(emotion))
+		if _keyboard_emotion == emotion and emotion.trigger == trigger:
+			_clear_keyboard_emotion(emotion)
+		trigger.deactivate()
+	elif trigger != null:
 		trigger.unbind_changed(_on_emotion_trigger_changed.bind(emotion))
 
 static func replace_emotion_trigger(caller: Node, emotion: ModelEmotion, property: StringName, new_trigger: BaseTrigger) -> void:
@@ -121,7 +135,26 @@ func _on_emotion_trigger_changed(trigger: BaseTrigger, emotion: ModelEmotion) ->
 	if trigger.enabled:
 		_activate_emotion(emotion)
 		return
-	_deactivate_emotion(emotion)
+	if emotion != _keyboard_emotion:
+		_deactivate_emotion(emotion)
+
+func _select_keyboard_emotion(emotion: ModelEmotion) -> void:
+	var profile := ModelLoader.model_loaded
+	if profile == null or profile.get_emotion(emotion.emotion_name) != emotion:
+		return
+	var previous := _keyboard_emotion
+	if previous == emotion and active_emotion == emotion:
+		_clear_keyboard_emotion(emotion)
+		return
+	_keyboard_emotion = emotion
+	if previous != null and previous != emotion and not _is_emotion_engaged(previous):
+		_emotion_stack.erase(previous)
+	_activate_emotion(emotion)
+
+func _clear_keyboard_emotion(emotion: ModelEmotion) -> void:
+	_keyboard_emotion = null
+	if not _is_emotion_engaged(emotion):
+		_deactivate_emotion(emotion)
 
 func _activate_emotion(emotion: ModelEmotion) -> void:
 	_emotion_stack.erase(emotion)
@@ -159,6 +192,8 @@ func refresh_default_emotion() -> void:
 func _is_emotion_engaged(emotion: ModelEmotion) -> bool:
 	if emotion == null:
 		return false
+	if emotion == _keyboard_emotion:
+		return true
 	if emotion.trigger != null and emotion.trigger.enabled:
 		return true
 	return emotion.twitch_event != null and emotion.twitch_event.enabled
@@ -235,6 +270,8 @@ func force_emotion(emotion_name: String) -> String:
 	if profile == null:
 		return "no model loaded"
 	if emotion_name.is_empty():
+		if active_emotion == _keyboard_emotion:
+			_keyboard_emotion = null
 		_deactivate_emotion(active_emotion)
 		return ""
 	var emotion := profile.get_emotion(emotion_name)

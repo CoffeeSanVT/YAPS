@@ -33,19 +33,13 @@ static func _apply_saved_shortcut(key_bind: KeyBindingPanel, trigger: BaseTrigge
 	var key_trigger := trigger as KeyTriggerBase
 	if key_trigger == null:
 		return
-	key_trigger.sync_action_identity(key_bind.action_name)
-	if key_trigger.combo_keys.size() > 1:
-		key_bind.set_shortcut_combo(key_trigger.shortcut, key_trigger.combo_keys)
-	else:
-		key_bind.set_shortcut(key_trigger.shortcut)
+	key_bind.set_shortcut(key_trigger.shortcut, key_trigger.combo_keys)
 
 static func apply_shortcut_to_trigger(trigger: BaseTrigger, action_name: String, event: InputEvent, combo_keys: Array[int]) -> void:
 	var key_trigger := trigger as KeyTriggerBase
 	if key_trigger == null:
 		return
-	key_trigger.action = action_name
-	key_trigger.shortcut = event
-	key_trigger.combo_keys = combo_keys
+	key_trigger.configure_shortcut(action_name, event, combo_keys)
 
 static func commit_shortcut(trigger: BaseTrigger, action_name: String, event: InputEvent, combo_keys: Array[int]) -> void:
 	apply_shortcut_to_trigger(trigger, action_name, event, combo_keys)
@@ -75,27 +69,28 @@ static func trigger_from_index(index: int, options: Array[Dictionary]) -> BaseTr
 
 
 
-static func _key_signature(trigger: BaseTrigger) -> String:
-	if trigger == null:
-		return ""
-	var key_trigger := trigger as KeyTriggerBase
-	if key_trigger == null:
-		return ""
-
-	var combo := key_trigger.combo_keys
-	if combo.size() > 1:
-		var keys: Array[int] = combo.duplicate()
+static func _key_signature(shortcut: InputEvent, combo_keys: Array[int]) -> String:
+	var event := shortcut as InputEventKey
+	var modifiers := event.get_modifiers_mask() if event != null else 0
+	var keys: Array[int] = []
+	if combo_keys.size() > 1:
+		for key: int in combo_keys:
+			keys.append(_logical_key(key))
+	elif event != null:
+		if event.keycode != KEY_NONE:
+			keys.append(event.keycode)
+		elif event.physical_keycode != KEY_NONE:
+			keys.append(_logical_key(event.physical_keycode))
+		elif event.key_label != KEY_NONE:
+			return "label:%d:%d" % [modifiers, event.key_label]
+	if not keys.is_empty():
 		keys.sort()
-		var parts: PackedStringArray = []
-		for k: int in keys:
-			parts.append(str(k))
-		return "combo:" + ",".join(parts)
-
-	var shortcut: InputEvent = key_trigger.shortcut
-	if shortcut is InputEventKey:
-		var event := shortcut as InputEventKey
-		return "key:%d" % event.physical_keycode
+		return "%d:%s" % [modifiers, str(keys)]
 	return ""
+
+static func _logical_key(physical_key: int) -> int:
+	var key := DisplayServer.keyboard_get_keycode_from_physical(physical_key)
+	return key if key != KEY_NONE else physical_key
 
 static func _collect_key_triggers() -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
@@ -110,12 +105,10 @@ static func _collect_key_triggers() -> Array[Dictionary]:
 	]
 	for source: Array in sources:
 		for entry: Object in source[1]:
-			if entry == null:
-				continue
-			var trigger: BaseTrigger = entry.get(source[2])
+			var trigger := entry.get(source[2]) as KeyTriggerBase if entry != null else null
 			if trigger == null:
 				continue
-			var sig := _key_signature(trigger)
+			var sig := _key_signature(trigger.shortcut, trigger.combo_keys)
 			if sig.is_empty():
 				continue
 			result.append({
@@ -126,8 +119,8 @@ static func _collect_key_triggers() -> Array[Dictionary]:
 
 	return result
 
-static func find_conflicts(trigger: BaseTrigger, ignore_category: String = "", ignore_name: String = "") -> Array[String]:
-	var sig := _key_signature(trigger)
+static func find_conflicts(shortcut: InputEvent, combo_keys: Array[int], ignore_category: String, ignore_name: String) -> Array[String]:
+	var sig := _key_signature(shortcut, combo_keys)
 	if sig.is_empty():
 		return []
 	var conflicts: Array[String] = []

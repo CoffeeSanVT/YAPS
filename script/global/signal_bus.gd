@@ -4,8 +4,6 @@ extends Node
 signal locale_refresh_requested()
 signal locale_changed(locale: String)
 
-signal remapping_started(action_name: String)
-signal remapping_success(action_name: String, shortcut_key: String)
 signal shortcut_conflict_detected(conflict_message: String)
 
 signal fps_limit_changed(value: int)

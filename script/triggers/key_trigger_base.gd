@@ -1,93 +1,80 @@
 class_name KeyTriggerBase
 extends BaseTrigger
 
-const TAG := "[KeyTriggerBase] "
-
 @export_category("Trigger")
 @export var action: StringName
 @export var shortcut: InputEvent
 @export var combo_keys: Array[int] = []
 
-static var _action_refs: Dictionary[StringName, int] = {}
-
-var _action_acquired := false
-var _acquired_action: StringName
-var _combo_predicate := Callable()
+var _pressed_key := KEY_NONE
 
 func activate() -> void:
-	_register_shortcut_action()
-	NodeUtil.connect_once(InputMapper, &"action_just_pressed", _on_action_pressed)
-	if _listens_release():
-		NodeUtil.connect_once(InputMapper, &"action_just_released", _on_action_released)
+	NodeUtil.connect_once(InputMapper, &"key_changed", _on_key_changed)
+	NodeUtil.connect_once(InputMapper, &"keys_reset", _reset_shortcut)
 
 func deactivate() -> void:
-	_release_shortcut_action()
-	NodeUtil.safe_disconnect(InputMapper, &"action_just_pressed", _on_action_pressed)
-	NodeUtil.safe_disconnect(InputMapper, &"action_just_released", _on_action_released)
+	NodeUtil.safe_disconnect(InputMapper, &"key_changed", _on_key_changed)
+	NodeUtil.safe_disconnect(InputMapper, &"keys_reset", _reset_shortcut)
+	_reset_shortcut()
 
-func sync_action_identity(action_name: String) -> void:
-	if action_name.is_empty() or action == action_name:
-		return
+func configure_shortcut(action_name: String, event: InputEvent, keys: Array[int]) -> void:
+	_reset_shortcut()
 	action = action_name
-	if _action_acquired:
-		_register_shortcut_action()
+	shortcut = event
+	combo_keys = keys
 
-func _listens_release() -> bool:
+func _on_key_changed(event: InputEventKey, allow_press: bool) -> void:
+	var binding := shortcut as InputEventKey
+	var key := InputMapper.physical_key(event)
+	var is_combo := combo_keys.size() > 1
+	var matches_key := key in combo_keys if is_combo else _matches_key(binding, event)
+
+	if _pressed_key != KEY_NONE:
+		if not event.pressed and (key == _pressed_key or (is_combo and matches_key) \
+				or _released_required_modifier(binding, key)):
+			_reset_shortcut()
+		return
+
+	if not allow_press or not matches_key or not _modifiers_match(binding, event):
+		return
+	if is_combo and not combo_keys.all(InputMapper.is_key_down):
+		return
+	_pressed_key = key
+	_on_shortcut_pressed()
+
+func _reset_shortcut() -> void:
+	if _pressed_key != KEY_NONE:
+		_pressed_key = KEY_NONE
+		_on_shortcut_released()
+
+static func _matches_key(binding: InputEventKey, event: InputEventKey) -> bool:
+	if binding == null:
+		return false
+	if binding.keycode != KEY_NONE:
+		return binding.keycode == event.keycode
+	if binding.physical_keycode != KEY_NONE:
+		return binding.physical_keycode == event.physical_keycode
+	return binding.key_label != KEY_NONE and binding.key_label == event.key_label
+
+static func _modifiers_match(binding: InputEventKey, event: InputEventKey) -> bool:
+	return binding == null or binding.get_modifiers_mask() == event.get_modifiers_mask()
+
+static func _released_required_modifier(binding: InputEventKey, key: int) -> bool:
+	if binding == null:
+		return false
+	match key:
+		KEY_SHIFT:
+			return binding.shift_pressed
+		KEY_CTRL:
+			return binding.ctrl_pressed
+		KEY_ALT:
+			return binding.alt_pressed
+		KEY_META:
+			return binding.meta_pressed
 	return false
 
-func _on_action_pressed(_action_name: String) -> void:
+func _on_shortcut_pressed() -> void:
 	pass
 
-func _on_action_released(_action_name: String) -> void:
+func _on_shortcut_released() -> void:
 	pass
-
-func _register_shortcut_action() -> void:
-	if not (combo_keys.size() <= 1 and shortcut != null):
-		return
-	if _action_acquired:
-		if _acquired_action == action and InputMap.action_has_event(action, shortcut):
-			return
-		_release_shortcut_action()
-	_action_acquired = true
-	_acquired_action = action
-	_acquire_action(action)
-	if not InputMap.action_has_event(action, shortcut):
-		InputMap.action_add_event(action, shortcut)
-
-func _release_shortcut_action() -> void:
-	if not _action_acquired:
-		return
-	_action_acquired = false
-	_release_action(_acquired_action)
-	_acquired_action = &""
-
-static func _acquire_action(action_name: StringName) -> void:
-	_action_refs[action_name] = _action_refs.get(action_name, 0) + 1
-	if not InputMap.has_action(action_name):
-		InputMap.add_action(action_name)
-
-static func _release_action(action_name: StringName) -> void:
-	if not _action_refs.has(action_name):
-		push_warning(TAG + "Release without acquire for action '%s'." % [action_name])
-		return
-	var refs: int = _action_refs[action_name] - 1
-	if refs > 0:
-		_action_refs[action_name] = refs
-		return
-	_action_refs.erase(action_name)
-	if InputMap.has_action(action_name):
-		InputMap.erase_action(action_name)
-
-static func registered_actions() -> Array[StringName]:
-	var result: Array[StringName] = []
-	result.assign(_action_refs.keys())
-	return result
-
-func _combo_keys_pressed() -> bool:
-	if not _combo_predicate.is_valid():
-		_combo_predicate = func(key_code: int) -> bool:
-			return Input.is_physical_key_pressed(key_code)
-	return combo_keys.all(_combo_predicate)
-
-func _is_single_key() -> bool:
-	return combo_keys.size() <= 1

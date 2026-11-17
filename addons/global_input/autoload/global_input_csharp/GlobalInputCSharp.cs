@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 public partial class GlobalInputCSharp : Node
 {
     #region Setup
-    readonly TaskPoolGlobalHook _hook = new();
+    readonly SimpleGlobalHook _hook = new(GlobalHookType.Keyboard);
     static readonly Dictionary<KeyCode, Key> _hKeyToGodotKey = new()
     {
         {KeyCode.VcUndefined, Key.None},
@@ -89,7 +89,7 @@ public partial class GlobalInputCSharp : Node
         {KeyCode.VcCloseBracket, Key.Bracketright},
         {KeyCode.VcBackslash, Key.Backslash},
         {KeyCode.VcSemicolon, Key.Semicolon},
-        {KeyCode.VcQuote, Key.Quotedbl},
+        {KeyCode.VcQuote, Key.Apostrophe},
         {KeyCode.VcEnter, Key.Enter},
         {KeyCode.VcComma, Key.Comma},
         {KeyCode.VcPeriod, Key.Period},
@@ -138,16 +138,10 @@ public partial class GlobalInputCSharp : Node
     };
     #endregion
 
-    #region Setup Functions
-    void InitializeSharpHookSignals()
-    {
-        _hook.KeyPressed += OnHookKeyPressed;
-        _hook.KeyReleased += OnHookKeyReleased;
-    }
-    #endregion
-
     #region Signals
-    private volatile HashSet<Key> _allowedKeys = new();
+    private HashSet<Key> _allowedKeys = new();
+    private readonly HashSet<KeyCode> _hookKeysDown = new();
+    private volatile bool _applicationFocused;
 
     public void SetAllowedKeys(Godot.Collections.Array keys)
     {
@@ -164,63 +158,74 @@ public partial class GlobalInputCSharp : Node
         _allowedKeys = allowed;
     }
 
-    bool IsAllowedShortcutKey(KeyCode hKey)
-    {
-        Key godotKey = ToGodotKey(hKey);
-        return godotKey != Key.None && _allowedKeys.Contains(godotKey);
-    }
-
     void OnHookKeyPressed(object _, KeyboardHookEventArgs args)
     {
-        if (!IsAllowedShortcutKey(args.Data.KeyCode))
-            return;
-        InputEventKey e = GetInputEventKey(args.Data.KeyCode, true);
-        Input.ParseInputEvent(e);
+        if (_hookKeysDown.Add(args.Data.KeyCode))
+            QueueKey(args, true);
     }
 
     void OnHookKeyReleased(object _, KeyboardHookEventArgs args)
     {
-        Key godotKey = ToGodotKey(args.Data.KeyCode);
-        if (!_allowedKeys.Contains(godotKey) && !Input.IsKeyPressed(godotKey))
+        _hookKeysDown.Remove(args.Data.KeyCode);
+        QueueKey(args, false);
+    }
+
+    void QueueKey(KeyboardHookEventArgs args, bool pressed)
+    {
+        if (_applicationFocused)
             return;
-        InputEventKey e = GetInputEventKey(args.Data.KeyCode, false);
-        Input.ParseInputEvent(e);
+        if (!_hKeyToGodotKey.TryGetValue(args.Data.KeyCode, out Key physical) || physical == Key.None)
+            return;
+        EventMask modifiers = args.RawEvent.Mask;
+        Callable.From(() => DispatchKey(physical, modifiers, pressed)).CallDeferred();
     }
-    #endregion
 
-    #region Helper Functions
-    static InputEventKey GetInputEventKey(KeyCode hKey, bool pressed)
+    void DispatchKey(Key physical, EventMask modifiers, bool pressed)
     {
-        Key godotKey = ToGodotKey(hKey);
-        return new InputEventKey()
+        if (_applicationFocused || !IsInsideTree())
+            return;
+
+        Key logical = DisplayServer.KeyboardGetKeycodeFromPhysical(physical);
+        if (logical == Key.None)
+            logical = physical;
+        Key label = DisplayServer.KeyboardGetLabelFromPhysical(physical);
+        bool isModifier = physical is Key.Shift or Key.Ctrl or Key.Alt or Key.Meta;
+        if (!isModifier && !_allowedKeys.Contains(physical) &&
+            !_allowedKeys.Contains(logical) && !_allowedKeys.Contains(label) &&
+            (pressed || !Input.IsPhysicalKeyPressed(physical)))
+            return;
+
+        using var input = new InputEventKey
         {
-            Keycode = godotKey,
-            PhysicalKeycode = godotKey,
+            Keycode = logical,
+            PhysicalKeycode = physical,
+            KeyLabel = label,
             Pressed = pressed,
-            ShiftPressed = godotKey != Key.Shift && Input.IsKeyPressed(Key.Shift),
-            CtrlPressed = godotKey != Key.Ctrl && Input.IsKeyPressed(Key.Ctrl),
-            AltPressed = godotKey != Key.Alt && Input.IsKeyPressed(Key.Alt),
-            MetaPressed = godotKey != Key.Meta && Input.IsKeyPressed(Key.Meta),
+            ShiftPressed = physical != Key.Shift && (modifiers & EventMask.Shift) != 0,
+            CtrlPressed = physical != Key.Ctrl && (modifiers & EventMask.Ctrl) != 0,
+            AltPressed = physical != Key.Alt && (modifiers & EventMask.Alt) != 0,
+            MetaPressed = physical != Key.Meta && (modifiers & EventMask.Meta) != 0,
         };
-    }
-
-    static Key ToGodotKey(KeyCode hKey)
-    {
-        if (_hKeyToGodotKey.TryGetValue(hKey, out Key key))
-        {
-            return key;
-        }
-
-        return Key.None;
+        Input.ParseInputEvent(input);
     }
     #endregion
 
     public override void _Ready()
     {
-        InitializeSharpHookSignals();
+        _applicationFocused = GetWindow().HasFocus();
+        _hook.KeyPressed += OnHookKeyPressed;
+        _hook.KeyReleased += OnHookKeyReleased;
         _hook.RunAsync().ContinueWith(
             t => GD.PushError("Global input hook failed to start: " + t.Exception?.GetBaseException().Message),
             TaskContinuationOptions.OnlyOnFaulted);
+    }
+
+    public override void _Notification(int what)
+    {
+        if (what == NotificationApplicationFocusIn)
+            _applicationFocused = true;
+        else if (what == NotificationApplicationFocusOut)
+            _applicationFocused = false;
     }
 
     public override void _ExitTree()
