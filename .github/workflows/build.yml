@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: build-${{ github.ref }}
@@ -18,6 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+
+      - name: Install ICU for local builds
+        if: env.ACT == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libicu-dev
 
       - uses: actions/setup-dotnet@v4
         with:
@@ -95,18 +101,23 @@ jobs:
           godot --headless --export-release "Linux Custom" builds/linux/yaps.x86_64
           find builds/linux -path "*addons/ffmpeg/bin/ffmpeg" -exec chmod +x {} \;
 
+      - name: Prepare release
+        id: prepare-release
+        shell: bash
+        run: |
+          test -f builds/windows/yaps.exe || { echo "::error::Windows build not found"; exit 1; }
+          test -f builds/linux/yaps.x86_64 || { echo "::error::Linux build not found"; exit 1; }
+          VER="$(grep -m1 '^config/version=' project.godot | cut -d'"' -f2)"
+          VER="${VER:-ci-${GITHUB_SHA::8}}"
+          echo "VER=$VER" >> "$GITHUB_ENV"
+
       - name: Deploy to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
         run: |
           [ -n "${BUTLER_API_KEY:-}" ] || { echo "::error::BUTLER_API_KEY is not set (GitHub Secrets / .secrets no act)"; exit 1; }
-          test -f builds/windows/yaps.exe || { echo "::error::Windows build not found"; exit 1; }
-          test -f builds/linux/yaps.x86_64 || { echo "::error::Linux build not found"; exit 1; }
           curl -sL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
           unzip -q butler.zip -d butler-bin && chmod +x butler-bin/butler
-          VER="$(grep -m1 '^config/version=' project.godot | cut -d'"' -f2)"
-          VER="${VER:-ci-${GITHUB_SHA::8}}"
-          echo "VER=$VER" >> "$GITHUB_ENV"
           butler-bin/butler push builds/windows coffeesanvt/yaps:windows --userversion "$VER"
           butler-bin/butler push builds/linux coffeesanvt/yaps:linux --fix-permissions --userversion "$VER"
 
@@ -118,3 +129,27 @@ jobs:
         with:
           webhook-url: ${{ env.DISCORD_WEBHOOK }}
           content: "<@&1557378706060607509>Nova versão **${{ env.VER }}** do YAPS no itch.io: https://coffeesanvt.itch.io/yaps"
+
+      - name: Publish to GitHub Releases
+        if: ${{ !cancelled() && steps.prepare-release.outcome == 'success' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v$VER"
+          (cd builds/windows && zip -qr ../yaps-windows-x86_64.zip .)
+          tar -czf builds/yaps-linux-x86_64.tar.gz -C builds/linux .
+          ASSETS=(builds/yaps-windows-x86_64.zip builds/yaps-linux-x86_64.tar.gz)
+
+          TAG_REFS="$(git ls-remote --sort=refname origin "refs/tags/$TAG" "refs/tags/$TAG^{}")"
+          TAG_COMMIT="$(awk 'END { print $1 }' <<< "$TAG_REFS")"
+          if [[ -n "$TAG_COMMIT" && "$TAG_COMMIT" != "$GITHUB_SHA" ]]; then
+            echo "::error::Tag $TAG points to a different commit. Bump config/version in project.godot."
+            exit 1
+          fi
+
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${ASSETS[@]}" --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" "${ASSETS[@]}" --target "$GITHUB_SHA" --title "YAPS $VER" --generate-notes --repo "$GITHUB_REPOSITORY"
+          fi
