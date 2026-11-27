@@ -6,6 +6,12 @@ extends Panel
 @export var assets_panel: Control
 @export var config_panel: Control
 
+@export_category("Buttons")
+@export var model_button: TextureButton
+@export var expressions_button: TextureButton
+@export var assets_button: TextureButton
+@export var config_button: TextureButton
+
 const ASSETS_TAB := 2
 const FOCUS_CHECK_INTERVAL := 0.2
 
@@ -17,6 +23,22 @@ var _focus_check_accum := 0.0
 
 func _ready() -> void:
 	_panels = [model_panel, expression_panel, assets_panel, config_panel]
+	var buttons: Array[TextureButton] = [model_button, expressions_button, assets_button, config_button]
+	for i in _panels.size():
+		var panel := _panels[i]
+		var button := buttons[i]
+		var normal := button.texture_normal
+		var hovered := button.texture_hover
+		var pressed := button.texture_pressed
+		var active := button.texture_focused
+		var update_icon := func() -> void:
+			var is_active := panel.is_visible_in_tree()
+			button.texture_normal = active if is_active else normal
+			button.texture_hover = active if is_active else hovered
+			button.texture_pressed = active if is_active else pressed
+			button.texture_focused = hovered if not is_active else null
+		panel.visibility_changed.connect(update_icon)
+		update_icon.call()
 	NodeUtil.connect_once(SignalBus, &"item_selected", _on_item_selected)
 	
 func _notification(what: int) -> void:

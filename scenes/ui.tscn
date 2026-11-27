@@ -81,7 +81,7 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
-[node name="HTabContainer" type="Panel" parent="CanvasLayer" unique_id=1942881397 node_paths=PackedStringArray("model_panel", "expression_panel", "assets_panel", "config_panel")]
+[node name="HTabContainer" type="Panel" parent="CanvasLayer" unique_id=1942881397 node_paths=PackedStringArray("model_panel", "expression_panel", "assets_panel", "config_panel", "model_button", "expressions_button", "assets_button", "config_button")]
 z_index = 1
 custom_minimum_size = Vector2(0, 50)
 anchors_preset = 12
@@ -100,6 +100,10 @@ model_panel = NodePath("../Panels/Model")
 expression_panel = NodePath("../Panels/Expressions")
 assets_panel = NodePath("../Panels/Assets")
 config_panel = NodePath("../Panels/Settings")
+model_button = NodePath("MarginContainer/HBoxContainer/HBoxContainer/Model")
+expressions_button = NodePath("MarginContainer/HBoxContainer/HBoxContainer/Expressions")
+assets_button = NodePath("MarginContainer/HBoxContainer/HBoxContainer/Assets")
+config_button = NodePath("MarginContainer/HBoxContainer/Config")
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/HTabContainer" unique_id=1418791301]
 layout_mode = 1
