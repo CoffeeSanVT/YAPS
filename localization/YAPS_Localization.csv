@@ -1,5 +1,5 @@
 key,en,pt
-YAPS_DESCRIPTION,"Click Create to choose your character's images. Files named [b]talking[/b], [b]silence[/b], [b]<expression>_talking[/b] or [b]<expression>_silence[/b] are assigned automatically. You can assign other images in the creation screen.","Clique em Criar para escolher as imagens do seu personagem. Arquivos nomeados [b]talking[/b], [b]silence[/b], [b]<expressão>_talking[/b] ou [b]<expressão>_silence[/b] são atribuídos automaticamente. Você pode atribuir as outras imagens na tela de criação."
+YAPS_DESCRIPTION,"Click Create to choose your character's images. For the program to automatically configure your expressions, you need to follow this rule in the file names [b]<Expression Name>_<talking or silence>[/b] for expressions, and for neutral images, use the name [b]talking[/b] for the open mouth image and [b]silence[/b] for the closed mouth image.",Clique em Criar para escolher as imagens do seu personagem. Para o programa configurar automaticamente  suas expreções precisa . para fazer o setup automático tem q seguir essa regra no nome dos arquivos [b]<Nome Da Expressão>_<talking ou silence>[/b]  para a expressões e para as imagens neutras deve usar nome [b]talking[/b] para a imagem de boca aberta e [b]sielence[/b] para a imagem de boca fechada.
 CHARACTERS,Characters,Personagens
 CREATE,Create,Criar
 CONFIRM,Confirm,Confirmar
